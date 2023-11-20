@@ -1,0 +1,52 @@
+CREATE TABLE `medidores_de_energia`.`tb_consumo_diario_m1` 
+(`data` DATE NOT NULL , `valor` FLOAT NOT NULL , 
+PRIMARY KEY (`data`)) 
+ENGINE = InnoDB;
+
+CREATE TABLE `medidores_de_energia`.`tb_brisas_m1` 
+    (`id` INT NOT NULL AUTO_INCREMENT , 
+    `data` DATETIME NOT NULL , 
+    `pa` FLOAT NOT NULL , 
+    `pb` FLOAT NOT NULL ,
+    `pc` FLOAT NOT NULL ,
+    `pt` FLOAT NOT NULL ,
+    `qa` FLOAT NOT NULL ,
+    `qb` FLOAT NOT NULL ,
+    `qc` FLOAT NOT NULL ,
+    `qt` FLOAT NOT NULL ,
+    `sa` FLOAT NOT NULL ,
+    `sb` FLOAT NOT NULL ,
+    `sc` FLOAT NOT NULL ,
+    `st` FLOAT NOT NULL ,
+    `uarms` FLOAT NOT NULL ,
+    `ubrms` FLOAT NOT NULL ,
+    `ucrms` FLOAT NOT NULL ,
+    `iarms` FLOAT NOT NULL ,
+    `ibrms` FLOAT NOT NULL ,
+    `icrms` FLOAT NOT NULL ,
+    `itrms` FLOAT NOT NULL ,
+    `pfa` FLOAT NOT NULL ,
+    `pfb` FLOAT NOT NULL ,
+    `pfc` FLOAT NOT NULL ,
+    `pft` FLOAT NOT NULL ,
+    `pga` FLOAT NOT NULL ,
+    `pgb` FLOAT NOT NULL ,
+    `pgc` FLOAT NOT NULL ,
+    `freq` FLOAT NOT NULL ,
+    `epa` FLOAT NOT NULL ,
+    `epb` FLOAT NOT NULL ,
+    `epc` FLOAT NOT NULL ,
+    `ept` FLOAT NOT NULL ,
+    `eqa` FLOAT NOT NULL ,
+    `eqb` FLOAT NOT NULL ,
+    `eqc` FLOAT NOT NULL ,
+    `eqt` FLOAT NOT NULL ,
+    `yuaub` FLOAT NOT NULL ,
+    `yuauc` FLOAT NOT NULL ,
+    `yubuc` FLOAT NOT NULL ,
+    `tpsd` FLOAT NOT NULL ,
+    
+    PRIMARY KEY (`id`)) 
+    
+    ENGINE = InnoDB;
+

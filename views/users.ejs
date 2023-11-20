@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+  <header>
+    <nav class="nav-bar">
+     
+        <figure >
+          <img  src="/images/logo_mep.png" alt="Logo Mep Engenharia">
+       </figure>
+     
+      <div class="nav-list"> 
+        <ul>
+          <div>
+            Medidor Selecionado:
+            <select name="medidor" id="medidor"> 
+              <option value='1'>Kit-Clian 1</option>
+              <option value='2'>Kit-Clian 2</option>
+              <option value='3'>Cobertura</option>
+            </select>
+          </div>
+          
+          <p class="data">Umtima atualização: <span id="data"></span></p>
+        </ul>
+      </div>
+        <div class="login-button">
+            
+        </div>
+
+        <div class="mobile-menu-icon">
+            <button onclick="menuShow()"><img class="icon" src="assets/img/menu_white_36dp.svg" alt=""></button>
+        </div>
+    </nav>
+  </header>
+    <div>
+      <div class='titulo'>Tensão(V)</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='va'>V</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='vb'>V</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='vc'>V</p>
+        </div>
+      </div>
+        
+      <div class='titulo'>Corrente</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='ia'>A</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='ib'>A</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='ic'>A</p>
+        </div>
+        <div class="item4">
+         <p class="total">Total</p>
+          <p class="dado"  id='it'>A</p>
+        </div>
+      </div>
+      <div class='titulo'>Potencia Ativa</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='pa'>W</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='pb'>W</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='pc'>W</p>
+        </div>
+        <div class="item4">
+          <p class="total">Total</p>
+          <p class="dado"  id='pt'>W</p>
+        </div>
+      </div>
+
+      <div class='titulo'>Consumo (KWh)</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p>Hoje</p>
+          <p class="dado"  id='cd'>KWh</p>
+        </div>
+        <div class="item2">
+          <p>Ontem</p>
+          <p class="dado"  id='cda'>KWh</p>
+        </div>
+        <div class="item3">
+          <p>Consumo Mensal</p>
+          <p class="dado"  id='cm'>KWh</p>
+        </div>
+        <div class="item4">
+          <p>Mes anterior</p>
+          <p class="dado"  id='cma'>KWh</p>
+        </div>
+      </div>
+      <div class="flex-container">
+        <div id="chart_div1" class="item1"></div>
+      </div>  
+      <div class="flex-container">
+        <div id="chart_div2" class="item2"></div>
+        <div id="chart_div3" class="item3"></div>
+      </div>  
+    </div>
+    <button>bbbbbb</button>
+</body>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+<script src="/javascripts/users.js"></script>
+</html>
