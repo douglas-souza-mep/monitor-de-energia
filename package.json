@@ -15,7 +15,7 @@
     "http-errors": "~1.6.3",
     "moment": "^2.29.4",
     "morgan": "~1.9.1",
-    "mysql2": "^3.6.3",
+    "mysql2": "^2.3.3",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2"
   }

@@ -3,7 +3,7 @@ CREATE TABLE `medidores_de_energia`.`tb_consumo_diario_m1`
 PRIMARY KEY (`data`)) 
 ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_brisas_m1` 
+CREATE TABLE `medidores_de_energia`.`tb_brisas_m3` 
     (`id` INT NOT NULL AUTO_INCREMENT , 
     `data` DATETIME NOT NULL , 
     `pa` FLOAT NOT NULL , 
