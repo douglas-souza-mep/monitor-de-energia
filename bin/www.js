@@ -38,8 +38,9 @@ app.io.on('connection', socket=>{
  */
 const os = require('os');
 const networkInfo = os.networkInterfaces();
-console.log(networkInfo) // objeto
-server.listen(port, () => console.log(`Server running ${networkInfo.Ethernet[networkInfo.Ethernet.length-1].address} or port ${port}`));
+//console.log(networkInfo) // objeto
+//server.listen(port, () => console.log(`Server running ${networkInfo.Ethernet[networkInfo.Ethernet.length-1].address} or port ${port}`));
+server.listen(port, () => console.log(`Server running or port ${port}`));
 server.on('error', onError);
 server.on('listening', onListening);
 
