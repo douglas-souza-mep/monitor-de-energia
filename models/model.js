@@ -109,10 +109,6 @@ const getDataStart= async(medidor) =>{
     const sql3 = "SELECT valor FROM tb_consumo_diario_m"+medidor+" WHERE data = ?"
     const [[consumoDiario ]] = await db.query(sql3,moment(ultimaLeitura.data).format('YYYY-MM-DD'))
     //consumo no mes
-    const mes = new Date().getMonth
-    const dia = new Date().getDay
-    console.log(dia)
-    console.log(mes)
     periodo=_.instervaloDoMes(11,2023)
     const sql5 = "SELECT data,valor FROM tb_consumo_diario_m"+medidor+" WHERE DATE(data) >= ? AND DATE(data) <= ?";
     const [consumosDiarios] = await db.query(sql5,[periodo.inicial,periodo.final])

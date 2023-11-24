@@ -15,7 +15,7 @@ const _ = require("./funcoes")
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
 
 /**
@@ -36,8 +36,10 @@ app.io.on('connection', socket=>{
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port, () => console.log(`Server running or port ${port}`));
+const os = require('os');
+const networkInfo = os.networkInterfaces();
+//console.log(networkInfo) // objeto
+server.listen(port, () => console.log(`Server running ${networkInfo.Ethernet[networkInfo.Ethernet.length-1].address} or port ${port}`));
 server.on('error', onError);
 server.on('listening', onListening);
 
