@@ -1,9 +1,13 @@
-CREATE TABLE `medidores_de_energia`.`tb_consumo_diario_m1` 
+CREATE TABLE `medidores_de_energia`.`tb_brisas_cm_m1` 
+(`data` DATE NOT NULL , `valor` FLOAT NOT NULL , 
+PRIMARY KEY (`data`));
+
+CREATE TABLE `medidores_de_energia`.`tb_brisas_cd_m1` 
 (`data` DATE NOT NULL , `valor` FLOAT NOT NULL , 
 PRIMARY KEY (`data`)) 
 ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_brisas_m3` 
+CREATE TABLE `medidores_de_energia`.`tb_brisas_m1` 
     (`id` INT NOT NULL AUTO_INCREMENT , 
     `data` DATETIME NOT NULL , 
     `pa` FLOAT NOT NULL , 
