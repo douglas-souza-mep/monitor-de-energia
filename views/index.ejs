@@ -1,11 +1,82 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulário de Login e Registro com HTML5 e CSS3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="stylesheet" type="text/css" href='/stylesheets/login.css' />
+</head>
+
+<body>
+  <div class="container" >
+    <!--a class="links" id="paracadastro"></a>
+    <a class="links" id="paralogin"></a-->
+     
+    <div class="content">      
+      <!--FORMULÁRIO DE LOGIN-->
+      <div id="login">
+        <form method="post" action=""> 
+          <h1>
+            <figure >
+            <img  src="/images/logo_mep.png" alt="Logo Mep Engenharia">
+            </figure>
+          </h1> 
+          <p> 
+            <label for="user">Usuario</label>
+            <input id="user" name="user" required="required" type="text" placeholder="ex. meuUsuario"/>
+          </p>
+           
+          <p> 
+            <label for="password">Senha</label>
+            <input id="password" name="password" required="required" type="password" placeholder="*******" /> 
+          </p>
+           
+          <!--p> 
+            <input type="checkbox" name="manterlogado" id="manterlogado" value="" /> 
+            <label for="manterlogado">Manter-me logado</label>
+          </p-->
+           
+          <p> 
+            <input type="submit" value="Entrar" /> 
+          </p>
+           
+          <!--p class="link">
+            Ainda não tem conta?
+            <a href="#paracadastro">Cadastre-se</a>
+          </p-->
+        </form>
+      </div>
+      
+      <!--FORMULÁRIO DE CADASTRO
+      <div id="cadastro">
+        <form method="post" action=""> 
+          <h1>Cadastro</h1> 
+           
+          <p> 
+            <label for="nome_cad">Seu nome</label>
+            <input id="nome_cad" name="nome_cad" required="required" type="text" placeholder="nome" />
+          </p>
+           
+          <p> 
+            <label for="email_cad">Seu e-mail</label>
+            <input id="email_cad" name="email_cad" required="required" type="email" placeholder="contato@htmlecsspro.com"/> 
+          </p>
+           
+          <p> 
+            <label for="password_cad">Sua password</label>
+            <input id="password_cad" name="password_cad" required="required" type="password" placeholder="ex. 1234"/>
+          </p>
+           
+          <p> 
+            <input type="submit" value="Cadastrar"/> 
+          </p>
+           
+          <p class="link">  
+            Já tem conta?
+            <a href="#paralogin"> Ir para Login </a>
+          </p>
+        </form-->
+      </div>
+    </div>
+  </div>  
+</body>
 </html>

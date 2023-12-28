@@ -29,11 +29,11 @@ function calculoConsumo(t_star,t_end,pt){
 
 function traduzDia(str){
   str = str.replace("Mon","Seg")
-  str = str.replace("Tue","Qua")
-  str = str.replace("Wed","Ter")
+  str = str.replace("Tue","Ter")
+  str = str.replace("Wed","Qua")
   str = str.replace("Thu","Qui")
-  str = str.replace("Set","Sex")
-  str = str.replace("Fri","Sab")
+  str = str.replace("Fri","Sex")
+  str = str.replace("Sat","Sab")
   str = str.replace("Sun","Dom")
   return str
 }

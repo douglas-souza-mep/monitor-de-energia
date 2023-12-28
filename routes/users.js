@@ -2,15 +2,15 @@ const express = require('express')
 const model = require('../models/model')
 const _ = require('../bin/funcoes')
 const moment = require('moment')
-
+const chekToken = require('../controller/chekToken')
 
 module.exports = function(io){
   //now you can use io.emit() in this file
 
   var router = express.Router();
   /* GET users listing. */
-  router.get('/', function(req, res, next) {
-    res.render('users', { title: 'Mep' });
+  router.get('/brisas_do_lago',chekToken, function(req, res) {
+    res.render('users', { title: 'Mep Tecnologia' });
   });
 
   router.post('/test',async (req,res) =>{

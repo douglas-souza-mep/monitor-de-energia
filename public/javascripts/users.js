@@ -15,8 +15,7 @@
    var options1 = {
                   title:'Consumo hoje',
                  }
-                    
-
+  
    // Cria a tabela de dados.
    var data2 = new google.visualization.DataTable();
    data2.addColumn('string', 'Datas');

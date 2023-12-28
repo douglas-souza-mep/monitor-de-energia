@@ -50,3 +50,4 @@ CREATE TABLE `medidores_de_energia`.`tb_brisas_m3`
     
     ENGINE = InnoDB;
 
+CREATE TABLE `medidores_de_energia`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `usuario` VARCHAR NOT NULL , `senha` VARCHAR NOT NULL , `medidores` INT NOT NULL , `tabelas` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
