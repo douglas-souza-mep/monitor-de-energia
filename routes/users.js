@@ -15,7 +15,7 @@ module.exports = function(io){
 
   router.post('/test',async (req,res) =>{
     console.log(c)
-    const {dados1, dados2} = await model.getDado(c)
+    const {dados1, dados2} = await model.getDado(c,"brisas")
     
     consumo.data = moment(dados2.data).format('YYYY-MM-DD');
     console.log(dados1.data - consumo.data)
@@ -29,7 +29,7 @@ module.exports = function(io){
 
   router.post('/brisas',async (req,res) =>{
     console.log('Dados recebidos! dispositivo: '+req.body.id)
-    const retorno = await model.atualizarDados(req.body,Date.now(),req.body.id)
+    const retorno = await model.atualizarDados(req.body,Date.now(),req.body.id,"brisas")
     
     var dados = {
       leitura:req.body,
