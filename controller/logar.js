@@ -18,7 +18,7 @@ async function Logar(req,res){
         },process.env.CHAVE_TOKEN,{expiresIn: '2m'})
         console.log('Token: '+token)
         res.cookie('Token',token)
-        return res.redirect('/users/brisas_do_lago')
+        return res.redirect('/users/'+ usuario.usuario)
     }
     else{
         return res.status(422).json({ msg:"Senha invalida" })

@@ -9,7 +9,7 @@ module.exports = function(io){
 
   var router = express.Router();
   /* GET users listing. */
-  router.get('/brisas_do_lago',chekToken, function(req, res) {
+  router.get('/brisas',chekToken, function(req, res) {
     res.render('users', { title: 'Mep Tecnologia' });
   });
 
