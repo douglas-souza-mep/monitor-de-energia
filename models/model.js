@@ -102,14 +102,14 @@ const atualizarDados = async (leituraAtual,data,medidor) =>{
         graficos.semanal.unshift([_.traduzDia(moment(dado.data).format('ddd(DD)')),dado.valor])
     });
     consumosMensais.forEach((dado) => {
-        graficos.semestral.unshift([moment(dado.data).format('MMMM-YYYY'),dado.valor])
+        graficos.semestral.unshift([_.traduzMes(moment(dado.data).format('MMMM-YYYY')),dado.valor])
     });
 
     cd.forEach((dado) => {
         let hora = moment(dado.data).format('HH:mm:ss')
         graficos.diario.push([hora,dado.pt])
     });
-   
+   //console.log(graficos.diario)
    
     console.log("dados atualizados")
     return {consumos:consumos,graficos:graficos};
@@ -139,11 +139,20 @@ const getDataStart= async(medidor) =>{
     const [cd] = await db.query("SELECT data,pt FROM tb_brisas_m"+medidor+" WHERE DATE(data)=?",
                                     moment().format('YYYY-MM-DD'))
 
-
-    var consumos ={
-        consumo: consumo.valor.toFixed(3),
-        consumoMensal: consumoMensal.valor.toFixed(3),
+    try{
+        var consumos ={
+            consumo: consumo.valor.toFixed(3),
+            consumoMensal: consumoMensal.valor.toFixed(3),
+        }
+    } catch(error){
+        console.log(error)
+        console.log("consumo menssal - "+consumoMensal.valorr)
+        var consumos ={
+            consumo: consumo.valor.toFixed(3),
+            consumoMensal: 0
+        }
     }
+    
    
     try {
         consumos.consumoDiaAnterior = cda.valor.toFixed(3)
@@ -171,7 +180,7 @@ const getDataStart= async(medidor) =>{
         graficos.semanal.unshift([_.traduzDia(moment(dado.data).format('ddd(DD)')),dado.valor])
     });
     consumosMensais.forEach((dado) => {
-        graficos.semestral.unshift([moment(dado.data).format('MMMM-YYYY'),dado.valor])
+        graficos.semestral.unshift([_.traduzMes(moment(dado.data).format('MMMM-YYYY')),dado.valor])
     });
    
     cd.forEach((dado) => {

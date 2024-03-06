@@ -11,10 +11,11 @@
    data1.addColumn('string', 'Horario');
    data1.addColumn('number', 'potencia ativa Total');
    data1.addRows(dados.diario);
+   console.log(data1)
    // Set chart options
-   var options1 = {
-                  title:'Consumo hoje',
-                 }
+   var options1 = {title:'Consumo hoje'}
+
+                  
   
    // Cria a tabela de dados.
    var data2 = new google.visualization.DataTable();
@@ -23,9 +24,7 @@
    data2.addRows(dados.semestral);
 
    // Set chart options
-   var options2 = {'title':'Consumos mensais',
-                  'width':500,
-                  'height':300};
+   var options2 = {title:'Consumos mensais'}
   
    // Cria a tabela de dados.
    var data3 = new google.visualization.DataTable();
@@ -34,9 +33,7 @@
    data3.addRows(dados.semanal);
 
    // Set chart options
-   var options3 = {'title':'Consumo nos ultimos 7 dias',
-                  'width':500,
-                  'height':300};
+   var options3 = {title:'Consumo nos ultimos 7 dias'}
 
    // Instantiate and draw our chart, passing in some options.
    var chart1 = new google.visualization.AreaChart(document.getElementById('chart_div1'));

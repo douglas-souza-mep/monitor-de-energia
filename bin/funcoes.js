@@ -22,7 +22,7 @@ function calculoConsumo(t_star,t_end,pt){
     if(mes<10) mes = "0"+mes
     else mes= "1"+(mes-10)
     var data_inicial = moment().format(+ano+'-'+mes+'-01')
-    var data_final = moment([2023, m, 1]).endOf('month').format('YYYY-MM-DD')
+    var data_final = moment([ano, m, 1]).endOf('month').format('YYYY-MM-DD')
   return {inicial: data_inicial, final:data_final}
 }
   
@@ -38,9 +38,26 @@ function traduzDia(str){
   return str
 }
 
+function traduzMes(str){
+  str = str.replace("January","Janeiro")
+  str = str.replace("February","Fevereiro")
+  str = str.replace("March","Março")
+  str = str.replace("April","Abril")
+  str = str.replace("May","Maio")
+  str = str.replace("June","Junho")
+  str = str.replace("July","Julho")
+  str = str.replace("August","Agosto")
+  str = str.replace("September","Setembro")
+  str = str.replace("October","Outubro")
+  str = str.replace("November","Novembro")
+  str = str.replace("December","Dezembro")
+  return str
+}
+
 module.exports = {
     calculoConsumo,
     datasAnteriorers,
     instervaloDoMes,
-    traduzDia
+    traduzDia,
+    traduzMes
 }

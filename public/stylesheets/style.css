@@ -182,13 +182,43 @@ body {
 }
 
 .flex-container > div{
-  
   padding: 8px;
-  background: rgb(220, 220, 220);;
+  background: rgb(220, 220, 220);
   border: 3px solid #000000;
   border-radius: 10px;
   padding: 8px;
-  flex-grow:1
+  flex-grow:1;
+ 
+}
+
+.flex-chart {
+
+  display: flex;
+  margin-top: 5px;
+  margin-right: 5px;
+  /*justify-content: space-evenly; */
+  align-items: center; 
+  /*flex-flow: row nowrap;*/ 
+  flex-direction: row; 
+  flex-wrap: nowrap; 
+  align-content: stretch;
+
+  width: 100%;
+  padding: 1px;
+  gap: 10px;
+
+}
+
+.flex-chart > div{
+  
+  padding: 8px;
+  background: rgb(220, 220, 220);
+  border: 3px solid #000000;
+  border-radius: 10px;
+  padding: 8px;
+  flex-grow:1;
+  height:200px;
+  width: auto;
 }
 
 .fase{
