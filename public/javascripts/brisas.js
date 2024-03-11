@@ -11,7 +11,7 @@
    data1.addColumn('string', 'Horario');
    data1.addColumn('number', 'potencia ativa Total');
    data1.addRows(dados.diario);
-   console.log(data1)
+   //console.log(dados.diario)
    // Set chart options
    var options1 = {title:'Consumo hoje'}
 
@@ -52,13 +52,13 @@ let medidor = $('#medidor option:selected').val()
 $('#medidor').on('change', () => {
     medidor = $('#medidor option:selected').val()
     console.log(medidor)
-    socket.emit("iniciarTela",medidor) 
+    socket.emit("iniciarTelaBrisas",medidor) 
     
 })
 
 socket.on("connect", () => {
     console.log(socket.id);
-    socket.emit("iniciarTela",medidor) 
+    socket.emit("iniciarTelaBrisas",medidor) 
     //console.log("tela atualizada com "+dados.leitura.id )
   });
 

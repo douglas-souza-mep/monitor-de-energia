@@ -27,10 +27,16 @@ app.io.attach(server);
 
 app.io.on('connection', socket=>{
   console.log('novo usuario conectado, id: '+socket.id)
-  socket.on("iniciarTela", async (medidor)=>{
+  socket.on("iniciarTelaBrisas", async (medidor)=>{
     const dados=await model.getDataStart(medidor,"brisas")
     console.log("atualizar_brisas"+medidor)
     app.io.sockets.emit("atualizar_brisas"+medidor,dados)
+  })
+  
+  socket.on("iniciarTelaSia", async (medidor)=>{
+    const dados=await model.getDataStart(medidor,"sia")
+    console.log("atualizar_sia"+medidor)
+    app.io.sockets.emit("atualizar_sia"+medidor,dados)
   })
 })
 /**

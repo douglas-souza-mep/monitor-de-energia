@@ -7,8 +7,11 @@ var consumo = {
 }
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
-    const d = moment(data).format('YYYY-MM-DD HH:mm:ss')
-    console.log(d)
+    const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
+    console.log(d);
+    if(leituraAtual.pt < 0){
+        leituraAtual.pt = 0
+    }
     const sql =  "INSERT INTO tb_"+ usuario +"_m"+medidor+" (data,pa,pb,pc,pt,qa,qb,qc,qt,sa,sb,sc,st,uarms,ubrms,ucrms,iarms,ibrms,icrms,itrms,pfa,pfb,pfc,pft,pga,pgb,pgc,freq,epa,epb,epc,ept,eqa,eqb,eqc,eqt,yuaub, yuauc,yubuc,tpsd) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
     try {
         const [inset] =await db.query( sql,
@@ -72,7 +75,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const [consumosSemanais] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cd_m"+medidor+" ORDER BY data DESC LIMIT 8")
     const [consumosMensais] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cm_m"+medidor+" ORDER BY data DESC LIMIT 6")
     const [cd] = await db.query("SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=?",
-                                    moment().format('YYYY-MM-DD'))
+                                    moment(data).format('YYYY-MM-DD'))
     
     var consumos ={
         consumo: consumo.valor.toFixed(3),
@@ -118,8 +121,12 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
 const getDataStart= async(medidor,usuario) =>{
     const sql2 = "SELECT data,pa,pb,pc,pt,uarms,ubrms,ubrms,ucrms,iarms,ibrms,icrms,itrms,freq,tpsd FROM tb_"+ usuario+"_m"+medidor+" ORDER BY id DESC LIMIT 1"
     const [[ultimaLeitura]] = await db.query(sql2)
-    var [[consumo]] = await db.query("SELECT data,valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE data = ? LIMIT 1",
+    try{
+        var [[consumo]] = await db.query("SELECT data,valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE data = ? LIMIT 1",
                                                 moment(ultimaLeitura.data).format('YYYY-MM-DD'))
+    }catch{
+        var consomo = 0
+    }
     //consumo no mes
     periodo=_.instervaloDoMes(parseInt(moment().format('MM')),parseInt(moment().format('YYYY')))
     const mesAtual = periodo.final
@@ -136,24 +143,25 @@ const getDataStart= async(medidor,usuario) =>{
     
     const [consumosSemanais] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cd_m"+medidor+" ORDER BY data DESC LIMIT 8")
     const [consumosMensais] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cm_m"+medidor+" ORDER BY data DESC LIMIT 6")
+    var data = new Date();
+        data = data.setHours(data.getHours() - 3)
     const [cd] = await db.query("SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=?",
-                                    moment().format('YYYY-MM-DD'))
+                                    moment(data).format('YYYY-MM-DD'))
 
     try{
         var consumos ={
-            consumo: consumo.valor.toFixed(3),
-            consumoMensal: consumoMensal.valor.toFixed(3),
+            consumo: consumo.valor.toFixed(3)
         }
     } catch(error){
-        console.log(error)
-        console.log("consumo menssal - "+consumoMensal.valorr)
         var consumos ={
-            consumo: consumo.valor.toFixed(3),
-            consumoMensal: 0
+            consumo: 0
         }
     }
-    
-   
+   try {
+        consumos.consumoMensal= consumoMensal.valor.toFixed(3)
+    } catch (error) {
+        consumos.consumoMensal = 0
+    }
     try {
         consumos.consumoDiaAnterior = cda.valor.toFixed(3)
     } catch (error) {
@@ -194,17 +202,22 @@ const getDataStart= async(medidor,usuario) =>{
             consumos: consumos,
             graficos: graficos
             }
+            dados.leitura.id = medidor
+            dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
         } catch (error) {
+            const d = moment(data).format('DD-MM-YYYY HH:mm:ss')
             var dados = {
-                leitura:ultimaLeitura, 
+                leitura: {id: medidor, data: d, pa: 0, pb: 0, pc: 0, pt: 0, qa: 0, qb: 0, qc: 0, 
+                            qt: 0, sa: 0, sb: 0, sc: 0, st: 0, uarms: 0, ubrms: 0, ucrms: 0, iarms: 0, 
+                            ibrms: 0,icrms: 0, itrms: 0, pfa: 0, pfb: 0, pfc: 0, pft: 0, pga: 0, pgb: 0,
+                            pgc: 0, freq: 0, epa: 0, epb: 0, epc: 0, ept: 0, eqa: 0, eqb: 0, eqc: 0, 
+                            eqt: 0, yuaub: 0, yuauc: 0, yubuc: 0, tpsd: 0 },
                 consumos: consumos,
                 graficos: graficos
             }
         }
+
     
-    
-    dados.leitura.id = medidor
-    dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
     return dados
 }
 

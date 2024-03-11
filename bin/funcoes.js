@@ -12,7 +12,7 @@ function calculoConsumo(t_star,t_end,pt){
   function datasAnteriorers ( ){
     var mes = new Date(moment().format('YYYY/MM/01')).setHours(-1)
     mes = moment(mes).format('YYYY-MM-DD')
-    var dia = new Date().setHours(-24)
+    var dia = new Date().setHours(-27)
     dia = moment(dia).format('YYYY-MM-DD')
     return {dia: dia, mes:mes}
   }

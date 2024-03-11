@@ -9,27 +9,54 @@ module.exports = function(io){
 
   var router = express.Router();
   /* GET users listing. */
-  router.get('/brisas',chekToken, function(req, res) {
-    res.render('users', { title: 'Mep Tecnologia' });
+  
+  
+  //--------------------------------------------------------------------------
+  //router.get('/brisas',chekToken, function(req, res) {
+  router.get('/brisas', function(req, res) {
+      console.log("entrou")
+    res.render('brisas', { title: 'Mep Tecnologia' });
   });
 
-  router.post('/test',async (req,res) =>{
-    console.log(c)
-    const {dados1, dados2} = await model.getDado(c,"brisas")
-    
-    consumo.data = moment(dados2.data).format('YYYY-MM-DD');
-    console.log(dados1.data - consumo.data)
-    consumo.consumo= consumo.consumo+ _.calculoConsumo(dados1.data,dados2.data,dados2.pt)
-    console.log(consumo)
-    io.emit("atualizar",{dados: dados2, consumo:consumo.valor})
-    c++
-    
-    res.send(consumo);
-  })
 
   router.post('/brisas',async (req,res) =>{
+    const d = new Date();
+    d.setHours(d.getHours() - 3)
     console.log('Dados recebidos! dispositivo: '+req.body.id)
-    const retorno = await model.atualizarDados(req.body,Date.now(),req.body.id,"brisas")
+    const retorno = await model.atualizarDados(req.body,d,req.body.id,"brisas")
+    
+    var dados = {
+      leitura:req.body,
+      consumos:{
+        consumo: retorno.consumos.consumo,
+        consumoDiaAnterior: retorno.consumos.consumoDiaAnterior,
+        consumoMensal:  retorno.consumos.consumoMensal,
+        consumoMesAnterior: retorno.consumos.consumoMesAnterior
+      },
+      graficos:{
+        diario: retorno.graficos.diario,
+        semanal: retorno.graficos.semanal,
+        semestral: retorno.graficos.semestral
+      }
+    }
+    dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
+    
+    io.emit("atualizar_brisas"+req.body.id,dados)
+    res.send('Dados recebidos! dispositivo: '+req.body.id);
+  })
+  
+  //--------------------------------------------------------------------------
+  //router.get('/sia',chekToken, function(req, res) {
+  router.get('/sia', function(req, res) {
+      console.log("entrou")
+    res.render('sia', { title: 'Mep Tecnologia' });
+  });
+  
+  router.post('/sia',async (req,res) =>{
+    const d = new Date();
+    d.setHours(d.getHours() - 3)
+    console.log('Dados recebidos! Sia dispositivo: '+req.body.id)
+    const retorno = await model.atualizarDados(req.body,d,req.body.id,"sia")
     
     var dados = {
       leitura:req.body,
@@ -47,8 +74,8 @@ module.exports = function(io){
     }
     dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
     
-    io.emit("atualizar_brisas"+req.body.id,dados)
-    res.send('Dados recebidos! dispositivo: '+req.body.id);
+    io.emit("atualizar_sia"+req.body.id,dados)
+    res.send('Dados recebidos! Sia dispositivo: '+req.body.id);
   })
 
   return router;
