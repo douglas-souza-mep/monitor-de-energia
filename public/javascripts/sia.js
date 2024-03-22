@@ -65,30 +65,33 @@ socket.on("connect", () => {
 
 
 
-socket.on("atualizar_sia"+medidor,dados =>{
+socket.on("atualizar_sia101",dados =>{
   if(dados.leitura.id == medidor){
-    $('#data').text(dados.leitura.data)
-    $('#va').text(dados.leitura.uarms + " V" ) 
-    $('#vb').text(dados.leitura.ubrms + " V" )
-    $('#vc').text(dados.leitura.ucrms + " V" )
-    $('#ia').text(dados.leitura.iarms + " A" )
-    $('#ib').text(dados.leitura.ibrms + " A" )
-    $('#ic').text(dados.leitura.icrms + " A" )
-    $('#it').text(dados.leitura.itrms + " A" )
-    $('#pfa').text(dados.leitura.pfa)
-    $('#pfb').text(dados.leitura.pfb)
-    $('#pfc').text(dados.leitura.pfc)
-    $('#pft').text(dados.leitura.pft)
-    $('#pa').text(dados.leitura.pa + " W" )
-    $('#pb').text(dados.leitura.pb + " W" )
-    $('#pc').text(dados.leitura.pc + " W" )
-    $('#pt').text(dados.leitura.pt + " W" )
-    $('#cd').text(dados.consumos.consumo + " KWh") 
-    $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
-    $('#cm').text(dados.consumos.consumoMensal + " KWh") 
-    $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-    // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-    google.charts.setOnLoadCallback(drawChart(dados.graficos));
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia102",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia103",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia108",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia114",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
   }  
 })
 
@@ -119,5 +122,29 @@ function selectMedidor (i){
     return medidor
 }
 
+function atualizar (dados){
+  $('#data').text(dados.leitura.data)
+  $('#va').text(dados.leitura.uarms + " V" ) 
+  $('#vb').text(dados.leitura.ubrms + " V" )
+  $('#vc').text(dados.leitura.ucrms + " V" )
+  $('#ia').text(dados.leitura.iarms + " A" )
+  $('#ib').text(dados.leitura.ibrms + " A" )
+  $('#ic').text(dados.leitura.icrms + " A" )
+  $('#it').text(dados.leitura.itrms + " A" )
+  $('#pfa').text(dados.leitura.pfa)
+  $('#pfb').text(dados.leitura.pfb)
+  $('#pfc').text(dados.leitura.pfc)
+  $('#pft').text(dados.leitura.pft)
+  $('#pa').text(dados.leitura.pa + " W" )
+  $('#pb').text(dados.leitura.pb + " W" )
+  $('#pc').text(dados.leitura.pc + " W" )
+  $('#pt').text(dados.leitura.pt + " W" )
+  $('#cd').text(dados.consumos.consumo + " KWh") 
+  $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
+  $('#cm').text(dados.consumos.consumoMensal + " KWh") 
+  $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
+  // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
+  google.charts.setOnLoadCallback(drawChart(dados.graficos));
+}
 
 
