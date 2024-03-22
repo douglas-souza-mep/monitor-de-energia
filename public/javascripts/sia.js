@@ -48,9 +48,10 @@
 
 const socket = io();
 
-let medidor = $('#medidor option:selected').val()
+let medidor = selectMedidor($('#medidor option:selected').val())
+console.log(medidor)
 $('#medidor').on('change', () => {
-    medidor = $('#medidor option:selected').val()
+    medidor = selectMedidor($('#medidor option:selected').val())
     console.log(medidor)
     socket.emit("iniciarTelaSia",medidor) 
     
@@ -64,7 +65,7 @@ socket.on("connect", () => {
 
 
 
-socket.on("atualizar_sia1",dados =>{
+socket.on("atualizar_sia108",dados =>{
   if(dados.leitura.id == medidor){
     $('#data').text(dados.leitura.data)
     $('#va').text(dados.leitura.uarms + " V" ) 
@@ -86,7 +87,7 @@ socket.on("atualizar_sia1",dados =>{
     google.charts.setOnLoadCallback(drawChart(dados.graficos));
   }  
 })
-socket.on("atualizar_sia2",dados =>{
+socket.on("atualizar_sia114",dados =>{
   if(dados.leitura.id == medidor){
     $('#data').text(dados.leitura.data)
     $('#va').text(dados.leitura.uarms + " V" ) 
@@ -108,6 +109,21 @@ socket.on("atualizar_sia2",dados =>{
     google.charts.setOnLoadCallback(drawChart(dados.graficos));
   } 
 })
+
+function selectMedidor (i){
+    let medidor
+    if(i == 1) {
+        medidor = 108
+        return medidor
+    }
+    if(i == 2) {
+        medidor = 114
+        return medidor
+    }
+    console.log("opcao invalida")
+    medidor = 108
+    return medidor
+}
 
 
 

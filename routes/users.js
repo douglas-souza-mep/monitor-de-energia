@@ -14,7 +14,6 @@ module.exports = function(io){
   //--------------------------------------------------------------------------
   //router.get('/brisas',chekToken, function(req, res) {
   router.get('/brisas', function(req, res) {
-      console.log("entrou")
     res.render('brisas', { title: 'Mep Tecnologia' });
   });
 
@@ -48,7 +47,6 @@ module.exports = function(io){
   //--------------------------------------------------------------------------
   //router.get('/sia',chekToken, function(req, res) {
   router.get('/sia', function(req, res) {
-      console.log("entrou")
     res.render('sia', { title: 'Mep Tecnologia' });
   });
   
@@ -72,7 +70,7 @@ module.exports = function(io){
         semestral: retorno.graficos.semestral
       }
     }
-    dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
+    dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
     
     io.emit("atualizar_sia"+req.body.id,dados)
     res.send('Dados recebidos! Sia dispositivo: '+req.body.id);

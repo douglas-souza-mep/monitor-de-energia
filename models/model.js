@@ -9,17 +9,15 @@ var consumo = {
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
     console.log(d);
-    if(leituraAtual.pt < 0){
-        leituraAtual.pt = 0
-    }
+    
+    leituraAtual = await validacao(leituraAtual)
+    
     const sql =  "INSERT INTO tb_"+ usuario +"_m"+medidor+" (data,pa,pb,pc,pt,qa,qb,qc,qt,sa,sb,sc,st,uarms,ubrms,ucrms,iarms,ibrms,icrms,itrms,pfa,pfb,pfc,pft,pga,pgb,pgc,freq,epa,epb,epc,ept,eqa,eqb,eqc,eqt,yuaub, yuauc,yubuc,tpsd) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
     try {
-        const [inset] =await db.query( sql,
-            [d,leituraAtual.pa,leituraAtual.pb,leituraAtual.pc,leituraAtual.pt,leituraAtual.qa,leituraAtual.qb,leituraAtual.qc,leituraAtual.qt,leituraAtual.sa,leituraAtual.sb,leituraAtual.sc,leituraAtual.st,leituraAtual.uarms,leituraAtual.ubrms,leituraAtual.ucrms,leituraAtual.iarms,leituraAtual.ibrms,leituraAtual.icrms,leituraAtual.itrms,
-             leituraAtual.pfa,leituraAtual.pfb,leituraAtual.pfc,leituraAtual.pft,leituraAtual.pga,leituraAtual.pgb,leituraAtual.pgc,leituraAtual.freq,leituraAtual.epa,leituraAtual.epb,leituraAtual.epc,leituraAtual.ept,leituraAtual.eqa,leituraAtual.eqb,leituraAtual.eqc,leituraAtual.eqt,leituraAtual.yuaub,leituraAtual.yuauc,leituraAtual.yubuc,leituraAtual.tpsd
-            ]) 
-            
-        const sql2 = "SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE id="+(inset.insertId-1)
+       
+        const insert =await inserir(d,leituraAtual,sql)
+        
+        const sql2 = "SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE id="+(insert.insertId-1)
         const [leituraAnterior] = await db.query(sql2)
     
         consumo.data = moment(data).format('YYYY-MM-DD');
@@ -219,6 +217,46 @@ const getDataStart= async(medidor,usuario) =>{
 
     
     return dados
+}
+
+const inserir = async (d,leituraAtual,sql) =>{
+    try {
+        const [inset] =await db.query( sql,
+            [d,leituraAtual.pa,leituraAtual.pb,leituraAtual.pc,leituraAtual.pt,leituraAtual.qa,leituraAtual.qb,leituraAtual.qc,leituraAtual.qt,leituraAtual.sa,leituraAtual.sb,leituraAtual.sc,leituraAtual.st,leituraAtual.uarms,leituraAtual.ubrms,leituraAtual.ucrms,leituraAtual.iarms,leituraAtual.ibrms,leituraAtual.icrms,leituraAtual.itrms,
+            leituraAtual.pfa,leituraAtual.pfb,leituraAtual.pfc,leituraAtual.pft,leituraAtual.pga,leituraAtual.pgb,leituraAtual.pgc,leituraAtual.freq,leituraAtual.epa,leituraAtual.epb,leituraAtual.epc,leituraAtual.ept,leituraAtual.eqa,leituraAtual.eqb,leituraAtual.eqc,leituraAtual.eqt,leituraAtual.yuaub,leituraAtual.yuauc,leituraAtual.yubuc,leituraAtual.tpsd
+            ])
+        return inset    
+     } catch {
+            //console.log(leituraAtual)
+            const [inset] =await db.query( sql,
+                [d,leituraAtual.pa,leituraAtual.pb,leituraAtual.pc,leituraAtual.pt,leituraAtual.qa,leituraAtual.qb,leituraAtual.qc,leituraAtual.qt,leituraAtual.sa,leituraAtual.sb,leituraAtual.sc,leituraAtual.st,leituraAtual.uarms,leituraAtual.ubrms,leituraAtual.ucrms,leituraAtual.iarms,leituraAtual.ibrms,leituraAtual.icrms,leituraAtual.itrms,
+                leituraAtual.pfa,leituraAtual.pfb,leituraAtual.pfc,leituraAtual.pft,leituraAtual.pga,leituraAtual.pgb,leituraAtual.pgc,leituraAtual.freq,leituraAtual.epa_c,leituraAtual.epb_c,leituraAtual.epc_c,leituraAtual.ept_c,leituraAtual.epa_g,leituraAtual.epb_g,leituraAtual.epc_g,leituraAtual.ept_g,leituraAtual.yuaub,leituraAtual.yuauc,leituraAtual.yubuc,leituraAtual.tpsd
+                ])
+        return inset
+        }
+    
+}
+
+const validacao = async (leitura) =>{
+    if(leitura.iarms < 1){
+        if(leitura.pa < 0){
+            leitura.pa = 0
+        }
+    }
+    if(leitura.ibrms < 1){
+        if(leitura.pb < 0){
+            leitura.pb = 0
+        }
+    }
+    if(leitura.icrms < 1){
+        if(leitura.pc < 0){
+            leitura.pc = 0
+        }
+    }
+    
+    leitura.pt = (parseFloat(leitura.pa) + parseFloat(leitura.pb) + parseFloat(leitura.pc)).toFixed(3)
+   //console.log(leitura.pt)
+    return leitura
 }
 
 module.exports = {
