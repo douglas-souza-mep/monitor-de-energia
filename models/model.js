@@ -220,6 +220,7 @@ const getDataStart= async(medidor,usuario) =>{
 }
 
 const inserir = async (d,leituraAtual,sql) =>{
+    //console.log(leituraAtual)
     try {
         const [inset] =await db.query( sql,
             [d,leituraAtual.pa,leituraAtual.pb,leituraAtual.pc,leituraAtual.pt,leituraAtual.qa,leituraAtual.qb,leituraAtual.qc,leituraAtual.qt,leituraAtual.sa,leituraAtual.sb,leituraAtual.sc,leituraAtual.st,leituraAtual.uarms,leituraAtual.ubrms,leituraAtual.ucrms,leituraAtual.iarms,leituraAtual.ibrms,leituraAtual.icrms,leituraAtual.itrms,
