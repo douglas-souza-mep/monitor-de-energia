@@ -93,7 +93,6 @@ socket.on("atualizar_sia108",dados =>{
 })
 socket.on("atualizar_sia114",dados =>{
   if(dados.leitura.id == medidor){
-    console.log(dados.leitura)
     $('#data').text(dados.leitura.data)
     $('#va').text(dados.leitura.uarms + " V" ) 
     $('#vb').text(dados.leitura.ubrms + " V" )

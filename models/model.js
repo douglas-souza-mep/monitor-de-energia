@@ -117,7 +117,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
 } 
 
 const getDataStart= async(medidor,usuario) =>{
-    const sql2 = "SELECT data,pa,pb,pc,pt,uarms,ubrms,ubrms,ucrms,iarms,ibrms,icrms,itrms,freq,tpsd FROM tb_"+ usuario+"_m"+medidor+" ORDER BY id DESC LIMIT 1"
+    const sql2 = "SELECT data,pa,pb,pc,pt,pfa,pfb,pfc,pft,uarms,ubrms,ubrms,ucrms,iarms,ibrms,icrms,itrms,freq,tpsd FROM tb_"+ usuario+"_m"+medidor+" ORDER BY id DESC LIMIT 1"
     const [[ultimaLeitura]] = await db.query(sql2)
     try{
         var [[consumo]] = await db.query("SELECT data,valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE data = ? LIMIT 1",
