@@ -65,7 +65,7 @@ socket.on("connect", () => {
 
 
 
-socket.on("atualizar_sia108",dados =>{
+socket.on("atualizar_sia"+medidor,dados =>{
   if(dados.leitura.id == medidor){
     $('#data').text(dados.leitura.data)
     $('#va').text(dados.leitura.uarms + " V" ) 
@@ -91,42 +91,28 @@ socket.on("atualizar_sia108",dados =>{
     google.charts.setOnLoadCallback(drawChart(dados.graficos));
   }  
 })
-socket.on("atualizar_sia114",dados =>{
-  if(dados.leitura.id == medidor){
-    $('#data').text(dados.leitura.data)
-    $('#va').text(dados.leitura.uarms + " V" ) 
-    $('#vb').text(dados.leitura.ubrms + " V" )
-    $('#vc').text(dados.leitura.ucrms + " V" )
-    $('#ia').text(dados.leitura.iarms + " A" )
-    $('#ib').text(dados.leitura.ibrms + " A" )
-    $('#ic').text(dados.leitura.icrms + " A" )
-    $('#it').text(dados.leitura.itrms + " A" )
-    $('#pfa').text(dados.leitura.pfa)
-    $('#pfb').text(dados.leitura.pfb)
-    $('#pfc').text(dados.leitura.pfc)
-    $('#pft').text(dados.leitura.pft)
-    $('#pa').text(dados.leitura.pa + " W" )
-    $('#pb').text(dados.leitura.pb + " W" )
-    $('#pc').text(dados.leitura.pc + " W" )
-    $('#pt').text(dados.leitura.pt + " W" )
-    $('#cd').text(dados.consumos.consumo + " KWh") 
-    $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
-    $('#cm').text(dados.consumos.consumoMensal + " KWh") 
-    $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-    // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-    google.charts.setOnLoadCallback(drawChart(dados.graficos));
-  } 
-})
 
 function selectMedidor (i){
     let medidor
     if(i == 1) {
-        medidor = 108
-        return medidor
+      medidor = 101
+      return medidor
     }
     if(i == 2) {
-        medidor = 114
-        return medidor
+      medidor = 102
+      return medidor
+    }
+    if(i == 3) {
+      medidor = 103
+      return medidor
+    }
+    if(i == 4) {
+      medidor = 108
+      return medidor
+    }
+    if(i == 5) {
+      medidor = 114
+      return medidor
     }
     console.log("opcao invalida")
     medidor = 108

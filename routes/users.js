@@ -76,6 +76,39 @@ module.exports = function(io){
     res.send('Dados recebidos! Sia dispositivo: '+req.body.id);
   })
 
+  //-------------------------------------------------------------------
+   //router.get('/anchieta',chekToken, function(req, res) {
+    router.get('/anchieta/agua', function(req, res) {
+      res.render('anchieta', { title: 'Mep Tecnologia' });
+    });
+    
+    router.post('/anchieta/agua',async (req,res) =>{
+      const d = new Date();
+      d.setHours(d.getHours() - 3)
+      console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
+      const retorno = await model.atualizarDados(req.body,d,req.body.id,"anchieta")
+      
+      var dados = {
+        leitura:req.body,
+        consumos:{
+          consumo: retorno.consumos.consumo,
+          consumoDiaAnterior: retorno.consumos.consumoDiaAnterior,
+          consumoMensal:  retorno.consumos.consumoMensal,
+          consumoMesAnterior: retorno.consumos.consumoMesAnterior
+        },
+        graficos:{
+          diario: retorno.graficos.diario,
+          semanal: retorno.graficos.semanal,
+          semestral: retorno.graficos.semestral
+        }
+      }
+      dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
+      
+      io.emit("atualizar_anchieta"+req.body.id,dados)
+      res.send('Dados recebidos! Anchieta dispositivo: '+req.body.id);
+    })
+
   return router;
 }
+
 
