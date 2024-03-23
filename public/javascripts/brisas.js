@@ -1,17 +1,75 @@
- //  Carrega a API de visualização e o pacote corechart.
- google.charts.load('current', {'packages':['corechart']});
+//  Carrega a API de visualização e o pacote corechart.
+google.charts.load('current', {'packages':['corechart']});
 
+const socket = io();
+
+let medidor = $('#medidor option:selected').val()
+$('#medidor').on('change', () => {
+    medidor = $('#medidor option:selected').val()
+    console.log(medidor)
+    socket.emit("iniciarTelaBrisas",medidor) 
+    
+})
+
+socket.on("connect", () => {
+    console.log(socket.id);
+    socket.emit("iniciarTelaBrisas",medidor) 
+    //console.log("tela atualizada com "+dados.leitura.id )
+  });
+
+socket.on("atualizar_brisas1",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }   
+})
+socket.on("atualizar_brisas2",dados =>{
+ if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_brisas3",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+function atualizar (dados){
+  $('#data').text(dados.leitura.data)
+  $('#va').text(dados.leitura.uarms + " V" ) 
+  $('#vb').text(dados.leitura.ubrms + " V" )
+  $('#vc').text(dados.leitura.ucrms + " V" )
+  $('#ia').text(dados.leitura.iarms + " A" )
+  $('#ib').text(dados.leitura.ibrms + " A" )
+  $('#ic').text(dados.leitura.icrms + " A" )
+  $('#it').text(dados.leitura.itrms + " A" )
+  $('#pfa').text(dados.leitura.pfa)
+  $('#pfb').text(dados.leitura.pfb)
+  $('#pfc').text(dados.leitura.pfc)
+  $('#pft').text(dados.leitura.pft)
+  $('#pa').text(dados.leitura.pa + " W" )
+  $('#pb').text(dados.leitura.pb + " W" )
+  $('#pc').text(dados.leitura.pc + " W" )
+  $('#pt').text(dados.leitura.pt + " W" )
+  $('#cd').text(dados.consumos.consumo + " KWh") 
+  $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
+  $('#cm').text(dados.consumos.consumoMensal + " KWh") 
+  $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
+  
+  // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
+  google.charts.setOnLoadCallback(drawChart(dados.graficos));
+}
 
  // Retorno de chamada que cria e preenche uma tabela de dados,
 // instancia o tipo de gráfico, passa os dados e desenha
- function drawChart(dados) {
+function drawChart(dados) {
 
    // Cria a tabela de dados.
    var data1 = new google.visualization.DataTable();
    data1.addColumn('string', 'Horario');
    data1.addColumn('number', 'potencia ativa Total');
    data1.addRows(dados.diario);
-   //console.log(dados.diario)
+   //console.log(data1)
    // Set chart options
    var options1 = {title:'Consumo hoje'}
 
@@ -43,104 +101,5 @@
    chart2.draw(data2, options2);
    chart3.draw(data3, options3);
  }
-
-
-
-const socket = io();
-
-let medidor = $('#medidor option:selected').val()
-$('#medidor').on('change', () => {
-    medidor = $('#medidor option:selected').val()
-    console.log(medidor)
-    socket.emit("iniciarTelaBrisas",medidor) 
-    
-})
-
-socket.on("connect", () => {
-    console.log(socket.id);
-    socket.emit("iniciarTelaBrisas",medidor) 
-    //console.log("tela atualizada com "+dados.leitura.id )
-  });
-
-
-
-socket.on("atualizar_brisas1",dados =>{
-  if(dados.leitura.id == medidor){
-    $('#data').text(dados.leitura.data)
-    $('#va').text(dados.leitura.uarms + " V" ) 
-    $('#vb').text(dados.leitura.ubrms + " V" )
-    $('#vc').text(dados.leitura.ucrms + " V" )
-    $('#ia').text(dados.leitura.iarms + " A" )
-    $('#ib').text(dados.leitura.ibrms + " A" )
-    $('#ic').text(dados.leitura.icrms + " A" )
-    $('#it').text(dados.leitura.itrms + " A" )
-    $('#pfa').text(dados.leitura.pfa)
-    $('#pfb').text(dados.leitura.pfb)
-    $('#pfc').text(dados.leitura.pfc)
-    $('#pft').text(dados.leitura.pft)
-    $('#pa').text(dados.leitura.pa + " W" )
-    $('#pb').text(dados.leitura.pb + " W" )
-    $('#pc').text(dados.leitura.pc + " W" )
-    $('#pt').text(dados.leitura.pt + " W" )
-    $('#cd').text(dados.consumos.consumo + " KWh") 
-    $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
-    $('#cm').text(dados.consumos.consumoMensal + " KWh") 
-    $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-    // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-    google.charts.setOnLoadCallback(drawChart(dados.graficos));
-  }  
-})
-socket.on("atualizar_brisas2",dados =>{
-  if(dados.leitura.id == medidor){
-    $('#data').text(dados.leitura.data)
-    $('#va').text(dados.leitura.uarms + " V" ) 
-    $('#vb').text(dados.leitura.ubrms + " V" )
-    $('#vc').text(dados.leitura.ucrms + " V" )
-    $('#ia').text(dados.leitura.iarms + " A" )
-    $('#ib').text(dados.leitura.ibrms + " A" )
-    $('#ic').text(dados.leitura.icrms + " A" )
-    $('#it').text(dados.leitura.itrms + " A" )
-    $('#pfa').text(dados.leitura.pfa)
-    $('#pfb').text(dados.leitura.pfb)
-    $('#pfc').text(dados.leitura.pfc)
-    $('#pft').text(dados.leitura.pft)
-    $('#pa').text(dados.leitura.pa + " W" )
-    $('#pb').text(dados.leitura.pb + " W" )
-    $('#pc').text(dados.leitura.pc + " W" )
-    $('#pt').text(dados.leitura.pt + " W" )
-    $('#cd').text(dados.consumos.consumo + " KWh") 
-    $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
-    $('#cm').text(dados.consumos.consumoMensal + " KWh") 
-    $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-    // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-    google.charts.setOnLoadCallback(drawChart(dados.graficos));
-  } 
-})
-socket.on("atualizar_brisas3",dados =>{
-  if(dados.leitura.id == medidor){
-    $('#data').text(dados.leitura.data)
-    $('#va').text(dados.leitura.uarms + " V" ) 
-    $('#vb').text(dados.leitura.ubrms + " V" )
-    $('#vc').text(dados.leitura.ucrms + " V" )
-    $('#ia').text(dados.leitura.iarms + " A" )
-    $('#ib').text(dados.leitura.ibrms + " A" )
-    $('#ic').text(dados.leitura.icrms + " A" )
-    $('#it').text(dados.leitura.itrms + " A" )
-    $('#pfa').text(dados.leitura.pfa)
-    $('#pfb').text(dados.leitura.pfb)
-    $('#pfc').text(dados.leitura.pfc)
-    $('#pft').text(dados.leitura.pft)
-    $('#pa').text(dados.leitura.pa + " W" )
-    $('#pb').text(dados.leitura.pb + " W" )
-    $('#pc').text(dados.leitura.pc + " W" )
-    $('#pt').text(dados.leitura.pt + " W" )
-     $('#cd').text(dados.consumos.consumo + " KWh") 
-    $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
-    $('#cm').text(dados.consumos.consumoMensal + " KWh") 
-    $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-    // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-    google.charts.setOnLoadCallback(drawChart(dados.graficos));
-  } 
-})
 
 
