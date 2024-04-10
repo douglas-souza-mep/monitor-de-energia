@@ -21,7 +21,7 @@ module.exports = function(io){
   router.post('/brisas',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    console.log('Dados recebidos! dispositivo: '+req.body.id)
+    console.log('Dados recebidos! Brisas dispositivo: '+req.body.id)
     const retorno = await model.atualizarDados(req.body,d,req.body.id,"brisas")
     
     var dados = {
