@@ -188,6 +188,7 @@ body {
   border-radius: 10px;
   padding: 8px;
   flex-grow:1;
+  justify-content: center;
  
 }
 
@@ -237,4 +238,12 @@ body {
 }
 a {
   color: #00B7FF;
+}
+
+.gauge {
+  display: flex;
+  display: -webkit-flex; /* Garante compatibilidade com navegador Safari. */
+
+  justify-content: center;
+  align-items: center;
 }

@@ -10,7 +10,12 @@ module.exports = function(io){
   var router = express.Router();
   /* GET users listing. */
   
-  
+  router.post('/teste_agua',async (req,res) =>{
+    const d = new Date();
+    d.setHours(d.getHours() - 3)
+    console.log(req.body)
+    res.send('Dados recebidos! dispositivo: teste_agua');
+  })
   //--------------------------------------------------------------------------
   //router.get('/brisas',chekToken, function(req, res) {
   router.get('/brisas', function(req, res) {
