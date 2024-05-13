@@ -55,3 +55,5 @@ CREATE TABLE `medidores_de_energia`.`tb_sia_m38`
     ENGINE = InnoDB;
 
 CREATE TABLE `medidores_de_energia`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `usuario` VARCHAR NOT NULL , `senha` VARCHAR NOT NULL , `medidores` INT NOT NULL , `tabelas` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `medidores_de_energia`.`tb_anchieta_res1` (`data` DATETIME NOT NULL , `volume` INT NOT NULL , `nivel` INT NOT NULL , `distancia` INT NULL , PRIMARY KEY (`data`)) ENGINE = InnoDB;

@@ -8,7 +8,9 @@ var app = require('../app');
 var debug = require('debug')('monitoramento-de-energia:server');
 var http = require('http');
 require('dotenv').config()
-const model = require('../models/model')
+const model_Energ = require('../models/model_Energ')
+const model_Res = require('../models/model_Res')
+const db = require('../models/connection')
 const _ = require("./funcoes")
 
 /**
@@ -28,15 +30,28 @@ app.io.attach(server);
 app.io.on('connection', socket=>{
   console.log('novo usuario conectado, id: '+socket.id)
   socket.on("iniciarTelaBrisas", async (medidor)=>{
-    const dados=await model.getDataStart(medidor,"brisas")
+    const dados=await model_Energ.getDataStart(medidor,"brisas")
     console.log("atualizar_brisas"+medidor)
     app.io.sockets.emit("atualizar_brisas"+medidor,dados)
   })
   
+    socket.on("Get_dados_do_usuario", async (user)=>{
+      const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
+      console.log("usuario "+user+" logado")
+      app.io.sockets.emit("return_dados_do_usuario_"+user,usuario)
+    })
+
   socket.on("iniciarTelaSia", async (medidor)=>{
-    const dados=await model.getDataStart(medidor,"sia")
+    const dados=await model_Energ.getDataStart(medidor,"sia")
     console.log("atualizar_sia"+medidor)
     app.io.sockets.emit("atualizar_sia"+medidor,dados)
+  })
+
+  socket.on("iniciarTelaAnchieta_Res", async (medidor)=>{
+    const dados=await model_Res.getDataStart(medidor,"anchieta")
+    //console.log("############## medidor :"+medidor)
+    //console.log(dados)
+    app.io.sockets.emit("atualizar_anchieta_res"+medidor,dados)
   })
 })
 /**

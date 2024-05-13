@@ -216,7 +216,6 @@ body {
   background: rgb(220, 220, 220);
   border: 3px solid #000000;
   border-radius: 10px;
-  padding: 8px;
   flex-grow:1;
   height:200px;
   width: auto;
@@ -240,10 +239,3 @@ a {
   color: #00B7FF;
 }
 
-.gauge {
-  display: flex;
-  display: -webkit-flex; /* Garante compatibilidade com navegador Safari. */
-
-  justify-content: center;
-  align-items: center;
-}
