@@ -65,40 +65,24 @@ async function iniciarPagina(){
     reservatorios.push(new Reservatorio(i, text[(i * 2) - 2], text[(i * 2) - 1]))
   }
   
+  $('#res1_titulo').text(reservatorios[0].nome)
+  $('#res2_titulo').text(reservatorios[1].nome)
+  
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge1 = await google.setOnLoadCallback(drawGauge1);
-  
+
   socket.emit("iniciarTelaAnchieta_Res", 1)
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge2 = await google.setOnLoadCallback(drawGauge2);
 
-  await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
+  //await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
   socket.emit("iniciarTelaAnchieta_Res", 2)
 
   socket.on("atualizar_anchieta_res1",  async (dados) =>{
     await reservatorios[0].send(dados)
     //console.log(reservatorios[0])
     drawGauge1()
-  
-    var teste =await [[ new Date("2024-05-10T09:09:37.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:09:47.000Z"), 520, 52, 65 ],
-    [ new Date("2024-05-10T09:09:56.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:10:07.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:10:14.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:10:21.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:15:59.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:16:09.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:16:18.000Z"), 510, 51, 66 ],
-    [ new Date("2024-05-10T09:16:27.000Z"), 590, 59, 60 ],
-    [ new Date("2024-05-10T09:16:36.000Z"), 780, 78, 46 ],
-    [ new Date("2024-05-10T09:16:49.000Z"), 1040, 104, 27],
-    [ new Date("2024-05-10T09:16:58.000Z"), 1050, 105, 26],
-    [ new Date("2024-05-10T09:17:07.000Z"), 390, 39, 75 ],
-    [ new Date("2024-05-10T09:17:14.000Z"), 290, 29, 82 ],
-    [ new Date("2024-05-10T09:17:24.000Z"), 440, 44, 71 ],
-      [ new Date("2024-05-10T09:18:00.000Z"), 600, 60, 59 ]]
-
-    drawChart1(teste,reservatorios[0].chartOptions)
+    drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions)
 
     if(new Date(reservatorios[0].data) >= new Date(reservatorios[1].data)){
       $('#data').text(reservatorios[0].data)
@@ -108,6 +92,7 @@ async function iniciarPagina(){
 
   socket.on("atualizar_anchieta_res2",async dados =>{
     await reservatorios[1].send(dados)
+    
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
     

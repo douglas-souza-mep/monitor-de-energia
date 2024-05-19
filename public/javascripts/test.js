@@ -65,6 +65,9 @@ async function iniciarPagina(){
     reservatorios.push(new Reservatorio(i, text[(i * 2) - 2], text[(i * 2) - 1]))
   }
   
+  $('#res1_titulo').text(reservatorios[0].nome)
+  $('#res2_titulo').text(reservatorios[1].nome)
+  
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge1 = await google.setOnLoadCallback(drawGauge1);
   
@@ -72,7 +75,7 @@ async function iniciarPagina(){
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge2 = await google.setOnLoadCallback(drawGauge2);
 
-  await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
+  //await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
   socket.emit("iniciarTelaTest_Res", 2)
 
   socket.on("atualizar_test_res1",  async (dados) =>{

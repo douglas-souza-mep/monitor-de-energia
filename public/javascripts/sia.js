@@ -167,9 +167,41 @@ function selectMedidor (i){
       medidor = 214
       return medidor
     }
+    if(i == 29) {
+      medidor = 301
+      return medidor
+    }
+    if(i == 30) {
+      medidor = 302
+      return medidor
+    }
+    if(i == 31) {
+      medidor = 303
+      return medidor
+    }
+    if(i == 32) {
+      medidor = 304
+      return medidor
+    }
+    if(i == 33) {
+      medidor = 305
+      return medidor
+    }
+    if(i == 34) {
+      medidor = 306
+      return medidor
+    }
+    if(i == 35) {
+      medidor = 307
+      return medidor
+    }
+    if(i == 36) {
+      medidor = 308
+      return medidor
+    }
     
     console.log("opcao invalida")
-    medidor = 108
+    medidor = 101
     return medidor
 }
 
