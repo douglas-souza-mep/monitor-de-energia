@@ -83,36 +83,80 @@ module.exports = function(io){
   })
 
   //-------------------------------------------------------------------
-   //router.get('/anchieta',chekToken, function(req, res) {
-    router.get('/anchieta/agua', function(req, res) {
+
+  router.get('/anchieta', function(req, res) {
+    res.redirect('/users/anchieta/agua')
+    //res.send("ola");
+  });
+
+  //router.get('/anchieta',chekToken, function(req, res) {
+  router.get('/anchieta/agua', function(req, res) {
       res.render('anchieta_res', { title: 'Mep Tecnologia' });
     });
     
-    router.get('/app/anchieta/agua', async function(req, res) {
-      console.log(req.query)
-      const dados= await model_Res.getDataStart(req.query.id,"anchieta")
-      //console.log("############## medidor :"+medidor)
-      //console.log(dados)
-      
-      res.send(dados.leitura);
-    });
+  router.get('/app/anchieta/agua', async function(req, res) {
+    console.log(req.query)
+    const dados= await model_Res.getDataStart(req.query.id,"anchieta")
+    //console.log("############## medidor :"+medidor)
+    //console.log(dados)
+    
+    res.send(dados.leitura);
+  });
 
-    router.post('/anchieta/agua',async (req,res) =>{
-      const d = new Date();
-      d.setHours(d.getHours() - 3)
-      console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
-      console.log(req.body)
-      const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
-      
-      var dados = {
-        leitura: req.body,
-        graficos: retorno.graficos
-      }
-      //console.log(dados.graficos)
-      dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
-      io.emit("atualizar_anchieta_res"+req.body.id,dados)
-      res.send("recebido");
-    })
+  router.post('/anchieta/agua',async (req,res) =>{
+  const d = new Date();
+  d.setHours(d.getHours() - 3)
+    console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
+    console.log(req.body)
+    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
+    
+    var dados = {
+      leitura: req.body,
+      graficos: retorno.graficos
+    }
+    //console.log(dados.graficos)
+    dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
+    io.emit("atualizar_anchieta_res"+req.body.id,dados)
+    res.send("recebido");
+  })
+
+  //-------------------------------------------------------------------
+
+  router.get('/test', function(req, res) {
+    res.redirect('/users/test/agua')
+    //res.send("ola");
+  });
+
+  //router.get('/anchieta',chekToken, function(req, res) {
+  router.get('/test/agua', function(req, res) {
+      res.render('test', { title: 'Mep Tecnologia' });
+    });
+    
+  router.get('/app/test/agua', async function(req, res) {
+    console.log(req.query)
+    const dados= await model_Res.getDataStart(req.query.id,"test")
+    //console.log("############## medidor :"+medidor)
+    //console.log(dados)
+    
+    res.send(dados.leitura);
+  });
+
+  router.post('/test/agua',async (req,res) =>{
+  const d = new Date();
+  d.setHours(d.getHours() - 3)
+    console.log('Dados recebidos! Test dispositivo: '+req.body.id)
+    console.log(req.body)
+    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"test")
+    
+    var dados = {
+      leitura: req.body,
+      graficos: retorno.graficos
+    }
+    //console.log(dados.graficos)
+    dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
+    io.emit("atualizar_test_res"+req.body.id,dados)
+    res.send("recebido");
+  })
 
   return router;
 }

@@ -8,7 +8,7 @@ var consumo = {
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
-    console.log(d);
+    //console.log(d);
     
     leituraAtual = await validacao(leituraAtual)
     
@@ -112,7 +112,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     });
    //console.log(graficos.diario)
    
-    console.log("dados atualizados")
+    //console.log("dados atualizados")
     return {consumos:consumos,graficos:graficos};
 } 
 

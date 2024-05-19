@@ -48,10 +48,10 @@ const socket = io();
 var usuario
 socket.on("connect", () => {
   console.log(socket.id);
-  socket.emit("Get_dados_do_usuario", "anchieta")
+  socket.emit("Get_dados_do_usuario", "test")
  })
 
-  socket.on("return_dados_do_usuario_anchieta",async (dados) =>{
+  socket.on("return_dados_do_usuario_test",async (dados) =>{
   usuario = await dados
   iniciarPagina(usuario)
 })
@@ -68,14 +68,14 @@ async function iniciarPagina(){
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge1 = await google.setOnLoadCallback(drawGauge1);
   
-  socket.emit("iniciarTelaAnchieta_Res", 1)
+  socket.emit("iniciarTelaTest_Res", 1)
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge2 = await google.setOnLoadCallback(drawGauge2);
 
   await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
-  socket.emit("iniciarTelaAnchieta_Res", 2)
+  socket.emit("iniciarTelaTest_Res", 2)
 
-  socket.on("atualizar_anchieta_res1",  async (dados) =>{
+  socket.on("atualizar_test_res1",  async (dados) =>{
     await reservatorios[0].send(dados)
     //console.log(reservatorios[0])
     drawGauge1()
@@ -106,7 +106,7 @@ async function iniciarPagina(){
   })
 
 
-  socket.on("atualizar_anchieta_res2",async dados =>{
+  socket.on("atualizar_test_res2",async dados =>{
     await reservatorios[1].send(dados)
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
@@ -187,3 +187,4 @@ function drawChart2(graficos,chartOptions) {
   chart.draw(dataChart, chartOptions);
    return
 }
+

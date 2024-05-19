@@ -29,29 +29,35 @@ app.io.attach(server);
 
 app.io.on('connection', socket=>{
   console.log('novo usuario conectado, id: '+socket.id)
+  
+  socket.on("Get_dados_do_usuario", async (user)=>{
+    const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
+    //console.log("usuario "+user+" logado")
+    app.io.sockets.emit("return_dados_do_usuario_"+user,usuario)
+  })
+
   socket.on("iniciarTelaBrisas", async (medidor)=>{
     const dados=await model_Energ.getDataStart(medidor,"brisas")
-    console.log("atualizar_brisas"+medidor)
+    console.log("atualizar brisas: "+medidor)
     app.io.sockets.emit("atualizar_brisas"+medidor,dados)
   })
-  
-    socket.on("Get_dados_do_usuario", async (user)=>{
-      const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
-      console.log("usuario "+user+" logado")
-      app.io.sockets.emit("return_dados_do_usuario_"+user,usuario)
-    })
 
   socket.on("iniciarTelaSia", async (medidor)=>{
     const dados=await model_Energ.getDataStart(medidor,"sia")
-    console.log("atualizar_sia"+medidor)
+    //console.log("atualizar_sia"+medidor)
     app.io.sockets.emit("atualizar_sia"+medidor,dados)
   })
 
   socket.on("iniciarTelaAnchieta_Res", async (medidor)=>{
     const dados=await model_Res.getDataStart(medidor,"anchieta")
-    //console.log("############## medidor :"+medidor)
-    //console.log(dados)
+    //console.log("atualizar_anchieta: "+medidor)
     app.io.sockets.emit("atualizar_anchieta_res"+medidor,dados)
+  })
+
+  socket.on("iniciarTelaTest_Res", async (medidor)=>{
+    const dados=await model_Res.getDataStart(medidor,"anchieta")
+    //console.log("atualizar_anchieta: "+medidor)
+    app.io.sockets.emit("atualizar_test_res"+medidor,dados)
   })
 })
 /**
@@ -63,7 +69,7 @@ const networkInfo = os.networkInterfaces();
 //server.listen(port, () => console.log(`Server running ${networkInfo.Ethernet[networkInfo.Ethernet.length-1].address} or port ${port}`));
 server.listen(port, () => console.log(`Server running or port ${port}`));
 server.on('error', onError);
-server.on('listening', onListening);
+//server.on('listening', onListening);
 
 
 

@@ -68,13 +68,106 @@ function selectMedidor (i){
       return medidor
     }
     if(i == 4) {
-      medidor = 108
+      medidor = 104
       return medidor
     }
     if(i == 5) {
+      medidor = 105
+      return medidor
+    }
+    if(i == 6) {
+      medidor = 106
+      return medidor
+    }
+    if(i == 7) {
+      medidor = 107
+      return medidor
+    }
+    if(i == 8) {
+      medidor = 108
+      return medidor
+    }
+    if(i == 9) {
+      medidor = 109
+      return medidor
+    }
+    if(i == 10) {
+      medidor = 110
+      return medidor
+    }
+    if(i == 11) {
+      medidor = 111
+      return medidor
+    }
+    if(i == 12) {
+      medidor = 112
+      return medidor
+    }
+    if(i == 13) {
+      medidor = 113
+      return medidor
+    }
+    if(i == 14) {
       medidor = 114
       return medidor
     }
+    if(i == 15) {
+      medidor = 201
+      return medidor
+    }
+    if(i == 16) {
+      medidor = 202
+      return medidor
+    }
+    if(i == 17) {
+      medidor = 203
+      return medidor
+    }
+    if(i == 18) {
+      medidor = 204
+      return medidor
+    }
+    if(i == 19) {
+      medidor = 205
+      return medidor
+    }
+    if(i == 20) {
+      medidor = 206
+      return medidor
+    }
+    if(i == 21) {
+      medidor = 207
+      return medidor
+    }
+    if(i == 22) {
+      medidor = 208
+      return medidor
+    }
+    if(i == 23) {
+      medidor = 209
+      return medidor
+    }
+    if(i == 24) {
+      medidor = 210
+      return medidor
+    }
+    if(i == 25) {
+      medidor = 211
+      return medidor
+    }
+    if(i == 26) {
+      medidor = 212
+      return medidor
+    }
+    if(i == 27) {
+      medidor = 213
+      return medidor
+    }
+    if(i == 28) {
+      medidor = 214
+      return medidor
+    }
+    
     console.log("opcao invalida")
     medidor = 108
     return medidor

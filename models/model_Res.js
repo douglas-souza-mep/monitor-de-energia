@@ -4,7 +4,7 @@ const moment = require('moment')
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
-    console.log(d);
+    //console.log(d);
     
     leituraAtual = await validacao(leituraAtual);
 
@@ -18,7 +18,8 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const graficos = []
 
     cd.forEach((dado) => {
-        let hora = moment(dado.data).format('HH:mm:ss')
+        //let hora = moment(dado.data).format('HH:mm:ss')
+        let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
     });
     
@@ -29,17 +30,18 @@ const getDataStart= async(medidor,usuario) =>{
     const sql = "SELECT data,volume,nivel,distancia FROM tb_"+ usuario+"_res"+medidor+" ORDER BY data DESC LIMIT 1"
     const [[ultimaLeitura]] = await db.query(sql)
 
-    var data = new Date();
+    var data = new Date("2024-05-11");
     data = data.setHours(data.getHours() - 3)
-
-    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor)//+" WHERE DATE(data)=?",
-        //moment(data).format('YYYY-MM-DD'))
+    //console.log(moment(data).format('YYYY-MM-DD'))
+    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
+        moment(data).format('YYYY-MM-DD'))
 
     const graficos = []
 
 
     cd.forEach((dado) => {
-        let hora = moment(dado.data).format('HH:mm:ss')
+        //let hora = moment(dado.data).format('HH:mm:ss')
+        let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
     });
     
@@ -52,7 +54,7 @@ const getDataStart= async(medidor,usuario) =>{
         dados.leitura.id = medidor
         dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
     } catch (error) {
-        const d = moment(data).format('DD-MM-YYYY HH:mm:ss')
+        const d = moment("2024-05-12").format('DD-MM-YYYY HH:mm:ss')
         var dados = {
             leitura: {id: medidor, data: d, volume:0, distancia:0, nivel:0 },
             graficos: graficos
@@ -76,6 +78,7 @@ const inserir = async (d,leituraAtual,sql) =>{
         return inset    
      } catch(error) {
         console.error(error);
+        console.log(error)
         console.log(leituraAtual)
         //const [inset] =await db.query( sql,
         //    [d,leituraAtual.pa,leituraAtual.pb,leituraAtual.pc,leituraAtual.pt,leituraAtual.qa,leituraAtual.qb,leituraAtual.qc,leituraAtual.qt,leituraAtual.sa,leituraAtual.sb,leituraAtual.sc,leituraAtual.st,leituraAtual.uarms,leituraAtual.ubrms,leituraAtual.ucrms,leituraAtual.iarms,leituraAtual.ibrms,leituraAtual.icrms,leituraAtual.itrms,

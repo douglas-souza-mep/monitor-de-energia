@@ -54,6 +54,8 @@ CREATE TABLE `medidores_de_energia`.`tb_sia_m38`
     
     ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `usuario` VARCHAR NOT NULL , `senha` VARCHAR NOT NULL , `medidores` INT NOT NULL , `tabelas` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+CREATE TABLE `medidores_de_energia`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `usuario` VARCHAR NOT NULL , `senha` VARCHAR NOT NULL , `energia` INT NOT NULL , `med_energia` TEXT NOT NULL, `agua` INT NOT NULL , `reservatorios` TEXT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_anchieta_res1` (`data` DATETIME NOT NULL , `volume` INT NOT NULL , `nivel` INT NOT NULL , `distancia` INT NULL , PRIMARY KEY (`data`)) ENGINE = InnoDB;
+CREATE TABLE `medidores_de_energia`.`tb_test_res1` (`data` DATETIME NOT NULL , `volume` INT NOT NULL , `nivel` INT NOT NULL , `distancia` INT NULL , PRIMARY KEY (`data`)) ENGINE = InnoDB;
+
+INSERT INTO `usuarios` (`id`, `usuario`, `senha`, `energia`, `med_energia`, `agua`, `reservatorios`) VALUES ('4', 'test', '@test', '0', NULL, '2', 'Caixa 1;2000;Caixa 2;5000')
