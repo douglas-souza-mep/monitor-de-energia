@@ -27,7 +27,7 @@ module.exports = function(io){
   router.post('/brisas',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    console.log('Dados recebidos! Brisas dispositivo: '+req.body.id)
+    //console.log('Dados recebidos! Brisas dispositivo: '+req.body.id)
     const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"brisas")
     
     var dados = {
@@ -59,7 +59,7 @@ module.exports = function(io){
   router.post('/sia',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    console.log('Dados recebidos! Sia dispositivo: '+req.body.id)
+    //console.log('Dados recebidos! Sia dispositivo: '+req.body.id)
     const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"sia")
     
     var dados = {
@@ -95,7 +95,7 @@ module.exports = function(io){
     });
     
   router.get('/app/anchieta/agua', async function(req, res) {
-    console.log(req.query)
+    //console.log(req.query)
     const dados= await model_Res.getDataStart(req.query.id,"anchieta")
     //console.log("############## medidor :"+medidor)
     //console.log(dados)
@@ -106,8 +106,8 @@ module.exports = function(io){
   router.post('/anchieta/agua',async (req,res) =>{
   const d = new Date();
   d.setHours(d.getHours() - 3)
-    console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
-    console.log(req.body)
+    //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
+    //console.log(req.body)
     const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
     
     var dados = {
@@ -133,7 +133,7 @@ module.exports = function(io){
     });
     
   router.get('/app/test/agua', async function(req, res) {
-    console.log(req.query)
+    //console.log(req.query)
     const dados= await model_Res.getDataStart(req.query.id,"test")
     //console.log("############## medidor :"+medidor)
     //console.log(dados)
@@ -144,8 +144,8 @@ module.exports = function(io){
   router.post('/test/agua',async (req,res) =>{
   const d = new Date();
   d.setHours(d.getHours() - 3)
-    console.log('Dados recebidos! Test dispositivo: '+req.body.id)
-    console.log(req.body)
+    //console.log('Dados recebidos! Test dispositivo: '+req.body.id)
+    //console.log(req.body)
     const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"test")
     
     var dados = {
