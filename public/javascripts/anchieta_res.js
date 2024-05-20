@@ -75,7 +75,8 @@ async function iniciarPagina(){
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
   gauge2 = await google.setOnLoadCallback(drawGauge2);
 
-  //await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
+  await google.setOnLoadCallback(drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions));
+  await google.setOnLoadCallback(drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions));
   socket.emit("iniciarTelaAnchieta_Res", 2)
 
   socket.on("atualizar_anchieta_res1",  async (dados) =>{
@@ -104,7 +105,6 @@ async function iniciarPagina(){
 }
 
 function drawGauge1() {
-
   $('#res'+reservatorios[0].id+'_data').text(reservatorios[0].data)
   $('#res'+reservatorios[0].id+'_dis').text(reservatorios[0].distancia + " cm" ) 
   $('#res'+reservatorios[0].id+'_p').text(reservatorios[0].volume+ " L" )
