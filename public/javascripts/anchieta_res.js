@@ -100,7 +100,9 @@ async function iniciarPagina(){
     
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
+    console.log(reservatorios[0].data)
     console.log(new Date(reservatorios[0].data))
+    console.log(reservatorios[1].data)
     console.log(new Date(reservatorios[1].data))
     console.log(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data))
     if(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data)){
