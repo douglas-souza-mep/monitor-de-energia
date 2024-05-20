@@ -76,8 +76,10 @@ async function iniciarPagina(){
   gauge2 = await google.setOnLoadCallback(drawGauge2);
 
   await google.setOnLoadCallback(drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions));
-  await google.setOnLoadCallback(drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions));
+  
   socket.emit("iniciarTelaAnchieta_Res", 2)
+
+  await google.setOnLoadCallback(drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions));
 
   socket.on("atualizar_anchieta_res1",  async (dados) =>{
     await reservatorios[0].send(dados)
@@ -88,6 +90,7 @@ async function iniciarPagina(){
     if(new Date(reservatorios[0].data) >= new Date(reservatorios[1].data)){
       $('#data').text(reservatorios[0].data)
     }
+    console.log(reservatorios[0])
   })
 
 
@@ -100,6 +103,7 @@ async function iniciarPagina(){
     if(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data)){
       $('#data').text(reservatorios[1].data)
     }
+    console.log(reservatorios[1])
   })
   
 }

@@ -30,7 +30,7 @@ const getDataStart= async(medidor,usuario) =>{
     const sql = "SELECT data,volume,nivel,distancia FROM tb_"+ usuario+"_res"+medidor+" ORDER BY data DESC LIMIT 1"
     const [[ultimaLeitura]] = await db.query(sql)
 
-    var data = new Date("2024-05-11");
+    var data = new Date();
     data = data.setHours(data.getHours() - 3)
     //console.log(moment(data).format('YYYY-MM-DD'))
     const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
