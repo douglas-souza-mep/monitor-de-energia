@@ -54,7 +54,7 @@ const getDataStart= async(medidor,usuario) =>{
         dados.leitura.id = medidor
         dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
     } catch (error) {
-        const d = moment("2024-05-12").format('DD-MM-YYYY HH:mm:ss')
+        const d = moment("2000-01-01").format('DD-MM-YYYY HH:mm:ss')
         var dados = {
             leitura: {id: medidor, data: d, volume:0, distancia:0, nivel:0 },
             graficos: graficos
