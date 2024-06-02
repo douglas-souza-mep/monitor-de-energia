@@ -10,10 +10,9 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
 
     const sql =  "INSERT INTO tb_"+ usuario +"_res"+medidor+" (data,volume,nivel,distancia) VALUES (?,?,?,?)";
     const insert = await inserir(d,leituraAtual,sql);
-    
+    let data2 = data.setHours(data.getHours() - 24)
     const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
-    
-    moment(data).format('YYYY-MM-DD'))
+    moment(data2).format('YYYY-MM-DD'))
 
     const graficos = []
 
@@ -31,7 +30,7 @@ const getDataStart= async(medidor,usuario) =>{
     const [[ultimaLeitura]] = await db.query(sql)
 
     var data = new Date();
-    data = data.setHours(data.getHours() - 3)
+    data = data.setHours(data.getHours() - 27)
     //console.log(moment(data).format('YYYY-MM-DD'))
     const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
         moment(data).format('YYYY-MM-DD'))

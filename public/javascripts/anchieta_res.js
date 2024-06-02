@@ -86,12 +86,7 @@ async function iniciarPagina(){
     //console.log(reservatorios[0])
     drawGauge1()
     drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions)
-      console.log(new Date(reservatorios[0].data))
-      console.log(new Date(reservatorios[1].data))
-      console.log(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data))
-    if(new Date(reservatorios[0].data) >= new Date(reservatorios[1].data)){
-      $('#data').text(reservatorios[0].data)
-    }
+    $('#data').text(comparaData(reservatorios[1].data,reservatorios[0].data))
   })
 
 
@@ -100,14 +95,7 @@ async function iniciarPagina(){
     
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
-    console.log(reservatorios[0].data)
-    console.log(new Date(reservatorios[0].data))
-    console.log(reservatorios[1].data)
-    console.log(new Date(reservatorios[1].data))
-    console.log(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data))
-    if(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data)){
-      $('#data').text(reservatorios[1].data)
-    }
+    $('#data').text(comparaData(reservatorios[1].data,reservatorios[0].data))
   })
   
 }
@@ -179,4 +167,16 @@ function drawChart2(graficos,chartOptions) {
   chart = new google.visualization.AreaChart(document.getElementById('res2_chart_div'));
   chart.draw(dataChart, chartOptions);
    return
+}
+
+function comparaData(data1, data2) {
+  
+  strdata1 = data1.split("-")
+  strdata2 = data2.split("-")
+  console.log(new Date(strdata1[1]+"-"+strdata1[0]+"-"+strdata1[2]))
+  console.log(new Date(strdata2[1]+"-"+strdata2[0]+"-"+strdata2[2]))
+  if(new Date(strdata1[1]+"-"+strdata1[0]+"-"+strdata1[2]) >= new Date(strdata2[1]+"-"+strdata2[0]+"-"+strdata2[2])){
+    return(data1)
+  }
+  return(data2)
 }
