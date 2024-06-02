@@ -92,7 +92,8 @@ async function iniciarPagina(){
 
   socket.on("atualizar_anchieta_res2",async dados =>{
     await reservatorios[1].send(dados)
-    
+    console.log(reservatorios[1].graficos[0])
+    console.log(reservatorios[1].graficos[-1])
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
     $('#data').text(comparaData(reservatorios[1].data,reservatorios[0].data))
@@ -173,8 +174,6 @@ function comparaData(data1, data2) {
   
   strdata1 = data1.split("-")
   strdata2 = data2.split("-")
-  console.log(new Date(strdata1[1]+"-"+strdata1[0]+"-"+strdata1[2]))
-  console.log(new Date(strdata2[1]+"-"+strdata2[0]+"-"+strdata2[2]))
   if(new Date(strdata1[1]+"-"+strdata1[0]+"-"+strdata1[2]) >= new Date(strdata2[1]+"-"+strdata2[0]+"-"+strdata2[2])){
     return(data1)
   }
