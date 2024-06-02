@@ -92,8 +92,8 @@ async function iniciarPagina(){
 
   socket.on("atualizar_anchieta_res2",async dados =>{
     await reservatorios[1].send(dados)
-    console.log(reservatorios[1].graficos[0])
-    console.log(reservatorios[1].graficos[-1])
+    //console.log(reservatorios[1].graficos[0])
+    //console.log(reservatorios[1].graficos[reservatorios[1].graficos.length - 1])
     drawGauge2()
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
     $('#data').text(comparaData(reservatorios[1].data,reservatorios[0].data))
