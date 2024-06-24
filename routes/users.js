@@ -94,13 +94,26 @@ module.exports = function(io){
       res.render('anchieta_res', { title: 'Mep Tecnologia' });
     });
     
-  router.get('/app/anchieta/agua', async function(req, res) {
+  router.get('/anchieta/agua/reservatorio1', async function(req, res) {
     //console.log(req.query)
-    const dados= await model_Res.getDataStart(req.query.id,"anchieta")
+    const dados = await model_Res.getDataStart(2,"anchieta")
+    //const dados= await model_Res.getDataStart(req.query.id,"anchieta")
     //console.log("############## medidor :"+medidor)
-    //console.log(dados)
-    
-    res.send(dados.leitura);
+        /*String 1 nome
+    string 2 data
+    string 3 volume
+    string 4 distancia
+    string 5 nivel
+    */ 
+   const conjuntoDeStrings = [
+        "SMA Reservatorio Inf. 1", 
+        dados.leitura.data, 
+        dados.leitura.volume.toString(),
+        dados.leitura.distancia.toString(),
+        dados.leitura.nivel.toString()
+        ];
+    console.log(conjuntoDeStrings)
+    res.send(conjuntoDeStrings);
   });
 
   router.post('/anchieta/agua',async (req,res) =>{
@@ -135,8 +148,7 @@ module.exports = function(io){
   router.get('/app/test/agua', async function(req, res) {
     //console.log(req.query)
     const dados= await model_Res.getDataStart(req.query.id,"test")
-    //console.log("############## medidor :"+medidor)
-    //console.log(dados)
+    
     
     res.send(dados.leitura);
   });
