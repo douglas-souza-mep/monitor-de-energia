@@ -11,7 +11,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const sql =  "INSERT INTO tb_"+ usuario +"_res"+medidor+" (data,volume,nivel,distancia) VALUES (?,?,?,?)";
     const insert = await inserir(d,leituraAtual,sql);
     let data2 = data.setHours(data.getHours() - 24)
-    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
+    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)>=?",
     moment(data2).format('YYYY-MM-DD'))
 
     const graficos = []
@@ -22,7 +22,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
     });
     
-    return {graficos:graficos};
+    return {graficos:graficos, leitura:leituraAtual};
 }
 
 const getDataStart= async(medidor,usuario) =>{
@@ -32,7 +32,7 @@ const getDataStart= async(medidor,usuario) =>{
     var data = new Date();
     data = data.setHours(data.getHours() - 27)
     //console.log(moment(data).format('YYYY-MM-DD'))
-    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)=?",
+    const [cd] = await db.query("SELECT data,volume,nivel,distancia FROM tb_"+ usuario +"_res"+medidor+" WHERE DATE(data)>=?",
         moment(data).format('YYYY-MM-DD'))
 
     const graficos = []
@@ -66,7 +66,13 @@ return dados
 }
 
 const validacao = async (leitura) =>{
-    
+    //console.log(leitura.distancia)
+   if(leitura.distancia==undefined){
+      leitura.distancia = parseInt(leitura.d)
+      leitura.nivel = parseInt(leitura.nivel)
+      leitura.volume = parseInt(leitura.volume)
+      //console.log(leitura)
+   } 
     return leitura
 }
 

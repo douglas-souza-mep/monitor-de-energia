@@ -117,18 +117,18 @@ module.exports = function(io){
   });
 
   router.post('/anchieta/agua',async (req,res) =>{
-  const d = new Date();
-  d.setHours(d.getHours() - 3)
+  var d = new Date();
+  var data = d.setHours(d.getHours() - 3)
     //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
     //console.log(req.body)
     const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
     
     var dados = {
-      leitura: req.body,
+      leitura: retorno.leitura,
       graficos: retorno.graficos
     }
     //console.log(dados.graficos)
-    dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
+    dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
     io.emit("atualizar_anchieta_res"+req.body.id,dados)
     res.send("recebido");
   })

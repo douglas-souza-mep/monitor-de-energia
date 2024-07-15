@@ -95,6 +95,7 @@ async function iniciarPagina(){
     //console.log(reservatorios[1].graficos[0])
     //console.log(reservatorios[1].graficos[reservatorios[1].graficos.length - 1])
     drawGauge2()
+    //console.log(reservatorios[1].graficos)
     drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
     $('#data').text(comparaData(reservatorios[1].data,reservatorios[0].data))
   })
@@ -138,6 +139,9 @@ function drawGauge2() {
 
 function drawChart1(graficos,chartOptions) {
   
+  graficos.forEach(element => {
+    element[0]=new Date(element[0])
+  });
   
   var dataChart = new google.visualization.DataTable();
   dataChart.addColumn('date', 'Horario');

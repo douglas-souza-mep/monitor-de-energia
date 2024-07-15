@@ -40,7 +40,61 @@ socket.on("atualizar_sia103",dados =>{
   }  
 })
 
+socket.on("atualizar_sia104",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia105",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia106",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia107",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
 socket.on("atualizar_sia108",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia109",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia110",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia111",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia112",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia113",dados =>{
   if(dados.leitura.id == medidor){
    atualizar(dados)
   }  
@@ -51,6 +105,164 @@ socket.on("atualizar_sia114",dados =>{
    atualizar(dados)
   }  
 })
+
+socket.on("atualizar_sia201",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia202",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia203",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia204",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia205",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia206",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia207",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia208",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia209",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_si2110",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia211",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia212",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia213",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia214",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia301",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia302",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia303",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia304",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia305",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia306",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia307",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia308",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia309",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia310",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia311",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia312",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+
 
 
 function selectMedidor (i){
@@ -251,6 +463,7 @@ function drawChart(dados) {
    data2.addColumn('string', 'Datas');
    data2.addColumn('number', 'Consumo');
    data2.addRows(dados.semestral);
+   console.log(dados.semestral)
 
    // Set chart options
    var options2 = {title:'Consumos mensais'}

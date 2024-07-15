@@ -3,7 +3,7 @@ const moment = require('moment')
 function calculoConsumo(t_star,t_end,pt){
     pt=pt/1000 //W -> KW
     t=(t_end-t_star)/(3600000) // mS -> H
-    console.log("tempo des da ultima atualizacao: "+(t_end-t_star)/1000+"s")
+    //console.log("tempo des da ultima atualizacao: "+(t_end-t_star)/1000+"s")
     const T = pt*t
     //console.log((t_end-t_star))
     return T
