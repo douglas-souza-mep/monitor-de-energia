@@ -74,6 +74,13 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const [consumosMensais] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cm_m"+medidor+" ORDER BY data DESC LIMIT 6")
     const [cd] = await db.query("SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=?",
                                     moment(data).format('YYYY-MM-DD'))
+    if(consumosMensais.length<6){
+        let inserir = 6- consumosMensais.length
+        let mes = consumosMensais[consumosMensais.length-1].data
+        //for(i=0;i>)
+        //console.log(mes)
+    }                               
+    
     
     var consumos ={
         consumo: consumo.valor.toFixed(3),

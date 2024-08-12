@@ -5,10 +5,10 @@ google.charts.load('current', {'packages':['corechart']});
 
 const socket = io();
 
-let medidor = selectMedidor($('#medidor option:selected').val())
+let medidor = $('#medidor option:selected').val()
 console.log(medidor)
 $('#medidor').on('change', () => {
-    medidor = selectMedidor($('#medidor option:selected').val())
+    medidor = $('#medidor option:selected').val()
     console.log(medidor)
     socket.emit("iniciarTelaSia",medidor) 
     
@@ -20,7 +20,35 @@ socket.on("connect", () => {
     //console.log("tela atualizada com "+dados.leitura.id )
   });
 
+socket.on("atualizar_sia1",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
 
+socket.on("atualizar_sia2",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia3",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia11",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
+
+socket.on("atualizar_sia12",dados =>{
+  if(dados.leitura.id == medidor){
+   atualizar(dados)
+  }  
+})
 
 socket.on("atualizar_sia101",dados =>{
   if(dados.leitura.id == medidor){
