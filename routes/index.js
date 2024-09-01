@@ -8,7 +8,14 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', async(req,res)=>{
-  Logar(req, res)
+  Logar.logar(req, res)
 })
 
+router.post('/app/login', async (req, res) => {
+  const { username, password } = req.body;
+  const loguin = await Logar.logarAPP(username,password)
+  //console.log("dados enviados:")
+  //console.log(loguin)
+  res.json(loguin);
+})
 module.exports = router;

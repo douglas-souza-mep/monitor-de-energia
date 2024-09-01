@@ -53,6 +53,7 @@ socket.on("connect", () => {
 
   socket.on("return_dados_do_usuario_test",async (dados) =>{
   usuario = await dados
+  console.log(usuario)
   iniciarPagina(usuario)
 })
 

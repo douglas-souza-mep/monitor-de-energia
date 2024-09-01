@@ -51,15 +51,19 @@ module.exports = function(io){
   })
   
   //--------------------------------------------------------------------------
-  //router.get('/sia',chekToken, function(req, res) {
-  router.get('/sia', function(req, res) {
-    res.render('sia', { title: 'Mep Tecnologia' });
+  //router.get('/santa_monica',chekToken, function(req, res) {
+  router.get('/santa_monica', function(req, res) {
+    res.render('santa_monica', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
+  });
+
+  router.get('/santa_monica_hidro', function(req, res) {
+    res.render('santa_monica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });
   });
   
   router.post('/sia',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    //console.log('Dados recebidos! Sia dispositivo: '+req.body.id)
+    //console.log('Dados recebidos! santa_monica dispositivo: '+req.body.id)
     const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"sia")
     
     var dados = {
@@ -78,8 +82,8 @@ module.exports = function(io){
     }
     dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
     
-    io.emit("atualizar_sia"+req.body.id,dados)
-    res.send('Dados recebidos! Sia dispositivo: '+req.body.id);
+    io.emit("atualizar_santa_monica"+req.body.id,dados)
+    res.send('Dados recebidos! santa_monica dispositivo: '+req.body.id);
   })
 
   //-------------------------------------------------------------------
@@ -141,7 +145,7 @@ module.exports = function(io){
   });
 
   //router.get('/anchieta',chekToken, function(req, res) {
-  router.get('/test/agua', function(req, res) {
+  router.get('/test/res', function(req, res) {
       res.render('test', { title: 'Mep Tecnologia' });
     });
     
@@ -153,7 +157,7 @@ module.exports = function(io){
     res.send(dados.leitura);
   });
 
-  router.post('/test/agua',async (req,res) =>{
+  router.post('/test/res',async (req,res) =>{
   const d = new Date();
   d.setHours(d.getHours() - 3)
     //console.log('Dados recebidos! Test dispositivo: '+req.body.id)
@@ -164,7 +168,7 @@ module.exports = function(io){
       leitura: req.body,
       graficos: retorno.graficos
     }
-    //console.log(dados.graficos)
+    console.log(dados.graficos)
     dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
     io.emit("atualizar_test_res"+req.body.id,dados)
     res.send("recebido");

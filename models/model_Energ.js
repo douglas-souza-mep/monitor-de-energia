@@ -250,15 +250,26 @@ const validacao = async (leitura) =>{
         if(leitura.pa < 0){
             leitura.pa = 0
         }
+        if(leitura.iarms == 0){
+            leitura.pa = 0
+        }
     }
+    
     if(leitura.ibrms < 1){
         if(leitura.pb < 0){
             leitura.pb = 0
         }
+        if(leitura.ibrms == 0){
+            leitura.pb = 0
+        }
     }
+
     if(leitura.icrms < 1){
         if(leitura.pc < 0){
             leitura.pc = 0
+        }
+        if(leitura.icrms == 0){
+        leitura.pc = 0
         }
     }
     

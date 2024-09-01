@@ -10,6 +10,7 @@ var http = require('http');
 require('dotenv').config()
 const model_Energ = require('../models/model_Energ')
 const model_Res = require('../models/model_Res')
+const model_Hidro = require('../models/model_Hidro')
 const db = require('../models/connection')
 const _ = require("./funcoes")
 
@@ -58,6 +59,45 @@ app.io.on('connection', socket=>{
     const dados=await model_Res.getDataStart(medidor,"anchieta")
     //console.log("atualizar_anchieta: "+medidor)
     app.io.sockets.emit("atualizar_test_res"+medidor,dados)
+  })
+
+  socket.on("iniciarTelaSanta_monica_hidro", async (medidor)=>{
+    const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","santa_monica")
+    app.io.sockets.emit("atualizar_santa_monica_hidrometros",hidrometros)
+  })
+
+  socket.on("getLeituasHidrometro", async (dados)=>{
+    console.log(dados)
+    if(dados != null){
+      const leituras=await model_Hidro.getLeituras(dados.url,dados.hidrometro)
+      app.io.sockets.emit("atualizar_santa_monica_hidro",leituras)
+    }
+    
+  })
+
+  socket.on("calcular_consumo_santa_monica_hidro", async (dados)=>{
+    console.log(dados)
+    const { startDate, endDate } = dados.datas;
+    try {
+        //const dados=await model_Hidro.getConsumo("santa_monica",hidrometro,startDate,endDate)
+        dados={
+          x:"deu certo",
+          l1:100,
+          l2:200,
+          dataL1:startDate,
+          dataL2:endDate}
+        socket.emit('consumo_santa_monica_hidro', { dados: [dados]});
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        socket.emit('consumo_santa_monica_hidro', { error: 'Erro ao buscar leituras.' });
+    }
+  })
+
+  socket.on('addLeituraHidrometro_santa_monica', async (leituras) => {
+    //console.log(leituras);
+    retorno = await model_Hidro.addLeituras("santa_monica",leituras)
+    //console.log(retorno);
+    socket.emit('retornoArquivo_santa_monica', retorno);
   })
 })
 /**
