@@ -1,5 +1,5 @@
 //  Carrega a API de visualização e o pacote corechart.
-//google.charts.load('current', {'packages':['corechart']});
+google.charts.load('current', {'packages':['corechart']});
 
 const socket = io();
 
@@ -37,7 +37,7 @@ document.getElementById('event-form').addEventListener('submit', async function(
     const endDate = document.getElementById('end-date').value;
 
     // Envia os dados para o servidor usando Socket IO
-    socket.emit("calcular_consumo_santa_monica_hidro",{hidrometro: "xxx" , datas:{startDate, endDate} })
+    socket.emit("calcular_consumo_santa_monica_hidro",{hidrometro: hidrometro , datas:{startDate, endDate} })
 });
 
 
@@ -48,13 +48,17 @@ socket.on('consumo_santa_monica_hidro', (data) => {
     if (data.error) {
         resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
     } else {
-        resultDiv.innerHTML = '<h2>Eventos Encontrados:</h2>' + data.dados.map(event => `
+        console.log(data.dados)
+        drawChartConsumo(data.dados.grafico)
+        resultDiv.innerHTML = '<h2>Eventos Encontrados:</h2>' + `
             <div>
-                <p><strong>Nome:</strong> ${event.x}</p>
-                <p><strong>Data Início:</strong> ${event.dataL1}</p>
-                <p><strong>Data Término:</strong> ${event.dataL2}</p>
+                <p><strong>Local:</strong> ${data.dados.local}</p>
+                <p><strong>Data Início:</strong> ${data.dados.dataL1}</p>
+                <p><strong>Data Término:</strong> ${data.dados.dataL2}</p>
+                <p><strong>Data Consumo:</strong> ${data.dados.consumo}</p>
             </div>
-        `).join('');
+        `;
+        
     }
 });
 
@@ -127,28 +131,133 @@ socket.on('atualizar_santa_monica_hidro', (dados) => {
 });
 
 async function  atualizar (dados){
-  console.log(dados)
+  
   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-  // await google.charts.setOnLoadCallback(drawChart(dados));
+    await google.charts.setOnLoadCallback(drawChart(dados));
 }
 
-function drawChart(dados) {
+async function drawChart(dados) {
+    var grafico = []
+    //console.log(dados)
+    if (Array.isArray(dados)) {
+        dados.forEach(element => {
+            grafico.push([new Date(element.data), element.leitura]);
+        });
+    } else {
+        console.error('Dados fornecidos não são um array.');
+    }
+    //console.log(grafico)
 
     // Cria a tabela de dados.
     var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Datas');
+    data.addColumn('date', 'Data');
     data.addColumn('number', 'Leitura');
-    data.addRows(dados.grafico);
+    data.addRows(grafico);
    // console.log(dados.semestral)
  
     // Set chart options
-    var options1 = {title:'Leituras'}
-   
- 
-    // Instantiate and draw our chart, passing in some options.
-    var chart1 = new google.visualization.ColumnChart(document.getElementById('chart_div1'));
+    var options = {
+        title:'Leituras: ' + dados[0].local+" ("+dados[0].id+")",
+        hAxis: {
+            title: 'data', 
+            format: 'dd-MM-yy', // Formato da data no eixo horizontal
+            titleTextStyle: {color: '#333'}},
+        series: {
+            0: {lineWidth: 2} // largura da linha
+          },
+        pointSize: 5, // tamanho dos pontos
+        pointShape: 'circle', // forma dos pontos
+        colors: ['#1c91c0'], // cor da linha e dos pontos
+        tooltip: {
+            isHtml: true, // Permite HTML no tooltip
+            trigger: 'selection' // Exibe tooltip ao selecionar um ponto
+          }
+    }
 
-    chart1.draw(data, options1);
+     // Função para formatar o tooltip
+    function formatTooltip(date, value) {
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+        var formattedDate = date.toLocaleDateString('pt-BR', options);
+        return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
+    }
+
+     // Modifica os dados para incluir o tooltip HTML
+     var formattedData = [];
+     for (var i = 0; i < data.getNumberOfRows(); i++) {
+       var date = data.getValue(i, 0);
+       var value = data.getValue(i, 1);
+       var tooltip = formatTooltip(date, value);
+       formattedData.push([date, value, tooltip]);
+     }
+
+     // Cria uma nova tabela com os dados formatados
+     var dataWithTooltip = google.visualization.arrayToDataTable([
+       ['Data', 'Leitura', { role: 'tooltip', type: 'string', p: { html: true } }],
+       ...formattedData
+     ]);
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.AreaChart(document.getElementById('chart_leituras'));
+    chart.draw(dataWithTooltip, options);
+  }
+
+async function drawChartConsumo(dados) {
+    let grafico = []
+    console.log(dados)
+    await dados.forEach(element => {
+        grafico.push([new Date(element[0]), element[1]]);
+      });
+    // Cria a tabela de dados.
+    var data = new google.visualization.DataTable();
+    data.addColumn('date', 'Data');
+    data.addColumn('number', 'Leitura');
+    data.addRows(grafico);
+   // console.log(dados.semestral)
+ 
+    // Set chart options
+    var options = {
+        title:'Leituras: ' + dados[0].local+" ("+dados[0].id+")",
+        hAxis: {
+            title: 'data', 
+            format: 'dd-MM-yy', // Formato da data no eixo horizontal
+            titleTextStyle: {color: '#333'}},
+        series: {
+            0: {lineWidth: 2} // largura da linha
+          },
+        pointSize: 5, // tamanho dos pontos
+        pointShape: 'circle', // forma dos pontos
+        colors: ['#1c91c0'], // cor da linha e dos pontos
+        tooltip: {
+            isHtml: true, // Permite HTML no tooltip
+            trigger: 'selection' // Exibe tooltip ao selecionar um ponto
+          }
+    }
+
+     // Função para formatar o tooltip
+    function formatTooltip(date, value) {
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+        var formattedDate = date.toLocaleDateString('pt-BR', options);
+        return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
+    }
+
+     // Modifica os dados para incluir o tooltip HTML
+     var formattedData = [];
+     for (var i = 0; i < data.getNumberOfRows(); i++) {
+       var date = data.getValue(i, 0);
+       var value = data.getValue(i, 1);
+       var tooltip = formatTooltip(date, value);
+       formattedData.push([date, value, tooltip]);
+     }
+
+     // Cria uma nova tabela com os dados formatados
+     var dataWithTooltip = google.visualization.arrayToDataTable([
+       ['Data', 'Leitura', { role: 'tooltip', type: 'string', p: { html: true } }],
+       ...formattedData
+     ]);
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.AreaChart(document.getElementById('chart_consumo'));
+    chart.draw(dataWithTooltip, options);
   }
 
 async function criarSelect(lista,select) {
@@ -162,7 +271,5 @@ async function criarSelect(lista,select) {
         // Adiciona a opção ao select
         select.appendChild(option);
         
-    }
-
-    
+    }   
 }

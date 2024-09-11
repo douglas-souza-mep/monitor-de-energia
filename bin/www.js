@@ -79,14 +79,23 @@ app.io.on('connection', socket=>{
     console.log(dados)
     const { startDate, endDate } = dados.datas;
     try {
-        //const dados=await model_Hidro.getConsumo("santa_monica",hidrometro,startDate,endDate)
-        dados={
-          x:"deu certo",
-          l1:100,
-          l2:200,
-          dataL1:startDate,
-          dataL2:endDate}
-        socket.emit('consumo_santa_monica_hidro', { dados: [dados]});
+        const retorno = await model_Hidro.getConsumo("santa_monica",dados.hidrometro,startDate,endDate)
+        console.log(retorno.length)
+        if(retorno.length >= 2){
+          consumo = retorno[retorno.length-1].leitura - retorno[0].leitura
+          dados={
+            local:retorno[0].local,
+            consumo:consumo,
+            dataL1:startDate,
+            dataL2:endDate,
+            grafico:[]
+          }
+          await retorno.forEach(element => {
+            dados.grafico.push([element.data, element.leitura]);
+          });
+          socket.emit('consumo_santa_monica_hidro', { dados: [dados]});
+        }
+        //console.log(retorno)
     } catch (error) {
         console.error('Erro ao consultar o banco de dados:', error);
         socket.emit('consumo_santa_monica_hidro', { error: 'Erro ao buscar leituras.' });

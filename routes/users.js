@@ -53,7 +53,7 @@ module.exports = function(io){
   //--------------------------------------------------------------------------
   //router.get('/santa_monica',chekToken, function(req, res) {
   router.get('/santa_monica', function(req, res) {
-    res.render('santa_monica', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
+    res.render('santa_monica_energ', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
   });
 
   router.get('/santa_monica_hidro', function(req, res) {

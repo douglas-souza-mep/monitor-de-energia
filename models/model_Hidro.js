@@ -38,8 +38,19 @@ const addLeituras = async (cliente,dados)=>{
     return {inseridos:i, negados:n, log:log}
 }
 
+const getConsumo = async (url,hidrometro,startDate,endDate)=>{
+    let leituras
+    const sql = "SELECT * FROM tb_"+url+"_hidrometros WHERE DATE(data) >= ? AND DATE(data) <= ? AND id = ? ORDER BY data ASC"
+    try {
+        [leituras] = await db.query(sql,[startDate,endDate,hidrometro])
+    } catch (error) {
+        console.log(error)
+    }
+    return leituras
+}
 
 module.exports = {
     addLeituras,
-    getLeituras
+    getLeituras,
+    getConsumo
 }

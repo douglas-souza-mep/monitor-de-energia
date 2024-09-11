@@ -13,12 +13,40 @@
      socket.emit("iniciarTelaSia",medidor) 
      
  })
+
+document.getElementById('event-form').addEventListener('submit', async function(event) {
+  event.preventDefault(); // Impede o envio padrão do formulário
+
+  // Coleta os valores do formulário
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
+
+  // Envia os dados para o servidor usando Socket IO
+  socket.emit("calcular_consumo_santa_monica_energ",{id: medidor , datas:{startDate, endDate} })
+});
  
  socket.on("connect", () => {
      console.log(socket.id);
      socket.emit("iniciarTelaSia",medidor) 
      //console.log("tela atualizada com "+dados.leitura.id )
    });
+  
+   // Ouve eventos de resposta do servidor
+socket.on('consumo_santa_monica_hidro', (data) => {
+  const resultDiv = document.getElementById('result');
+
+  if (data.error) {
+      resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+  } else {
+      resultDiv.innerHTML = '<h2>Eventos Encontrados:</h2>' + data.dados.map(event => `
+          <div>
+              <p><strong>Nome:</strong> ${event.x}</p>
+              <p><strong>Data Início:</strong> ${event.dataL1}</p>
+              <p><strong>Data Término:</strong> ${event.dataL2}</p>
+          </div>
+      `).join('');
+  }
+});
  
  socket.on("atualizar_sia1",dados =>{
    if(dados.leitura.id == medidor){
