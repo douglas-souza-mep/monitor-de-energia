@@ -12,12 +12,12 @@ async function logar(req,res){
         return res.status(422).json({ msg:"Usuario não encontrado" })
     }
     if(usuario.senha == password){
-
+        /*
         const token = await jwt.sign({
             user: usuario.id,
         },process.env.CHAVE_TOKEN,{expiresIn: '2m'})
         console.log('Token: '+token)
-        res.cookie('Token',token)
+        res.cookie('Token',token)*/
         return res.redirect('/users/'+ usuario.url)
     }
     else{

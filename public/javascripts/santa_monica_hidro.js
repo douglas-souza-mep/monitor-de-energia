@@ -42,20 +42,20 @@ document.getElementById('event-form').addEventListener('submit', async function(
 
 
 // Ouve eventos de resposta do servidor
-socket.on('consumo_santa_monica_hidro', (data) => {
+socket.on('consumo_santa_monica_hidro', (dados) => {
     const resultDiv = document.getElementById('result');
-
-    if (data.error) {
-        resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+    //console.log(dados)
+    if (dados.error) {
+        resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
     } else {
-        console.log(data.dados)
-        drawChartConsumo(data.dados.grafico)
-        resultDiv.innerHTML = '<h2>Eventos Encontrados:</h2>' + `
+        drawChartConsumo(dados.grafico,dados.id,dados.local)
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        resultDiv.innerHTML = '<h2>Consumo calculado com base nas leituras encontradas:</h2>' + `
             <div>
-                <p><strong>Local:</strong> ${data.dados.local}</p>
-                <p><strong>Data Início:</strong> ${data.dados.dataL1}</p>
-                <p><strong>Data Término:</strong> ${data.dados.dataL2}</p>
-                <p><strong>Data Consumo:</strong> ${data.dados.consumo}</p>
+                <p><strong>Local:</strong> ${dados.local}</p>
+                <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
+                <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
+                <p><strong>Data Consumo:</strong> ${dados.consumo/1000} m<sup>3</sup></p>
             </div>
         `;
         
@@ -141,7 +141,7 @@ async function drawChart(dados) {
     //console.log(dados)
     if (Array.isArray(dados)) {
         dados.forEach(element => {
-            grafico.push([new Date(element.data), element.leitura]);
+            grafico.push([new Date(element.data), element.leitura/1000]);
         });
     } else {
         console.error('Dados fornecidos não são um array.');
@@ -162,6 +162,7 @@ async function drawChart(dados) {
             title: 'data', 
             format: 'dd-MM-yy', // Formato da data no eixo horizontal
             titleTextStyle: {color: '#333'}},
+        vAxis: {title: 'leitura (em m3)'},
         series: {
             0: {lineWidth: 2} // largura da linha
           },
@@ -201,11 +202,11 @@ async function drawChart(dados) {
     chart.draw(dataWithTooltip, options);
   }
 
-async function drawChartConsumo(dados) {
+async function drawChartConsumo(dados,id,local) {
     let grafico = []
     console.log(dados)
     await dados.forEach(element => {
-        grafico.push([new Date(element[0]), element[1]]);
+        grafico.push([new Date(element[0]), element[1]/1000]);
       });
     // Cria a tabela de dados.
     var data = new google.visualization.DataTable();
@@ -216,11 +217,12 @@ async function drawChartConsumo(dados) {
  
     // Set chart options
     var options = {
-        title:'Leituras: ' + dados[0].local+" ("+dados[0].id+")",
+        title:'Leituras: ' + local+" ("+id+")",
         hAxis: {
             title: 'data', 
             format: 'dd-MM-yy', // Formato da data no eixo horizontal
             titleTextStyle: {color: '#333'}},
+        vAxis: {title: 'leitura (em m3)'},
         series: {
             0: {lineWidth: 2} // largura da linha
           },
@@ -235,7 +237,7 @@ async function drawChartConsumo(dados) {
 
      // Função para formatar o tooltip
     function formatTooltip(date, value) {
-        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };//timeZoneName: 'short' };
         var formattedDate = date.toLocaleDateString('pt-BR', options);
         return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
     }
