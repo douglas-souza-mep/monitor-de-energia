@@ -25,6 +25,48 @@ async function logar(req,res){
     }
 }
 
+async function logarTelegran(username, password,chatId) {
+    try {
+        const [user] = await db.query(
+            'SELECT * FROM usuarios WHERE usuario = ? AND senha = ?',
+            [username, password]);
+        //console.log(user[0])
+        if (user[0]) {// Salva o chatId no banco de dados
+            if(user[0].chatId!==null){
+                const chatIDS = await user[0].chatID.split(";")
+                //console.log(chatIDS)
+                await chatIDS.forEach(element => {
+                    if(element == chatId){
+                        return {msg:'Usuario ja cadastrado.'};
+                    }
+                });
+                chatIDS.push(chatId)
+                chatId= chatIDS.join(";")
+            }
+           const  x=await db.query('UPDATE usuarios SET chatID = ? WHERE usuario = ? AND senha = ?',
+                    [chatId.toString(), username, password]);
+            if(x[0].affectedRows==1){
+                if(x[0].changedRows==1){
+                    return {msg:'Login bem-sucedido! Seu chatId foi salvo e você está pronto para receber alertas.'};
+                }
+                if(x[0].changedRows==0){
+                    return {msg:'Usuario ja cadastrado.'};
+                }
+                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.'};
+            }
+            else{
+                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.'};
+            }
+            
+        } else {
+            return {msg:'Usuário ou senha inválidos. Tente novamente digitando seu usuario (sem espaços)'};
+        }
+    } catch(erro) {
+        console.log(erro)
+        return {msg:'falha na consulta ao banco de dados'};
+    }
+  }
+
 async function logarAPP(user,password){
     const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
     if(usuario == undefined){
@@ -55,4 +97,4 @@ async function logarAPP(user,password){
     }
 }
 
-module.exports = {logar,logarAPP}
+module.exports = {logar,logarAPP,logarTelegran}

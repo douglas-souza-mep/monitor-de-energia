@@ -65,6 +65,21 @@ return dados
 
 }
 
+async function dadosAlerta(url,id){
+    try {
+        
+        const [[retorno]] = await db.query("SELECT nome,reservatorios,chatID FROM usuarios WHERE url = ?  LIMIT 1",url)
+        //console.log(retorno)
+        const reservatorios = retorno.reservatorios.split(";")
+        const chatID = retorno.chatID.split(";")
+        const index = reservatorios.indexOf(id.toString());
+        return {chatID:chatID, local: reservatorios[index+1], id: reservatorios[index],nome:retorno.nome}
+        
+    } catch (error) {
+        return {error:error}
+    }
+}
+
 const validacao = async (leitura) =>{
     //console.log(leitura.distancia)
    if(leitura.distancia==undefined){
@@ -96,6 +111,7 @@ const inserir = async (d,leituraAtual,sql) =>{
 
 module.exports = {
     atualizarDados,
-    getDataStart
+    getDataStart,
+    dadosAlerta
 }
 

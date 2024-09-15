@@ -1,4 +1,8 @@
 const moment = require('moment')
+const db = require('../models/connection')
+const { Telegraf } = require('telegraf');
+const model_Res = require('../models/model_Res')
+
 
 function calculoConsumo(t_star,t_end,pt){
     pt=pt/1000 //W -> KW
@@ -32,7 +36,6 @@ function calculoConsumo(t_star,t_end,pt){
     var data_final = moment([ano, m, 1]).endOf('month').format('YYYY-MM-DD')
   return {inicial: data_inicial, final:data_final}
 }
-  
 
 function traduzDia(str){
   str = str.replace("Mon","Seg")
@@ -61,10 +64,127 @@ function traduzMes(str){
   return str
 }
 
+
+function sendAlerta(msg, usuarios) {
+  const bot = new Telegraf('7305830643:AAFWx-5WC_F_ZoE3ZHTN9bdHgoUh6w-ae2g');
+  console.log(usuarios)
+  usuarios.forEach(element => {
+    bot.telegram.sendMessage(element,msg)
+  });
+}
+
+// Função assíncrona para gerar a lista de dispositivos
+async function gerarListaDeDispositivos() {
+  try {
+    // Consulta ao banco de dados
+    const [usuarios] = await db.query("SELECT url, reservatorio, reservatorios, energia, med_energia FROM usuarios");
+
+    // Limpa as listas globais antes de preenchê-las
+    globalThis.reservatorios = [];
+    globalThis.medidoresEnerg = [];
+
+    // Itera sobre os usuários para processar os dados
+    usuarios.forEach(usuario => {
+      // Processa os reservatórios
+      if (usuario.reservatorio > 0) {
+        const reservatorioArray = usuario.reservatorios.split(";");
+        for (let i = 0; i < reservatorioArray.length; i += 2) {
+          // Adiciona os reservatórios à lista global
+          globalThis.reservatorios.push(`res_${usuario.url}_${reservatorioArray[i]}`);
+        }
+      }
+
+      // Processa os medidores de energia
+      if (usuario.energia > 0) {
+        const medidorArray = usuario.med_energia.split(";");
+        for (let i = 0; i < medidorArray.length; i += 2) {
+          // Adiciona os medidores de energia à lista global
+          globalThis.medidoresEnerg.push(`energ_${usuario.url}_${medidorArray[i]}`);
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Erro ao gerar lista de dispositivos:", error);
+  }
+}
+
+// Função para adicionar o dispositivo na lista de dispositivos comunicado caso ele ainda não estiver presente
+function adicionarSeNaoExistir(lista, dispositivo) {
+  if (!lista.includes(dispositivo)) {
+  lista.push(dispositivo);
+  }
+}
+
+// Verifica se todos os dispositivos estão trasmintindo e emite alertas caso não esteja
+async function tarefaPeriodica() {
+  try {
+      // Log das variáveis globais dinamicas
+      //console.log(globalThis.reservatoriosDinamico);
+      //console.log(globalThis.medidoresEnergDinamico);
+
+      // Cria um array de Promises para processar os elementos de reservatorios
+      const promisesRes = globalThis.reservatorios.map(async (element) => {
+        //verifica se houve transmissão 
+          if (!globalThis.reservatoriosDinamico.includes(element)) {
+              const aux = element.split("_");
+              const url = aux[1];
+              const id = aux[2];
+
+              try {
+                  // Obtém os dados de alerta
+                  const retorno = await model_Res.dadosAlerta(url, id);
+                  const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
+
+                  // Envia o alerta
+                  sendAlerta(msg, retorno.chatID);
+              } catch (alertError) {
+                  console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
+              }
+          }
+      });
+
+      // Cria um array de Promises para processar os elementos de medidores de energia
+      const promisesEnerg = globalThis.medidoresEnerg.map(async (element) => {
+        //verifica se houve transmissão 
+          if (!globalThis.medidoresEnergDinamico.includes(element)) {
+              const aux = element.split("_");
+              const url = aux[1];
+              const id = aux[2];
+
+              try {
+                  // Obtém os dados de alerta
+                  const retorno = await model_Eneg.dadosAlerta(url, id);
+                  const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
+
+                  // Envia o alerta
+                  sendAlerta(msg, retorno.chatID);
+              } catch (alertError) {
+                  console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
+              }
+          }
+      });
+
+      // Aguarda a resolução de todas as Promises
+      await Promise.all(promisesRes);
+      await Promise.all(promisesEnerg);
+
+      // Atualiza a variável global após a conclusão de todas as interações
+      globalThis.reservatoriosDinamico = [];
+      globalThis.medidoresEnergDinamico = [];
+
+  } catch (error) {
+      console.error("Erro na tarefa periódica:", error);
+  }
+}
+
 module.exports = {
     calculoConsumo,
     datasAnteriorers,
     instervaloDoMes,
     traduzDia,
-    traduzMes
+    traduzMes,
+    sendAlerta,
+    gerarListaDeDispositivos,
+    adicionarSeNaoExistir,
+    tarefaPeriodica
 }

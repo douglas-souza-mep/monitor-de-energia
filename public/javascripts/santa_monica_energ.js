@@ -6,45 +6,49 @@
  const socket = io();
  
  let medidor = $('#medidor option:selected').val()
- console.log(medidor)
+ let local = $('#medidor option:selected').text()
+ console.log(medidor+" "+local)
  $('#medidor').on('change', () => {
      medidor = $('#medidor option:selected').val()
-     console.log(medidor)
-     socket.emit("iniciarTelaSia",medidor) 
-     
+     local = $('#medidor option:selected').text()
+     console.log(medidor+" "+local)
+     socket.emit("iniciarTelaCasa",medidor) 
  })
 
-document.getElementById('event-form').addEventListener('submit', async function(event) {
-  event.preventDefault(); // Impede o envio padrão do formulário
-
-  // Coleta os valores do formulário
-  const startDate = document.getElementById('start-date').value;
-  const endDate = document.getElementById('end-date').value;
-
-  // Envia os dados para o servidor usando Socket IO
-  socket.emit("calcular_consumo_santa_monica_energ",{id: medidor , datas:{startDate, endDate} })
-});
- 
  socket.on("connect", () => {
      console.log(socket.id);
      socket.emit("iniciarTelaSia",medidor) 
      //console.log("tela atualizada com "+dados.leitura.id )
    });
-  
-   // Ouve eventos de resposta do servidor
-socket.on('consumo_santa_monica_hidro', (data) => {
-  const resultDiv = document.getElementById('result');
 
-  if (data.error) {
-      resultDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+document.getElementById('event-form').addEventListener('submit', async function(event) {
+  event.preventDefault(); // Impede o envio padrão do formulário
+  
+  // Coleta os valores do formulário
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
+  
+  // Envia os dados para o servidor usando Socket IO
+  socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"santa_monica",local:local })
+});
+  
+  // Ouve eventos de resposta do servidor em relação ao consumo
+socket.on('consumo_de_energia_santa_monica', (dados) => {
+  const resultDiv = document.getElementById('result');
+  //console.log(dados)
+  if (dados.error) {
+      resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
   } else {
-      resultDiv.innerHTML = '<h2>Eventos Encontrados:</h2>' + data.dados.map(event => `
+      drawChartConsumo(dados.grafico,dados.id,dados.local)
+      var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+      resultDiv.innerHTML = '<h2>Consumo calculado com base nas leituras encontradas:</h2>' + `
           <div>
-              <p><strong>Nome:</strong> ${event.x}</p>
-              <p><strong>Data Início:</strong> ${event.dataL1}</p>
-              <p><strong>Data Término:</strong> ${event.dataL2}</p>
+              <p><strong>Local:</strong> ${dados.local}</p>
+              <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
+              <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
+              <p><strong>Data Consumo:</strong> ${dados.consumo} kWh</p>
           </div>
-      `).join('');
+      `;    
   }
 });
  
@@ -318,161 +322,6 @@ socket.on('consumo_santa_monica_hidro', (data) => {
    }  
  })
  
- 
- 
- 
- function selectMedidor (i){
-     let medidor
-     if(i == 1) {
-       medidor = 101
-       return medidor
-     }
-     if(i == 2) {
-       medidor = 102
-       return medidor
-     }
-     if(i == 3) {
-       medidor = 103
-       return medidor
-     }
-     if(i == 4) {
-       medidor = 104
-       return medidor
-     }
-     if(i == 5) {
-       medidor = 105
-       return medidor
-     }
-     if(i == 6) {
-       medidor = 106
-       return medidor
-     }
-     if(i == 7) {
-       medidor = 107
-       return medidor
-     }
-     if(i == 8) {
-       medidor = 108
-       return medidor
-     }
-     if(i == 9) {
-       medidor = 109
-       return medidor
-     }
-     if(i == 10) {
-       medidor = 110
-       return medidor
-     }
-     if(i == 11) {
-       medidor = 111
-       return medidor
-     }
-     if(i == 12) {
-       medidor = 112
-       return medidor
-     }
-     if(i == 13) {
-       medidor = 113
-       return medidor
-     }
-     if(i == 14) {
-       medidor = 114
-       return medidor
-     }
-     if(i == 15) {
-       medidor = 201
-       return medidor
-     }
-     if(i == 16) {
-       medidor = 202
-       return medidor
-     }
-     if(i == 17) {
-       medidor = 203
-       return medidor
-     }
-     if(i == 18) {
-       medidor = 204
-       return medidor
-     }
-     if(i == 19) {
-       medidor = 205
-       return medidor
-     }
-     if(i == 20) {
-       medidor = 206
-       return medidor
-     }
-     if(i == 21) {
-       medidor = 207
-       return medidor
-     }
-     if(i == 22) {
-       medidor = 208
-       return medidor
-     }
-     if(i == 23) {
-       medidor = 209
-       return medidor
-     }
-     if(i == 24) {
-       medidor = 210
-       return medidor
-     }
-     if(i == 25) {
-       medidor = 211
-       return medidor
-     }
-     if(i == 26) {
-       medidor = 212
-       return medidor
-     }
-     if(i == 27) {
-       medidor = 213
-       return medidor
-     }
-     if(i == 28) {
-       medidor = 214
-       return medidor
-     }
-     if(i == 29) {
-       medidor = 301
-       return medidor
-     }
-     if(i == 30) {
-       medidor = 302
-       return medidor
-     }
-     if(i == 31) {
-       medidor = 303
-       return medidor
-     }
-     if(i == 32) {
-       medidor = 304
-       return medidor
-     }
-     if(i == 33) {
-       medidor = 305
-       return medidor
-     }
-     if(i == 34) {
-       medidor = 306
-       return medidor
-     }
-     if(i == 35) {
-       medidor = 307
-       return medidor
-     }
-     if(i == 36) {
-       medidor = 308
-       return medidor
-     }
-     
-     console.log("opcao invalida")
-     medidor = 101
-     return medidor
- }
- 
  function atualizar (dados){
    $('#data').text(dados.leitura.data)
    $('#va').text(dados.leitura.uarms + " V" ) 
@@ -540,7 +389,66 @@ socket.on('consumo_santa_monica_hidro', (data) => {
     chart1.draw(data1, options1);
     chart2.draw(data2, options2);
     chart3.draw(data3, options3);
-  }
- 
+}
+
+async function drawChartConsumo(dados,id,local) {
+    let grafico = []
+    console.log(dados)
+    await dados.forEach(element => {
+        grafico.push([new Date(element[0]), element[1]]);
+      });
+    // Cria a tabela de dados.
+    var data = new google.visualization.DataTable();
+    data.addColumn('date', 'Data');
+    data.addColumn('number', 'Leitura');
+    data.addRows(grafico);
+    // console.log(dados.semestral)
+   
+    // Set chart options
+    var options = {
+        title:'Leituras: ' + local+" ("+id+")",
+        hAxis: {
+          title: 'data', 
+          format: 'dd-MM-yy', // Formato da data no eixo horizontal
+          titleTextStyle: {color: '#333'}},
+        vAxis: {title: 'leitura (em m3)'},
+        series: {
+            0: {lineWidth: 2} // largura da linha
+          },
+        pointSize: 5, // tamanho dos pontos
+        pointShape: 'circle', // forma dos pontos
+        colors: ['#1c91c0'], // cor da linha e dos pontos
+        tooltip: {
+            isHtml: true, // Permite HTML no tooltip
+            trigger: 'selection' // Exibe tooltip ao selecionar um ponto
+          }
+    }
+  
+    // Função para formatar o tooltip
+    function formatTooltip(date, value) {
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+        var formattedDate = date.toLocaleDateString('pt-BR', options);
+        return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
+    }
+  
+    // Modifica os dados para incluir o tooltip HTML
+    var formattedData = [];
+    for (var i = 0; i < data.getNumberOfRows(); i++) {
+      var date = data.getValue(i, 0);
+      var value = data.getValue(i, 1);
+      var tooltip = formatTooltip(date, value);
+      formattedData.push([date, value, tooltip]);
+    }
+  
+    // Cria uma nova tabela com os dados formatados
+    var dataWithTooltip = google.visualization.arrayToDataTable([
+      ['Data', 'Leitura', { role: 'tooltip', type: 'string', p: { html: true } }],
+      ...formattedData
+    ]);
+  
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.AreaChart(document.getElementById('chart_consumo'));
+    chart.draw(dataWithTooltip, options);
+}
  
  

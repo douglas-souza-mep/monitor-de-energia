@@ -61,11 +61,11 @@ socket.on("connect", () => {
 
 
 async function iniciarPagina(){
-  for (let i = 1; i < usuario.agua+1; i++) {
+  for (let i = 1; i < usuario.reservatorio+1; i++) {
     let text = usuario.reservatorios.split(";");
     reservatorios.push(new Reservatorio(i, text[(i * 2) - 2], text[(i * 2) - 1]))
   }
-  
+  console.log(reservatorios)
   $('#res1_titulo').text(reservatorios[0].nome)
   $('#res2_titulo').text(reservatorios[1].nome)
   
@@ -84,7 +84,7 @@ async function iniciarPagina(){
     //console.log(reservatorios[0])
     drawGauge1()
 
-    drawChart1(teste,reservatorios[0].chartOptions)
+    drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions)
 
     if(new Date(reservatorios[0].data) >= new Date(reservatorios[1].data)){
       $('#data').text(reservatorios[0].data)
