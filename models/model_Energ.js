@@ -238,21 +238,6 @@ const getConsumo = async (url,id,startDate,endDate)=>{
     return {consumosDiario,consumo}
 }
 
-async function dadosAlerta(url,id){
-    try {
-        
-        const [[retorno]] = await db.query("SELECT nome,med_energia,chatID FROM usuarios WHERE url = ?  LIMIT 1",url)
-        //console.log(retorno)
-        const med_energia = retorno.med_energia.split(";")
-        const chatID = retorno.chatID.split(";")
-        const index = reservatorios.indexOf(id.toString());
-        return {chatID:chatID, local: med_energia[index+1], id: med_energia[index],nome:retorno.nome}
-        
-    } catch (error) {
-        return {error:error}
-    }
-}
-
 const inserir = async (d,leituraAtual,sql) =>{
     //console.log(leituraAtual)
     try {
@@ -308,6 +293,5 @@ const validacao = async (leitura) =>{
 module.exports = {
     atualizarDados,
     getDataStart,
-    getConsumo,
-    dadosAlerta
+    getConsumo
 }

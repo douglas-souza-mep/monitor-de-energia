@@ -1,7 +1,9 @@
 const moment = require('moment')
 const db = require('../models/connection')
+const model_Eneg = require('../models/model_Energ')
 const { Telegraf } = require('telegraf');
 const model_Res = require('../models/model_Res')
+
 
 
 function calculoConsumo(t_star,t_end,pt){
@@ -66,11 +68,12 @@ function traduzMes(str){
 
 
 function sendAlerta(msg, usuarios) {
-  const bot = new Telegraf('7305830643:AAFWx-5WC_F_ZoE3ZHTN9bdHgoUh6w-ae2g');
-  console.log(usuarios)
-  usuarios.forEach(element => {
-    bot.telegram.sendMessage(element,msg)
-  });
+  const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
+  if(usuarios!== undefined){
+    usuarios.forEach(element => {
+      bot.telegram.sendMessage(element,msg)
+    });
+  }
 }
 
 // Função assíncrona para gerar a lista de dispositivos
@@ -136,6 +139,7 @@ async function tarefaPeriodica() {
                   const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
 
                   // Envia o alerta
+                  console.log(msg)
                   sendAlerta(msg, retorno.chatID);
               } catch (alertError) {
                   console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
@@ -146,6 +150,7 @@ async function tarefaPeriodica() {
       // Cria um array de Promises para processar os elementos de medidores de energia
       const promisesEnerg = globalThis.medidoresEnerg.map(async (element) => {
         //verifica se houve transmissão 
+        //console.log(element)
           if (!globalThis.medidoresEnergDinamico.includes(element)) {
               const aux = element.split("_");
               const url = aux[1];
@@ -153,10 +158,11 @@ async function tarefaPeriodica() {
 
               try {
                   // Obtém os dados de alerta
-                  const retorno = await model_Eneg.dadosAlerta(url, id);
+                  const retorno = await dadosAlertaEnerg(url, id);
                   const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
 
                   // Envia o alerta
+                  console.log(msg)
                   sendAlerta(msg, retorno.chatID);
               } catch (alertError) {
                   console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
@@ -176,6 +182,22 @@ async function tarefaPeriodica() {
       console.error("Erro na tarefa periódica:", error);
   }
 }
+
+async function dadosAlertaEnerg (url,id){
+    try {
+        
+        const [[retorno]] = await db.query("SELECT nome,med_energia,chatID FROM usuarios WHERE url = ?  LIMIT 1",url)
+        //console.log(retorno)
+        const med_energia = retorno.med_energia.split(";")
+        const chatID = retorno.chatID.split(";")
+        const index = med_energia.indexOf(id.toString());
+        return {chatID:chatID, local: med_energia[index+1], id: med_energia[index],nome:retorno.nome}
+        
+    } catch (error) {
+        return {error:error}
+    }
+}
+
 
 module.exports = {
     calculoConsumo,

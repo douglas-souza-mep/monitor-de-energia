@@ -21,8 +21,7 @@
                 <h2><%= nome %></h2>
             </div>
             <div>
-                <a href="http://localhost:5000/users/santa_monica"><button>Medidores de energia</button></a>
-                <!--a href="http://monitor.mep.eng.br:5000/users/santa_monica"><button>Medidores de energia</button></!a-->
+                <a href="http://monitor.mep.eng.br:5000/users/santaMonica"><button>Medidores de energia</button></a>
             </div>
           <div>
             Medidor Selecionado:
@@ -67,17 +66,18 @@
       </div>
 
       <div class="flex-chart">
-        <div id="result" class="item1"></div>
-        <div id="chart_consumo" class="item2"></div>
+        <div id="chart_consumo" class="item1"></div>
+        <div id="result" class="item2"></div>
       </div> 
-      <div class="flex-chart">
+      
+      <!--div class="flex-chart">S
         <div class="item1">
           <h1>Carregar Arquivo de leituras TXT e Enviar ao Servidor</h1>
           <input type="file" id="file-input" accept=".txt">
           <button id="upload-button">Enviar</button>
           <div id="retornoArquivo" ></div>
           </div>
-      </div> 
+      </div--> 
       
 
     </div>
@@ -85,5 +85,5 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
 <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-<script src="/javascripts/santa_monica_hidro.js"></script>
+<script src="/javascripts/santaMonica_hidro.js"></script>
 </html>

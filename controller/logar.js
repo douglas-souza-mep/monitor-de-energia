@@ -32,7 +32,8 @@ async function logarTelegran(username, password,chatId) {
             [username, password]);
         //console.log(user[0])
         if (user[0]) {// Salva o chatId no banco de dados
-            if(user[0].chatId!==null){
+            //console.log(user[0].chatId)
+            if(user[0].chatID!==null){
                 const chatIDS = await user[0].chatID.split(";")
                 //console.log(chatIDS)
                 await chatIDS.forEach(element => {

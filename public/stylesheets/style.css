@@ -9,7 +9,7 @@ header {
     box-shadow: 0px 3px 10px #464646;
     margin-top: 0px; /* altura que está do topo */
     top: 0px; /* altura que vai parar antes do topo */
-    position: sticky;
+    /*position: sticky;*/
     margin-bottom: 20px;
 }
 

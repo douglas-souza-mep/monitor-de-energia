@@ -8,17 +8,17 @@ let hidrometro = $('#hidrometros option:selected').val()
 $('#hidrometros').on('change', () => {
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
-    socket.emit("getLeituasHidrometro",{hidrometro, url:"santa_monica"})
+    socket.emit("getLeituasHidrometro",{hidrometro, url:"santaMonica"})
      
  })
 
 socket.on("connect", () => {
     console.log(socket.id);
-    socket.emit("iniciarTelaSanta_monica_hidro",hidrometro) 
-    //console.log("tela atualizada com "+dados.leitura.id )
+    socket.emit("iniciarTelasantaMonica_hidro") 
+    console.log("iniciartela" )
 });
 
-socket.on("atualizar_santa_monica_hidrometros", async (dados) => {
+socket.on("atualizar_santaMonica_hidrometros", async (dados) => {
      // Obtém o elemento select
     const select = document.getElementById('hidrometros');
     const lista = dados.hidrometros.split(';');
@@ -26,7 +26,7 @@ socket.on("atualizar_santa_monica_hidrometros", async (dados) => {
 
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
-    socket.emit("getLeituasHidrometro",{hidrometro, url:"santa_monica"})
+    socket.emit("getLeituasHidrometro",{hidrometro, url:"santaMonica"})
 })
 
 document.getElementById('event-form').addEventListener('submit', async function(event) {
@@ -37,14 +37,14 @@ document.getElementById('event-form').addEventListener('submit', async function(
     const endDate = document.getElementById('end-date').value;
 
     // Envia os dados para o servidor usando Socket IO
-    socket.emit("calcular_consumo_santa_monica_hidro",{hidrometro: hidrometro , datas:{startDate, endDate} })
+    socket.emit("calcular_consumo_santaMonica_hidro",{hidrometro: hidrometro , datas:{startDate, endDate} })
 });
 
 
 // Ouve eventos de resposta do servidor
-socket.on('consumo_santa_monica_hidro', (dados) => {
+socket.on('consumo_santaMonica_hidro', (dados) => {
     const resultDiv = document.getElementById('result');
-    //console.log(dados)
+    console.log(dados)
     if (dados.error) {
         resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
     } else {
@@ -62,7 +62,7 @@ socket.on('consumo_santa_monica_hidro', (dados) => {
     }
 });
 
-document.getElementById('upload-button').addEventListener('click', async () => {
+/*document.getElementById('upload-button').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-input');
     if (fileInput.files.length === 0) {
         alert('Por favor, selecione um arquivo.');
@@ -93,7 +93,7 @@ document.getElementById('upload-button').addEventListener('click', async () => {
             }
         });
         // Envia o conteúdo do arquivo para o servidor
-        socket.emit('addLeituraHidrometro_santa_monica', leituras);
+        socket.emit('addLeituraHidrometro_santaMonica', leituras);
 
         // Atualiza o status
         document.getElementById('retornoArquivo').innerText = 'Enviando arquivo ...';
@@ -104,9 +104,9 @@ document.getElementById('upload-button').addEventListener('click', async () => {
     };
 
     reader.readAsText(file);
-});
+});*/
 
-socket.on('retornoArquivo_santa_monica', (retorno) => {
+socket.on('retornoArquivo_santaMonica', (retorno) => {
     const arquivoDiv = document.getElementById('retornoArquivo');
 
     if (retorno.negados>0) {
@@ -122,11 +122,17 @@ socket.on('retornoArquivo_santa_monica', (retorno) => {
     }
 })
 
-socket.on('atualizar_santa_monica_hidro', (dados) => {
+socket.on('atualizar_santaMonica_hidro', (dados) => {
     //console.log(dados)
-    if(dados[0].id == hidrometro){
-        atualizar(dados)
-       }  
+   try {
+        if(dados[0].id == hidrometro){
+            atualizar(dados)
+           }  
+    } catch (error) {
+        console.log("hidrometro não encontrado")
+        console.log(dados)
+        console.log(error)
+    }
     
 });
 

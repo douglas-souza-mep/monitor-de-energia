@@ -57,20 +57,21 @@ module.exports = function(io){
   })
   
   //--------------------------------------------------------------------------
-  //router.get('/santa_monica',chekToken, function(req, res) {
-  router.get('/santa_monica', function(req, res) {
-    res.render('santa_monica_energ', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
+  //router.get('/santaMonica',chekToken, function(req, res) {
+  router.get('/santaMonica', function(req, res) {
+    res.render('santaMonica_energ', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
   });
 
-  router.get('/santa_monica_hidro', function(req, res) {
-    res.render('santa_monica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });
+  router.get('/santaMonica_hidro', function(req, res) {
+    res.render('santaMonica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });
   });
   
   router.post('/sia',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    //console.log('Dados recebidos! santa_monica dispositivo: '+req.body.id)
-    const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"sia")
+    var url="santaMonica"
+    //console.log('Dados recebidos! santaMonica dispositivo: '+req.body.id)
+    const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"santaMonica")
     
     var dados = {
       leitura:req.body,
@@ -88,8 +89,9 @@ module.exports = function(io){
     }
     dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
     
-    io.emit("atualizar_santa_monica"+req.body.id,dados)
-    res.send('Dados recebidos! santa_monica dispositivo: '+req.body.id);
+    io.emit("atualizar_santaMonica"+req.body.id,dados)
+    f.adicionarSeNaoExistir( medidoresEnergDinamico,`energ_${url}_${req.body.id}`)
+    res.send('Dados recebidos! santaMonica dispositivo: '+req.body.id);
   })
 
   //-------------------------------------------------------------------
@@ -129,6 +131,7 @@ module.exports = function(io){
   router.post('/anchieta/agua',async (req,res) =>{
   var d = new Date();
   var data = d.setHours(d.getHours() - 3)
+  var url = "anchieta"
     //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
     //console.log(req.body)
     const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
@@ -140,6 +143,7 @@ module.exports = function(io){
     //console.log(dados.graficos)
     dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
     io.emit("atualizar_anchieta_res"+req.body.id,dados)
+    f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
     res.send("recebido");
   })
 
@@ -186,7 +190,7 @@ module.exports = function(io){
       console.log(index)
       if(index==-1){
         const retorno = await model_Res.dadosAlerta(url,req.body.id)
-        const msg = "Alerta de nivel baixo do "+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
         f.sendAlerta(msg,retorno.chatID)
         alertas.urlID.push(url+req.body.id+"NB")
         alertas.data.push(data) 
@@ -210,9 +214,10 @@ module.exports = function(io){
   
   router.post('/casa',async (req,res) =>{
     const d = new Date();
-    //d.setHours(d.getHours() - 3)
-    //console.log('Dados recebidos! santa_monica dispositivo: '+req.body.id)
-    const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,"casa")
+    d.setHours(d.getHours() - 3)
+    var url = "casa"
+    //console.log('Dados recebidos! santaMonica dispositivo: '+req.body.id)
+    const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,url)
     
     var dados = {
       leitura:req.body,
@@ -231,6 +236,7 @@ module.exports = function(io){
     dados.leitura.data = moment(d).format('DD-MM-YYYY HH:mm:ss')
     
     io.emit("atualizar_casa"+req.body.id,dados)
+    f.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${url}_${req.body.id}`)
     res.send('Dados recebidos! de casa dispositivo: '+req.body.id);
   })
 

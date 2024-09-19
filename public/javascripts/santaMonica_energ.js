@@ -12,12 +12,12 @@
      medidor = $('#medidor option:selected').val()
      local = $('#medidor option:selected').text()
      console.log(medidor+" "+local)
-     socket.emit("iniciarTelaCasa",medidor) 
+     socket.emit("iniciarTelasantaMonica",medidor) 
  })
 
  socket.on("connect", () => {
      console.log(socket.id);
-     socket.emit("iniciarTelaSia",medidor) 
+     socket.emit("iniciarTelasantaMonica",medidor) 
      //console.log("tela atualizada com "+dados.leitura.id )
    });
 
@@ -29,11 +29,11 @@ document.getElementById('event-form').addEventListener('submit', async function(
   const endDate = document.getElementById('end-date').value;
   
   // Envia os dados para o servidor usando Socket IO
-  socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"santa_monica",local:local })
+  socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"santaMonica",local:local })
 });
   
   // Ouve eventos de resposta do servidor em relação ao consumo
-socket.on('consumo_de_energia_santa_monica', (dados) => {
+socket.on('consumo_de_energia_santaMonica', (dados) => {
   const resultDiv = document.getElementById('result');
   //console.log(dados)
   if (dados.error) {
@@ -52,271 +52,271 @@ socket.on('consumo_de_energia_santa_monica', (dados) => {
   }
 });
  
- socket.on("atualizar_sia1",dados =>{
+ socket.on("atualizar_santaMonica1",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia2",dados =>{
+ socket.on("atualizar_santaMonica2",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia3",dados =>{
+ socket.on("atualizar_santaMonica3",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia11",dados =>{
+ socket.on("atualizar_santaMonica11",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia12",dados =>{
+ socket.on("atualizar_santaMonica12",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia101",dados =>{
+ socket.on("atualizar_santaMonica101",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia102",dados =>{
+ socket.on("atualizar_santaMonica102",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia103",dados =>{
+ socket.on("atualizar_santaMonica103",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia104",dados =>{
+ socket.on("atualizar_santaMonica104",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia105",dados =>{
+ socket.on("atualizar_santaMonica105",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia106",dados =>{
+ socket.on("atualizar_santaMonica106",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia107",dados =>{
+ socket.on("atualizar_santaMonica107",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia108",dados =>{
+ socket.on("atualizar_santaMonica108",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia109",dados =>{
+ socket.on("atualizar_santaMonica109",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia110",dados =>{
+ socket.on("atualizar_santaMonica110",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia111",dados =>{
+ socket.on("atualizar_santaMonica111",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia112",dados =>{
+ socket.on("atualizar_santaMonica112",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia113",dados =>{
+ socket.on("atualizar_santaMonica113",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia114",dados =>{
+ socket.on("atualizar_santaMonica114",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia201",dados =>{
+ socket.on("atualizar_santaMonica201",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia202",dados =>{
+ socket.on("atualizar_santaMonica202",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia203",dados =>{
+ socket.on("atualizar_santaMonica203",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia204",dados =>{
+ socket.on("atualizar_santaMonica204",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia205",dados =>{
+ socket.on("atualizar_santaMonica205",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia206",dados =>{
+ socket.on("atualizar_santaMonica206",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia207",dados =>{
+ socket.on("atualizar_santaMonica207",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia208",dados =>{
+ socket.on("atualizar_santaMonica208",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia209",dados =>{
+ socket.on("atualizar_santaMonica209",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_si2110",dados =>{
+ socket.on("atualizar_santaMonica210",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia211",dados =>{
+ socket.on("atualizar_santaMonica211",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia212",dados =>{
+ socket.on("atualizar_santaMonica212",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia213",dados =>{
+ socket.on("atualizar_santaMonica213",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia214",dados =>{
+ socket.on("atualizar_santaMonica214",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia301",dados =>{
+ socket.on("atualizar_santaMonica301",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia302",dados =>{
+ socket.on("atualizar_santaMonica302",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia303",dados =>{
+ socket.on("atualizar_santaMonica303",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia304",dados =>{
+ socket.on("atualizar_santaMonica304",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia305",dados =>{
+ socket.on("atualizar_santaMonica305",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia306",dados =>{
+ socket.on("atualizar_santaMonica306",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia307",dados =>{
+ socket.on("atualizar_santaMonica307",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia308",dados =>{
+ socket.on("atualizar_santaMonica308",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia309",dados =>{
+ socket.on("atualizar_santaMonica309",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia310",dados =>{
+ socket.on("atualizar_santaMonica310",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia311",dados =>{
+ socket.on("atualizar_santaMonica311",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  
  })
  
- socket.on("atualizar_sia312",dados =>{
+ socket.on("atualizar_santaMonica312",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
    }  

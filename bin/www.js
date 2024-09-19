@@ -26,10 +26,10 @@ globalThis.medidoresEnergDinamico = [];
 // Função para inicializar a lista de dispositivos
 async function inicializarListadeDispositivos() {
   await f.gerarListaDeDispositivos();
-  console.log( globalThis.reservatorios);
-  console.log(globalThis.medidoresEnerg);
-  globalThis.reservatoriosDinamico = globalThis.reservatorios
-  globalThis.medidoresEnergDinamico =globalThis.medidoresEnerg
+  //console.log( globalThis.reservatorios);
+  //console.log(globalThis.medidoresEnerg);
+  //globalThis.reservatoriosDinamico = globalThis.reservatorios
+  //globalThis.medidoresEnergDinamico =globalThis.medidoresEnerg
 }
 
 // Chama a função inicializar
@@ -61,14 +61,14 @@ app.io.on('connection', socket=>{
 
   socket.on("iniciarTelaCasa", async (medidor)=>{
     const dados=await model_Energ.getDataStart(medidor,"casa")
-    //console.log("atualizar_sia"+medidor)
+    //console.log("atualizar_santaMonica"+medidor)
     app.io.sockets.emit("atualizar_casa"+medidor,dados)
   })
 
-  socket.on("iniciarTelaSia", async (medidor)=>{
-    const dados=await model_Energ.getDataStart(medidor,"sia")
-    //console.log("atualizar_sia"+medidor)
-    app.io.sockets.emit("atualizar_sia"+medidor,dados)
+  socket.on("iniciarTelasantaMonica", async (medidor)=>{
+    const dados=await model_Energ.getDataStart(medidor,"santaMonica")
+    //console.log("atualizar_santaMonica"+medidor)
+    app.io.sockets.emit("atualizar_santaMonica"+medidor,dados)
   })
 
   socket.on("calcular_consumo_energ", async (info)=>{
@@ -113,25 +113,27 @@ app.io.on('connection', socket=>{
     app.io.sockets.emit("atualizar_test_res"+medidor,dados)
   })
 
-  socket.on("iniciarTelaSanta_monica_hidro", async (medidor)=>{
-    const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","santa_monica")
-    app.io.sockets.emit("atualizar_santa_monica_hidrometros",hidrometros)
+  socket.on("iniciarTelasantaMonica_hidro", async ()=>{
+    const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","santaMonica")
+    //console.log('santa Monica hidro')
+    //console.log(hidrometros)
+    app.io.sockets.emit("atualizar_santaMonica_hidrometros",hidrometros)
   })
 
   socket.on("getLeituasHidrometro", async (dados)=>{
-    console.log(dados)
+    //console.log(dados)
     if(dados != null){
       const leituras=await model_Hidro.getLeituras(dados.url,dados.hidrometro)
-      app.io.sockets.emit("atualizar_santa_monica_hidro",leituras)
+      app.io.sockets.emit("atualizar_santaMonica_hidro",leituras)
     }
     
   })
 
-  socket.on("calcular_consumo_santa_monica_hidro", async (dados)=>{
+  socket.on("calcular_consumo_santaMonica_hidro", async (dados)=>{
     //console.log(dados)
     const { startDate, endDate } = dados.datas;
     try {
-        const retorno = await model_Hidro.getConsumo("santa_monica",dados.hidrometro,startDate,endDate)
+        const retorno = await model_Hidro.getConsumo("santaMonica",dados.hidrometro,startDate,endDate)
         //console.log(retorno.length)
         if(retorno.length >= 2){
           consumo = retorno[retorno.length-1].leitura - retorno[0].leitura
@@ -146,22 +148,22 @@ app.io.on('connection', socket=>{
           await retorno.forEach(element => {
             dados.grafico.push([element.data, element.leitura]);
           });
-          socket.emit('consumo_santa_monica_hidro', dados);
+          socket.emit('consumo_santaMonica_hidro', dados);
         }else{
-          socket.emit('consumo_santa_monica_hidro', { error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.length });
+          socket.emit('consumo_santaMonica_hidro', { error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.length });
         }
         //console.log(retorno)
     } catch (error) {
         console.error('Erro ao consultar o banco de dados:', error);
-        socket.emit('consumo_santa_monica_hidro', { error: 'Erro ao buscar leituras.' });
+        socket.emit('consumo_santaMonica_hidro', { error: 'Erro ao buscar leituras.' });
     }
   })
 
-  socket.on('addLeituraHidrometro_santa_monica', async (leituras) => {
+  socket.on('addLeituraHidrometro_santaMonica', async (leituras) => {
     //console.log(leituras);
-    retorno = await model_Hidro.addLeituras("santa_monica",leituras)
+    retorno = await model_Hidro.addLeituras("santaMonica",leituras)
     //console.log(retorno);
-    socket.emit('retornoArquivo_santa_monica', retorno);
+    socket.emit('retornoArquivo_santaMonica', retorno);
   })
 })
 
@@ -178,14 +180,16 @@ server.on('listening', onListening);
 
 
 // Substitua pelo token real do seu bot
-const bot = new Telegraf('7305830643:AAFWx-5WC_F_ZoE3ZHTN9bdHgoUh6w-ae2g');
+const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
 
 // Inicia o bot
-bot.launch().then(() => {
+try{
+  bot.launch()
   console.log('Bot está rodando...');
-}).catch(err => {
+  f.sendAlerta("Servidor Mep iniciado",["620018969"])
+}catch(err){
   console.error('Erro ao iniciar o bot:', err);
-});
+};
 
 // Mensagem inicial quando o bot é iniciado
 bot.start((ctx) => {
@@ -221,7 +225,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos 
-const intervalo = 1000*60*60;
+const intervalo = 1000*60*30;
 
 // Inicia a execução periódica da função
 const idIntervalo = setInterval(f.tarefaPeriodica, intervalo);
