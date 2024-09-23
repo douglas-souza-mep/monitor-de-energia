@@ -141,7 +141,9 @@ function drawGauge2() {
 }
 
 function drawChart1(graficos,chartOptions) {
-  
+  graficos.forEach(element => {
+    element[0]=new Date(element[0])
+  });
   
   var dataChart = new google.visualization.DataTable();
   dataChart.addColumn('date', 'Horario');

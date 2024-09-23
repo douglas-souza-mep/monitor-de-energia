@@ -185,9 +185,9 @@ module.exports = function(io){
     f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
 
     if(dados.leitura.nivel<=30){
-      console.log(alertas)
+      //console.log(alertas)
       let index = alertas.urlID.indexOf(url+req.body.id+"NB");
-      console.log(index)
+      //console.log(index)
       if(index==-1){
         const retorno = await model_Res.dadosAlerta(url,req.body.id)
         const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
@@ -195,9 +195,29 @@ module.exports = function(io){
         alertas.urlID.push(url+req.body.id+"NB")
         alertas.data.push(data) 
       }else{
-        if (data-alertas.data[index]>=(60*60*100)) {
+        if (data-alertas.data[index]>=(60*60*1000)) {
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
           const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          f.sendAlerta(msg,retorno.chatID)
+          alertas.data[index] = data
+        }
+      }
+    }
+    
+    if(dados.leitura.nivel>100){
+      //console.log(alertas)
+      let index = alertas.urlID.indexOf(url+req.body.id+"NA");
+     // console.log(index)
+      if(index==-1){
+        const retorno = await model_Res.dadosAlerta(url,req.body.id)
+        const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+        f.sendAlerta(msg,retorno.chatID)
+        alertas.urlID.push(url+req.body.id+"NA")
+        alertas.data.push(data) 
+      }else{
+        if (data-alertas.data[index]>=(60*60*1000)) {
+          const retorno = await model_Res.dadosAlerta(url,req.body.id)
+          const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
           f.sendAlerta(msg,retorno.chatID)
           alertas.data[index] = data
         }
