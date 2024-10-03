@@ -228,6 +228,8 @@ const getDataStart= async(medidor,usuario) =>{
 
 const getConsumo = async (url,id,startDate,endDate)=>{
     let consumosDiario
+    console.log(startDate)
+    console.log(endDate)
     const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
     try {
         [consumosDiario] = await db.query(sql,[startDate,endDate])

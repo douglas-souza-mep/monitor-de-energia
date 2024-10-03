@@ -61,7 +61,7 @@ socket.on("connect", () => {
 
 
 async function iniciarPagina(){
-  for (let i = 1; i < usuario.reservatorio+1; i++) {
+  for (let i = 1; i < 3; i++) {
     let text = usuario.reservatorios.split(";");
     reservatorios.push(new Reservatorio(i, text[(i * 2) - 2], text[(i * 2) - 1]))
   }
