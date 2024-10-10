@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/reservatorio.css' />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script src="/javascripts/taguaLife_res.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="nav-bar">
+     
+        <figure >
+          <img  src="/images/logo_mep.png" alt="Logo Mep Engenharia">
+       </figure>
+     
+      <div class="nav-list"> 
+        <ul>
+            <h1><%= nome %></h1>
+            <p class="data">Ultima atualização: <span id="data"></span></p>
+        </ul>
+      </div>
+        <div class="login-button">
+            
+        </div>
+
+        <!--div class="mobile-menu-icon">
+            <button onclick="menuShow()"><img class="icon" src="assets/img/menu_white_36dp.svg" alt=""></button>
+        </div-->
+    </nav>
+  </header>
+
+  <div id="loadingPopup" class="popup">
+    <div class="popup-content">
+        <div class="loader"></div>
+        <h2>Carregando...</h2>
+        <p>Por favor, aguarde.</p>
+    </div>
+  </div>
+
+    <div class="gauges">
+        <div class="gauge-container">
+            <div id="res1" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res1_data"></span></div>
+            <button class="getHistorico" value="1">historico</button>
+        </div>
+        <div class="gauge-container">
+            <div id="res2" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res2_data"></span></div>
+            <button class="getHistorico" value="2">historico</button>
+        </div>
+        <div class="gauge-container">
+            <div id="res3" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res3_data"></span></div>
+            <button class="getHistorico" value="3">historico</button>
+        </div>
+        <div class="gauge-container">
+            <div id="res4" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res4_data"></span></div>
+            <button class="getHistorico" value="4">historico</button>
+        </div>
+        <div class="gauge-container">
+            <div id="res5" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res5_data"></span></div>
+            <button class="getHistorico" value="5">historico</button>
+        </div>
+        <div class="gauge-container">
+            <div id="res6" class="gauge"></div>
+            <div class="ultimaLeitura">Ultima atualização:  <span id="res6_data"></span></div>
+            <button class="getHistorico" value="6">historico</button>
+        </div>
+    </div>
+
+    <div id=chart class="flex-chart">
+      
+    </div> 
+</body>
+</html>

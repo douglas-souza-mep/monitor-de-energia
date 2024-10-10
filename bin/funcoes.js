@@ -122,12 +122,15 @@ function adicionarSeNaoExistir(lista, dispositivo) {
 async function tarefaPeriodica() {
   try {
       // Log das variáveis globais dinamicas
-      //console.log(globalThis.reservatoriosDinamico);
-      //console.log(globalThis.medidoresEnergDinamico);
+      console.log("reseratorios")
+      console.log(globalThis.reservatoriosDinamico);
+      console.log("energia")
+      console.log(globalThis.medidoresEnergDinamico);
 
       // Cria um array de Promises para processar os elementos de reservatorios
       const promisesRes = globalThis.reservatorios.map(async (element) => {
         //verifica se houve transmissão 
+        console.log(element)
           if (!globalThis.reservatoriosDinamico.includes(element)) {
               const aux = element.split("_");
               const url = aux[1];

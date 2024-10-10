@@ -113,6 +113,36 @@ app.io.on('connection', socket=>{
     app.io.sockets.emit("atualizar_test_res"+medidor,dados)
   })
 
+  socket.on("iniciarTela_taguaLife_Res", async (medidor)=>{
+    const dados=await model_Res.getDataStart(medidor,"taguaLife")
+    //console.log("atualizar_anchieta: "+medidor)
+    app.io.sockets.emit("atualizar_taguaLife_res",dados)
+  })
+
+  socket.on("getHistorico_taguaLife_res", async (dados)=>{
+    //console.log(dados)
+    const { startDate, endDate } = dados.datas;
+    try {
+      const retorno = await model_Res.getHistorico("tagualife",dados.id,startDate,endDate)
+      //console.log(retorno)
+      dados={
+        id: dados.id,
+        local:dados.local,
+        dataL1:retorno[0][1],
+        dataL2:retorno[retorno.length-1][1],
+        grafico: []
+      }
+      await retorno.forEach(element => {
+        dados.grafico.push([element[1], element[2]]);
+      });
+      socket.emit('historico_taguaLife_res', dados);
+      //console.log(retorno)
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        socket.emit('historico_taguaLife_res', { error: 'Ainda não ha leituras' });
+    }
+  })
+
   socket.on("iniciarTelasantaMonica_hidro", async ()=>{
     const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","santaMonica")
     //console.log('santa Monica hidro')
@@ -225,7 +255,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos 
-const intervalo = 1000*60*5;
+const intervalo = 1000*60*1200;
 
 // Inicia a execução periódica da função
 const idIntervalo = setInterval(f.tarefaPeriodica, intervalo);

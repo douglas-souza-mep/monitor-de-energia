@@ -55,7 +55,7 @@ socket.on('consumo_santaMonica_hidro', (dados) => {
                 <p><strong>Local:</strong> ${dados.local}</p>
                 <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
                 <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
-                <p><strong>Data Consumo:</strong> ${dados.consumo/1000} m<sup>3</sup></p>
+                <p><strong>Consumo:</strong> ${dados.consumo/1000} m<sup>3</sup></p>
             </div>
         `;
         

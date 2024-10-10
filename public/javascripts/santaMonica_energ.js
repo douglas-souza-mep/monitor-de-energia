@@ -46,7 +46,7 @@ socket.on('consumo_de_energia_santaMonica', (dados) => {
               <p><strong>Local:</strong> ${dados.local}</p>
               <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
               <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
-              <p><strong>Data Consumo:</strong> ${dados.consumo} kWh</p>
+              <p><strong>Consumo:</strong> ${dados.consumo} kWh</p>
           </div>
       `;    
   }

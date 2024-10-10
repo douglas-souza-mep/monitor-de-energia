@@ -73,8 +73,10 @@ ALTER TABLE `usuarios` ADD `nome` VARCHAR(20) NOT NULL AFTER `senha`, ADD `url` 
 CREATE TABLE `medidores_de_energia`.`tb_santa_monica_hidrometro` (`id` INT NOT NULL , `local` VARCHAR(16) NOT NULL , `data` DATETIME NOT NULL , `leitura` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 
-INSERT INTO `usuarios` (`id`, `usuario`, `senha`,`url`, `energia`, `med_energia`, `reservatorio`,`reservatorios`, `hidrometro`, `hidrometros`) VALUES (2, 'teste', '@teste','test',1,
-"1;medidor de energia",
-2, '1;Res 1;2;Res 2',
+INSERT INTO `usuarios` (`usuario`, `senha`,`nome`,`url`, `energia`, `med_energia`, `reservatorio`,`reservatorios`, `hidrometro`, `hidrometros`) VALUES ('tagua.life', 'tagua@life','Taguá Life','taguaLife',0,
+" ",
+6, '1;Torre A;2;Torre B;3;Torre C;4;Torre D;5;Torre E;6;Torre F',
 0,
-" ")
+" ");
+
+CREATE TABLE `medidores_de_energia`.`tb_taguaLife_res` (`id` INT NOT NULL, `data` DATETIME NOT NULL , `volume` INT NOT NULL , `nivel` INT NOT NULL , `distancia` INT NULL , PRIMARY KEY (`data`,`id`)) ENGINE = InnoDB;

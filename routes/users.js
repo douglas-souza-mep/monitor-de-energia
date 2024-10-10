@@ -173,6 +173,10 @@ module.exports = function(io){
     var url="test"
     //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
     const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
+    if(retorno.erro){
+      res.send("falha ao inserir dados do reservatorio");
+      return console.log("falha ao inserir dados do reservatorio")
+    }
     var dados = {
       leitura: retorno.leitura,
       graficos: retorno.graficos
@@ -236,7 +240,7 @@ module.exports = function(io){
     const d = new Date();
     d.setHours(d.getHours() - 3)
     var url = "casa"
-    //console.log('Dados recebidos! santaMonica dispositivo: '+req.body.id)
+    //console.log('Dados recebidos! Casa dispositivo: '+req.body.id)
     const retorno = await model_Energ.atualizarDados(req.body,d,req.body.id,url)
     
     var dados = {
@@ -260,7 +264,51 @@ module.exports = function(io){
     res.send('Dados recebidos! de casa dispositivo: '+req.body.id);
   })
 
+  //-------------------------------- FIM CASA ---------------------------------------------------------------
+
+  //-------------------------------- TAGUA LIFE -------------------------------------------------------------
+
+  router.get('/taguaLife', function(req, res) {
+    res.redirect('/users/taguaLife/res')
+    //res.send("ola");
+  });
+
+  //router.get('/anchieta',chekToken, function(req, res) {
+  router.get('/taguaLife/res', function(req, res) {
+      res.render('taguaLife_res', { title: 'Mep Tecnologia', nome:"Tagua Life" });
+    });
+
+  router.get('/app/taguaLife/res', async function(req, res) {
+    //console.log(req.query)
+    const dados= await model_Res.getDataStart(req.query.id,"taguaLife")
+
+    res.send(dados.leitura);
+  });
+
+  router.post('/taguaLife/res',async (req,res) =>{
+    //console.log(req.body)
+      var d = new Date();
+      var data = d.setHours(d.getHours() - 3)
+    var url="taguaLife"
+    //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
+    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
+    var dados = {
+      leitura: retorno.leitura,
+      graficos: retorno.graficos
+    }
+    //console.log(dados)
+    dados.leitura.id = req.body.id,
+    dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
+    io.emit("atualizar_"+url+"_res",dados)
+  
+  // ####################### ALERTA ################################################     
+
+  //################ 
+    res.send("recebido");
+  })
+//----------------------- FIM TAGUA LIFE -------------------------------------------
+
+
+
   return router;
 }
-
-
