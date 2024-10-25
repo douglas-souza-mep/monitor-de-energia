@@ -123,7 +123,7 @@ app.io.on('connection', socket=>{
     //console.log(dados)
     const { startDate, endDate } = dados.datas;
     try {
-      const retorno = await model_Res.getHistorico("tagualife",dados.id,startDate,endDate)
+      const retorno = await model_Res.getHistorico("taguaLife",dados.id,startDate,endDate)
       //console.log(retorno)
       dados={
         id: dados.id,
@@ -216,7 +216,7 @@ const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
 try{
   bot.launch()
   console.log('Bot está rodando...');
-  f.sendAlerta("Servidor Mep iniciado",["620018969"])
+  f.sendAlerta("Servidor Mep iniciado",[process.env.CHAT_ID_DEV])
 }catch(err){
   console.error('Erro ao iniciar o bot:', err);
 };
@@ -255,7 +255,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos 
-const intervalo = 1000*60*1200;
+const intervalo = 1000*60*10;
 
 // Inicia a execução periódica da função
 const idIntervalo = setInterval(f.tarefaPeriodica, intervalo);

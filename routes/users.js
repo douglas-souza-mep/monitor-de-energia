@@ -95,7 +95,7 @@ module.exports = function(io){
   })
 
   //-------------------------------------------------------------------
-
+/*
   router.get('/anchieta', function(req, res) {
     res.redirect('/users/anchieta/agua')
     //res.send("ola");
@@ -111,12 +111,7 @@ module.exports = function(io){
     const dados = await model_Res.getDataStart(2,"anchieta")
     //const dados= await model_Res.getDataStart(req.query.id,"anchieta")
     //console.log("############## medidor :"+medidor)
-        /*String 1 nome
-    string 2 data
-    string 3 volume
-    string 4 distancia
-    string 5 nivel
-    */ 
+  
    const conjuntoDeStrings = [
         "SMA Reservatorio Inf. 1", 
         dados.leitura.data, 
@@ -145,11 +140,11 @@ module.exports = function(io){
     io.emit("atualizar_anchieta_res"+req.body.id,dados)
     f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
     res.send("recebido");
-  })
+  })*/
 
   //-------------------------------------------------------------------
 
-  router.get('/test', function(req, res) {
+  /*router.get('/test', function(req, res) {
     res.redirect('/users/test/res')
     //res.send("ola");
   });
@@ -208,7 +203,7 @@ module.exports = function(io){
       }
     }
     
-    if(dados.leitura.nivel>100){
+    if(dados.leitura.nivel>105){
       //console.log(alertas)
       let index = alertas.urlID.indexOf(url+req.body.id+"NA");
      // console.log(index)
@@ -229,7 +224,7 @@ module.exports = function(io){
     }
 // ####################################################################### 
       res.send("recebido");
-    })
+    })*/
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   router.get('/casa', function(req, res) {
@@ -285,16 +280,20 @@ module.exports = function(io){
     res.send(dados.leitura);
   });
 
+//const distancias = [{cheio: , vazio: ,max:200, NB:50 },{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},]
   router.post('/taguaLife/res',async (req,res) =>{
-    //console.log(req.body)
+    
       var d = new Date();
       var data = d.setHours(d.getHours() - 3)
     var url="taguaLife"
-    //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
-    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
+    console.log('Dados recebidos! Tagua Life reservatorio: '+req.body.id)
+    //console.log(req.body)
+    //let dist = distancias
+    if(req.body.distancia<200){
+         const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
     var dados = {
       leitura: retorno.leitura,
-      graficos: retorno.graficos
+      //graficos: retorno.graficos
     }
     //console.log(dados)
     dados.leitura.id = req.body.id,
@@ -302,8 +301,52 @@ module.exports = function(io){
     io.emit("atualizar_"+url+"_res",dados)
   
   // ####################### ALERTA ################################################     
-
-  //################ 
+    f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
+    
+    if(dados.leitura.nivel<=40){
+      //console.log(alertas)
+      let index = alertas.urlID.indexOf(url+req.body.id+"NB");
+      //console.log(index)
+      if(index==-1){
+        const retorno = await model_Res.dadosAlerta(url,req.body.id)
+        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+        f.sendAlerta(msg,retorno.chatID)
+        alertas.urlID.push(url+req.body.id+"NB")
+        alertas.data.push(data) 
+      }else{
+        if (data-alertas.data[index]>=(60*60*1000)) {
+          const retorno = await model_Res.dadosAlerta(url,req.body.id)
+          const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          f.sendAlerta(msg,retorno.chatID)
+          alertas.data[index] = data
+        }
+      }
+    }
+    
+    if(dados.leitura.nivel>105){
+      //console.log(alertas)
+      let index = alertas.urlID.indexOf(url+req.body.id+"NA");
+     // console.log(index)
+      if(index==-1){
+        const retorno = await model_Res.dadosAlerta(url,req.body.id)
+        const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+        f.sendAlerta(msg,retorno.chatID)
+        alertas.urlID.push(url+req.body.id+"NA")
+        alertas.data.push(data) 
+      }else{
+        if (data-alertas.data[index]>=(60*60*1000)) {
+          const retorno = await model_Res.dadosAlerta(url,req.body.id)
+          const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          f.sendAlerta(msg,retorno.chatID)
+          alertas.data[index] = data
+        }
+      }
+    }
+// #######################################################################
+    }
+    else{
+        f.sendAlerta(`fALHA AO OBTER DADOS DO TAGUA LIFE\nReservatorio: ${req.body.id}\nDistancia: ${req.body.distancia}\n ${data} `,[process.env.CHAT_ID_DEV])
+    }
     res.send("recebido");
   })
 //----------------------- FIM TAGUA LIFE -------------------------------------------

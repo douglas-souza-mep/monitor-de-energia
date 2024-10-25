@@ -13,7 +13,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     if(insert.error){
         return {erro:insert.error}
     }
-    let data2 = data.setHours(data.getHours() - 48)
+    /*let data2 = data.setHours(data.getHours() - 48)
     const [cd] = await db.query("SELECT id,data,nivel,distancia FROM tb_"+ usuario +"_res WHERE id = "+medidor+" AND DATE(data)>=?",
     moment(data2).format('YYYY-MM-DD'))
 
@@ -23,16 +23,16 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
         //let hora = moment(dado.data).format('HH:mm:ss')
         let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
-    });
+    });*/
     
-    return {graficos:graficos, leitura:leituraAtual};
+    return {leitura:leituraAtual};
 }
 
 const getDataStart= async(medidor,usuario) =>{
     const sql = "SELECT id,data,nivel,distancia FROM tb_"+usuario+"_res WHERE id = "+medidor+" ORDER BY data DESC LIMIT 1"
     const [[ultimaLeitura]] = await db.query(sql)
 
-    var data = new Date();
+    /*var data = new Date();
     data = data.setHours(data.getHours() - 51)
     //console.log(moment(data).format('YYYY-MM-DD'))
     const [cd] = await db.query("SELECT id,data,nivel,distancia FROM tb_"+ usuario +"_res WHERE id = "+medidor+" AND DATE(data)>=?",
@@ -45,21 +45,21 @@ const getDataStart= async(medidor,usuario) =>{
         //let hora = moment(dado.data).format('HH:mm:ss')
         let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
-    });
+    });*/
     
 
     try {
         var dados = {
         leitura:ultimaLeitura, 
-        graficos: graficos
+        //graficos: graficos
         }
-        dados.leitura.id = medidor
+        //dados.leitura.id = medidor
         dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
     } catch (error) {
         const d = moment("2000-01-01").format('DD-MM-YYYY HH:mm:ss')
         var dados = {
             leitura: {id: medidor, data: d, volume:0, distancia:0, nivel:0 },
-            graficos: graficos
+            //graficos: graficos
         }
     }
 
@@ -70,8 +70,8 @@ return dados
 
 const getHistorico= async (url,id,startDate,endDate)=>{
     let historico = []
-    console.log(startDate)
-    console.log(endDate)
+    //console.log(startDate)
+    //console.log(endDate)
     try {
         const [cd] = await db.query("SELECT id,data,nivel,distancia FROM tb_"+ url+"_res WHERE id = "+id+" AND DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC",
         [moment(startDate).format('YYYY-MM-DD'),moment(endDate).format('YYYY-MM-DD')])
