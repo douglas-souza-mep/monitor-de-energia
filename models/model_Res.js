@@ -132,10 +132,15 @@ const inserir = async (id,d,leituraAtual,sql) =>{
     
 }
 
+async function calcularNivel (distancia, vazio, cheio) {
+    return (distancia - vazio) * (100) / (cheio - vazio);
+}
+
 module.exports = {
     atualizarDados,
     getDataStart,
     dadosAlerta,
-    getHistorico
+    getHistorico,
+    calcularNivel
 }
 

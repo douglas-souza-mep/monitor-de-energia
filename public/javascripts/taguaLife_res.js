@@ -136,11 +136,28 @@ async function iniciarPagina(){
         ultimaAtualizacao = data
         $('#data').text(reservatorios[dados.leitura.id-1].data)
     }
+
+    loadingPopup.style.display = 'none'; // Esconde o pop-up 
   })
 
   const botoesHistorico = document.querySelectorAll('.getHistorico');
   const loadingPopup = document.getElementById('loadingPopup');
-  
+  const recarregar = document.getElementById('recarregar')
+
+  recarregar.addEventListener('click',function () {
+
+    loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
+    socket.emit("iniciarTela_"+url+"_Res", 1)
+    socket.emit("iniciarTela_"+url+"_Res", 2)
+    socket.emit("iniciarTela_"+url+"_Res", 3)
+    socket.emit("iniciarTela_"+url+"_Res", 4)
+    socket.emit("iniciarTela_"+url+"_Res", 5)
+    socket.emit("iniciarTela_"+url+"_Res", 6)
+
+
+  })
+
   botoesHistorico.forEach(botao => {
   botao.addEventListener('click', function() {
     // Coleta os valores para o grafico

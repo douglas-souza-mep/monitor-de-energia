@@ -280,7 +280,19 @@ module.exports = function(io){
     res.send(dados.leitura);
   });
 
-//const distancias = [{cheio: , vazio: ,max:200, NB:50 },{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},{cheio: , vazio: ,max:200, NB:50 ,},]
+  const distancias = [
+    //Superior A
+    {cheio:26 , vazio:96 ,max:200, NB:50 },
+    //Superior B
+    {cheio:28 , vazio:101 ,max:200, NB:50 },
+    //Superior C
+    {cheio:27 , vazio:77 ,max:200, NB:50 },
+    //Superior D
+    {cheio:33 , vazio:88 ,max:200, NB:50 },
+    //Superior E
+    {cheio:25 , vazio:92 ,max:200, NB:50 },
+    //Superior F
+    {cheio:21 , vazio:89 ,max:200, NB:50 }]
   router.post('/taguaLife/res',async (req,res) =>{
     
       var d = new Date();
@@ -288,61 +300,69 @@ module.exports = function(io){
     var url="taguaLife"
     console.log('Dados recebidos! Tagua Life reservatorio: '+req.body.id)
     //console.log(req.body)
-    //let dist = distancias
-    if(req.body.distancia<200){
-         const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
-    var dados = {
+    let dist = distancias[req.body.id+1]
+    if(req.body.distancia<dist.max){
+      
+      let leituraAtual = {
+        id:req.body.id,
+        distancia:req.body.distancia,
+        nivel: await model_Res.calcularNivel(req.body.distancia,dist.vazio,dist.cheio),
+        volume:100
+      }
+
+      const retorno = await model_Res.atualizarDados(leituraAtual,d,leituraAtual.id,url)
+      var dados = {
       leitura: retorno.leitura,
       //graficos: retorno.graficos
-    }
-    //console.log(dados)
-    dados.leitura.id = req.body.id,
-    dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
-    io.emit("atualizar_"+url+"_res",dados)
+      }
+      //console.log(dados)
+      dados.leitura.id = req.body.id,
+      dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
+      io.emit("atualizar_"+url+"_res",dados)
   
-  // ####################### ALERTA ################################################     
-    f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
+      // ####################### ALERTA ################################################     
+      f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
     
-    if(dados.leitura.nivel<=40){
-      //console.log(alertas)
-      let index = alertas.urlID.indexOf(url+req.body.id+"NB");
-      //console.log(index)
-      if(index==-1){
-        const retorno = await model_Res.dadosAlerta(url,req.body.id)
-        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-        f.sendAlerta(msg,retorno.chatID)
-        alertas.urlID.push(url+req.body.id+"NB")
-        alertas.data.push(data) 
-      }else{
-        if (data-alertas.data[index]>=(60*60*1000)) {
+      if(dados.leitura.nivel<=dist.NB){
+        //console.log(alertas)
+        let index = alertas.urlID.indexOf(url+req.body.id+"NB");
+        //console.log(index)
+        if(index==-1){
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
           f.sendAlerta(msg,retorno.chatID)
-          alertas.data[index] = data
+          alertas.urlID.push(url+req.body.id+"NB")
+          alertas.data.push(data) 
+        }else{
+          if (data-alertas.data[index]>=(60*60*1000)) {
+            const retorno = await model_Res.dadosAlerta(url,req.body.id)
+            const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+            f.sendAlerta(msg,retorno.chatID)
+            alertas.data[index] = data
+          }
         }
       }
-    }
     
-    if(dados.leitura.nivel>105){
-      //console.log(alertas)
-      let index = alertas.urlID.indexOf(url+req.body.id+"NA");
-     // console.log(index)
-      if(index==-1){
-        const retorno = await model_Res.dadosAlerta(url,req.body.id)
-        const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-        f.sendAlerta(msg,retorno.chatID)
-        alertas.urlID.push(url+req.body.id+"NA")
-        alertas.data.push(data) 
-      }else{
-        if (data-alertas.data[index]>=(60*60*1000)) {
+      if(dados.leitura.nivel>105){
+        //console.log(alertas)
+        let index = alertas.urlID.indexOf(url+req.body.id+"NA");
+        // console.log(index)
+        if(index==-1){
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
           f.sendAlerta(msg,retorno.chatID)
-          alertas.data[index] = data
+          alertas.urlID.push(url+req.body.id+"NA")
+          alertas.data.push(data) 
+        }else{
+          if (data-alertas.data[index]>=(60*60*1000)) {
+            const retorno = await model_Res.dadosAlerta(url,req.body.id)
+            const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+            f.sendAlerta(msg,retorno.chatID)
+            alertas.data[index] = data
+          }
         }
       }
-    }
-// #######################################################################
+    // #######################################################################
     }
     else{
         f.sendAlerta(`fALHA AO OBTER DADOS DO TAGUA LIFE\nReservatorio: ${req.body.id}\nDistancia: ${req.body.distancia}\n ${data} `,[process.env.CHAT_ID_DEV])
