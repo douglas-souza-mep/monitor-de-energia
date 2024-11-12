@@ -62,8 +62,8 @@ socket.on('consumo_santaMonica_hidro', (dados) => {
     }
 });
 
-
-/*document.getElementById('upload-button').addEventListener('click', async () => {
+/*
+document.getElementById('upload-button').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-input');
     if (fileInput.files.length === 0) {
         alert('Por favor, selecione um arquivo.');
