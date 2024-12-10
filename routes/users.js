@@ -282,24 +282,24 @@ module.exports = function(io){
 
   const distancias = [
    //Superior A
-    {cheio:26 , vazio:96 ,max:200, NB:50 },
+    {cheio:26 , vazio:96 ,max:200, NB:40 },
     //Superior B
-    {cheio:28 , vazio:101 ,max:200, NB:50 },
+    {cheio:28 , vazio:101 ,max:200, NB:40 },
     //Superior C
-    {cheio:26 , vazio:77 ,max:200, NB:50 },
+    {cheio:34 , vazio:93 ,max:200, NB:40 },
     //Superior D
-    {cheio:24 , vazio:88 ,max:200, NB:50 },
+    {cheio:24 , vazio:88 ,max:200, NB:40 },
     //Superior E
-    {cheio:25 , vazio:92 ,max:200, NB:50 },
+    {cheio:25 , vazio:92 ,max:200, NB:40 },
     //Superior F
-    {cheio:22 , vazio:89 ,max:200, NB:50 }]
+    {cheio:22 , vazio:89 ,max:200, NB:40 }]
   router.post('/taguaLife/res',async (req,res) =>{
     
       var d = new Date();
       var data = d.setHours(d.getHours() - 3)
     var url="taguaLife"
     //console.log('Dados recebidos! Tagua Life reservatorio: '+req.body.id)
-    //console.log(req.body)
+    console.log("id: "+req.body.id+"\ndist: "+req.body.distancia)
     let dist = distancias[req.body.id-1]
     if(req.body.distancia<dist.max){
       
