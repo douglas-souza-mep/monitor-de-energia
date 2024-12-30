@@ -142,7 +142,6 @@ async function leituraEnerg(data,msg,url,io) {
         }
     }
     io.emit("atualizar_casa"+leitura.id,dados)
-    f.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${url}_${req.body.id}`)
     //console.log(leitura)
 }
 module.exports = { subscribeToMqttTopics };

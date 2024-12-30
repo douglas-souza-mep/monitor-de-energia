@@ -9,6 +9,7 @@ var consumo = {
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
     //console.log(d);
+    _.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${usuario}_${medidor}`)
     
     leituraAtual = await validacao(leituraAtual)
     
