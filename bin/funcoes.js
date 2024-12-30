@@ -2,7 +2,7 @@ const moment = require('moment')
 const db = require('../models/connection')
 const model_Eneg = require('../models/model_Energ')
 const { Telegraf } = require('telegraf');
-const model_Res = require('../models/model_Res')
+
 
 
 
@@ -135,7 +135,7 @@ async function tarefaPeriodica() {
               const aux = element.split("_");
               const url = aux[1];
               const id = aux[2];
-
+              const model_Res = require('../models/model_Res')
               try {
                   // Obtém os dados de alerta
                   const retorno = await model_Res.dadosAlerta(url, id);

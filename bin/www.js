@@ -194,7 +194,7 @@ app.io.on('connection', socket=>{
     retorno = await model_Hidro.addLeituras("santaMonica",leituras)
     //console.log(retorno);
     socket.emit('retornoArquivo_santaMonica', retorno);
-  })
+  })  
 })
 
 /**
@@ -255,7 +255,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos 
-const intervalo = 1000*60*10;
+const intervalo = 1000*60*15;
 
 // Inicia a execução periódica da função
 const idIntervalo = setInterval(f.tarefaPeriodica, intervalo);

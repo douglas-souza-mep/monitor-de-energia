@@ -14,39 +14,38 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     
     const sql =  "INSERT INTO tb_"+ usuario +"_m"+medidor+" (data,pa,pb,pc,pt,qa,qb,qc,qt,sa,sb,sc,st,uarms,ubrms,ucrms,iarms,ibrms,icrms,itrms,pfa,pfb,pfc,pft,pga,pgb,pgc,freq,epa,epb,epc,ept,eqa,eqb,eqc,eqt,yuaub, yuauc,yubuc,tpsd) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
     try {
-       
         const insert =await inserir(d,leituraAtual,sql)
-        
-        const sql2 = "SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE id="+(insert.insertId-1)
-        const [leituraAnterior] = await db.query(sql2)
-    
-        consumo.data = moment(data).format('YYYY-MM-DD');
-        const sql3 = "SELECT data,valor FROM tb_"+ usuario +"_cd_m"+medidor+" WHERE data = ?"
-        var [[consumoAnterior]] = await db.query(sql3,consumo.data)
-        try {
-            if( moment(consumoAnterior.data).format('YYYY-MM-DD')==consumo.data){
-                consumo.valor = consumoAnterior.valor +  _.calculoConsumo(leituraAnterior[0].data,data,leituraAtual.pt)
-                const sql4 = 'UPDATE tb_'+ usuario +'_cd_m'+medidor+' SET valor = ? WHERE data = ?';
-                await db.query(sql4, [consumo.valor, consumo.data]);
+
+        //consumo diario
+        let [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data DESC LIMIT 1",_.datasAnteriorers().dia)
+        if (CDio == undefined) {
+            [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",_.datasAnteriorers().dia)
+            if (CDio == undefined) {
+                [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data LIMIT 1", moment(data).format('YYYY-MM-DD'))
             }
-            else{
-                consumo.valor =  _.calculoConsumo(leituraAnterior[0].data,data,leituraAtual.pt)
-                const sql4 = 'INSERT INTO tb_'+ usuario +'_cd_m'+medidor+' (data,valor) VALUES (?,?) ';
-                await db.query(sql4, [consumo.data, consumo.valor]);
-            }
-        } catch (error) {
-                consumo.valor =  _.calculoConsumo(leituraAnterior[0].data,data,leituraAtual.pt)
-                const sql4 = 'INSERT INTO tb_'+ usuario +'_cd_m'+medidor+' (data,valor) VALUES (?,?) ';
-                await db.query(sql4, [consumo.data, consumo.valor]);
         }
+        let consumo ={}
+        if(leituraAtual.ept_c == undefined){
+            consumo.valor = (leituraAtual.ept - CDio.ept).toFixed(2)
+        }else{
+            consumo.valor = (leituraAtual.ept_c - CDio.ept).toFixed(2)
+        }
+        try {
+            await db.query('INSERT INTO tb_'+ usuario +'_cd_m'+medidor+' (data,valor) VALUES (?,?) ', [moment(data).format('YYYY-MM-DD'),consumo.valor]);
+            //console.log(`consumo diario iniciado: ${consumo.valor}`)
+        } catch (error) {
+            let [x] = await db.query('UPDATE tb_'+ usuario +'_cd_m'+medidor+' SET valor = ? WHERE data = ?', [consumo.valor, moment(data).format('YYYY-MM-DD')]);
+            //console.log(`consumo diario atualizado: ${consumo.valor}`)
+        }
+        console.log("inseriu")
     } catch (error) {
         console.error(error);
     }
     
     //consumo no mes
     periodo=_.instervaloDoMes(parseInt(moment(data).format('MM')),parseInt(moment(data).format('YYYY')))
-    const sql5 = "SELECT data,valor FROM tb_"+ usuario +"_cd_m"+medidor+" WHERE DATE(data) >= ? AND DATE(data) <= ?";
-    const [consumosDiarios] = await db.query(sql5,[periodo.inicial,periodo.final])
+    const [consumosDiarios] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cd_m"+medidor+" WHERE DATE(data) >= ? AND DATE(data) <= ?",
+                                                [periodo.inicial,periodo.final])
     const mesAtual = periodo.final
     const consumoMensal ={
         data: mesAtual,
@@ -75,7 +74,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const [cd] = await db.query("SELECT data,pt FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=?",
                                     moment(data).format('YYYY-MM-DD'))
     if(consumosMensais.length<6){
-        let inserir = 6- consumosMensais.length
+        let inserir = 6 - consumosMensais.length
         let mes = consumosMensais[consumosMensais.length-1].data
         //for(i=0;i>)
         //console.log(mes)
@@ -130,7 +129,7 @@ const getDataStart= async(medidor,usuario) =>{
         var [[consumo]] = await db.query("SELECT data,valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE data = ? LIMIT 1",
                                                 moment(ultimaLeitura.data).format('YYYY-MM-DD'))
     }catch{
-        var consomo = 0
+        var consumo={data: moment(ultimaLeitura.data).format('YYYY-MM-DD'), valor : 0}
     }
     //consumo no mes
     periodo=_.instervaloDoMes(parseInt(moment().format('MM')),parseInt(moment().format('YYYY')))
@@ -227,6 +226,28 @@ const getDataStart= async(medidor,usuario) =>{
 }
 
 const getConsumo = async (url,id,startDate,endDate)=>{
+    let consumosDiario
+    //console.log(startDate)
+    //console.log(endDate)
+    const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
+    
+    const sql2 = "SELECT data,ept FROM tb_"+url+"_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
+    try {
+        [consumosDiario] = await db.query(sql,[startDate,endDate]);
+        [CD] = await db.query(sql2,[startDate,endDate])
+
+        console.log(CD[CD.length-1])
+        console.log(CD[0])
+        const consumo =  CD[CD.length-1].ept - CD[0].ept
+    } catch (error) {
+        console.log(error)
+    }
+    //const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
+    return {consumosDiario,consumo}
+}
+
+
+const getConsumo2 = async (url,id,startDate,endDate)=>{
     let consumosDiario
     console.log(startDate)
     console.log(endDate)

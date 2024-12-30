@@ -1,6 +1,13 @@
 const db = require('./connection')
-const _ = require('../bin/funcoes')
 const moment = require('moment')
+const { sendAlerta } = require('../bin/funcoes');
+
+
+
+var alertas ={
+    urlID:[],
+    data: []
+}
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
@@ -24,6 +31,25 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
         let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
         graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
     });*/
+    
+    return {leitura:leituraAtual};
+}
+
+const atualizarDados2 = async (data,distancia,dimensoes,id,usuario,nome) =>{
+    const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
+    
+    leituraAtual = await validacao2(distancia,dimensoes,id,nome);
+    
+    if(leituraAtual.erro == 1){
+        return {erro:"Dados invalidos"}
+    }
+    const sql =  "INSERT INTO tb_"+ usuario +"_res (id,data,volume,nivel,distancia) VALUES (?,?,?,?,?)";
+    const insert = await inserir(id,d,leituraAtual,sql);
+    
+    if(insert.error){
+        sendAlerta(`FALHA AO INSERIR DADOS NO BANCO DE DADOS DO ${cliente}\nReservatorio: ${id}\nErro: ${insert.error}`,[process.env.CHAT_ID_DEV])
+        return {erro:insert.error}
+    }
     
     return {leitura:leituraAtual};
 }
@@ -115,12 +141,29 @@ const validacao = async (leitura) =>{
     return leitura
 }
 
+const validacao2 = async (distancia,dimensoes,id,cliente) =>{
+    let leituraAtual = {} 
+
+    if(distancia<dimensoes.max){
+        leituraAtual.id = id
+        leituraAtual.distancia = distancia
+        leituraAtual.nivel = await calcularNivel(distancia,dimensoes.vazio,dimensoes.cheio)
+        leituraAtual.volume = 0
+        leituraAtual.erro = 0
+    }
+    else{
+        sendAlerta(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
+        leituraAtual.erro = 1
+    }
+    return leituraAtual
+}
+
 const inserir = async (id,d,leituraAtual,sql) =>{
     //console.log(leituraAtual)
     try {
         const [insert] =await db.query( sql,[id,d,leituraAtual.volume,leituraAtual.nivel,leituraAtual.distancia])
         return insert    
-     } catch(error) {
+    } catch(error) {
         console.error(error);
         console.log(leituraAtual)
         //const [inset] =await db.query( sql,
@@ -136,11 +179,60 @@ async function calcularNivel (distancia, vazio, cheio) {
     return parseInt((distancia - vazio) * (100) / (cheio - vazio));
 }
 
+async function verificarAlarmes(id,dimensoes,leitura,url,data) {
+    const { adicionarSeNaoExistir } = require('../bin/funcoes');
+
+     // ####################### ALERTA ################################################     
+    adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${id}`)
+    
+    if(leitura.nivel<=dimensoes.NB){
+        //console.log(alertas)
+        let index = alertas.urlID.indexOf(url+id+"NB");
+        //console.log(index)
+        if(index==-1){
+        const retorno = await dadosAlerta(url,id)
+        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nNivel: ${leitura.nivel} \nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+        sendAlerta(msg,retorno.chatID)
+        alertas.urlID.push(url+id+"NB")
+        alertas.data.push(data) 
+        }else{
+            if (data-alertas.data[index]>=(1*60*1000)) {
+                const retorno = await dadosAlerta(url,id)
+                const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`;
+                sendAlerta(msg,retorno.chatID)
+                alertas.data[index] = data
+            }
+        }
+    }
+
+    if(leitura.nivel>105){
+        //console.log(alertas)
+        let index = alertas.urlID.indexOf(url+id+"NA");
+        // console.log(index)
+        if(index==-1){
+            const retorno = await dadosAlerta(url,id)
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}`
+            sendAlerta(msg,retorno.chatID)
+            alertas.urlID.push(url+id+"NA")
+            alertas.data.push(data) 
+        }else{
+            if (data-alertas.data[index]>=(1*60*1000)) {
+            const retorno = await dadosAlerta(url,id)
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
+            sendAlerta(msg,retorno.chatID)
+            alertas.data[index] = data
+            }
+        }
+    }
+   // #######################################################################
+}
 module.exports = {
     atualizarDados,
+    atualizarDados2,
     getDataStart,
     dadosAlerta,
     getHistorico,
-    calcularNivel
+    calcularNivel,
+    verificarAlarmes
 }
 

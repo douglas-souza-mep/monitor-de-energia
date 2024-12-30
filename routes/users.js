@@ -20,7 +20,7 @@ module.exports = function(io){
   router.post('/teste_agua',async (req,res) =>{
     const d = new Date();
     d.setHours(d.getHours() - 3)
-    console.log(req.body)
+    //console.log(req.body)
     res.send('Dados recebidos! dispositivo: teste_agua');
   })
   //--------------------------------------------------------------------------
@@ -94,137 +94,6 @@ module.exports = function(io){
     res.send('Dados recebidos! santaMonica dispositivo: '+req.body.id);
   })
 
-  //-------------------------------------------------------------------
-/*
-  router.get('/anchieta', function(req, res) {
-    res.redirect('/users/anchieta/agua')
-    //res.send("ola");
-  });
-
-  //router.get('/anchieta',chekToken, function(req, res) {
-  router.get('/anchieta/agua', function(req, res) {
-      res.render('anchieta_res', { title: 'Mep Tecnologia' });
-    });
-    
-  router.get('/anchieta/agua/reservatorio1', async function(req, res) {
-    //console.log(req.query)
-    const dados = await model_Res.getDataStart(2,"anchieta")
-    //const dados= await model_Res.getDataStart(req.query.id,"anchieta")
-    //console.log("############## medidor :"+medidor)
-  
-   const conjuntoDeStrings = [
-        "SMA Reservatorio Inf. 1", 
-        dados.leitura.data, 
-        dados.leitura.volume.toString(),
-        dados.leitura.distancia.toString(),
-        dados.leitura.nivel.toString()
-        ];
-    console.log(conjuntoDeStrings)
-    res.send(conjuntoDeStrings);
-  });
-
-  router.post('/anchieta/agua',async (req,res) =>{
-  var d = new Date();
-  var data = d.setHours(d.getHours() - 3)
-  var url = "anchieta"
-    //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
-    //console.log(req.body)
-    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,"anchieta")
-    
-    var dados = {
-      leitura: retorno.leitura,
-      graficos: retorno.graficos
-    }
-    //console.log(dados.graficos)
-    dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
-    io.emit("atualizar_anchieta_res"+req.body.id,dados)
-    f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
-    res.send("recebido");
-  })*/
-
-  //-------------------------------------------------------------------
-
-  /*router.get('/test', function(req, res) {
-    res.redirect('/users/test/res')
-    //res.send("ola");
-  });
-
-  //router.get('/anchieta',chekToken, function(req, res) {
-  router.get('/test/res', function(req, res) {
-      res.render('test', { title: 'Mep Tecnologia' });
-    });
-    
-  router.get('/app/test/res', async function(req, res) {
-    //console.log(req.query)
-    const dados= await model_Res.getDataStart(req.query.id,"test")
-    
-    res.send(dados.leitura);
-  });
-
-  router.post('/test/res',async (req,res) =>{
-    //console.log(req.body)
-    var d = new Date();
-    var data = d.setHours(d.getHours() - 3)
-    var url="test"
-    //console.log('Dados recebidos! Anchieta dispositivo: '+req.body.id)
-    const retorno = await model_Res.atualizarDados(req.body,d,req.body.id,url)
-    if(retorno.erro){
-      res.send("falha ao inserir dados do reservatorio");
-      return console.log("falha ao inserir dados do reservatorio")
-    }
-    var dados = {
-      leitura: retorno.leitura,
-      graficos: retorno.graficos
-    }
-    //console.log(dados)
-    dados.leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
-    io.emit("atualizar_"+url+"_res"+req.body.id,dados)
-    
-// ####################### ALERTA ################################################     
-    f.adicionarSeNaoExistir( globalThis.reservatoriosDinamico,`res_${url}_${req.body.id}`)
-
-    if(dados.leitura.nivel<=30){
-      //console.log(alertas)
-      let index = alertas.urlID.indexOf(url+req.body.id+"NB");
-      //console.log(index)
-      if(index==-1){
-        const retorno = await model_Res.dadosAlerta(url,req.body.id)
-        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-        f.sendAlerta(msg,retorno.chatID)
-        alertas.urlID.push(url+req.body.id+"NB")
-        alertas.data.push(data) 
-      }else{
-        if (data-alertas.data[index]>=(60*60*1000)) {
-          const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-          f.sendAlerta(msg,retorno.chatID)
-          alertas.data[index] = data
-        }
-      }
-    }
-    
-    if(dados.leitura.nivel>105){
-      //console.log(alertas)
-      let index = alertas.urlID.indexOf(url+req.body.id+"NA");
-     // console.log(index)
-      if(index==-1){
-        const retorno = await model_Res.dadosAlerta(url,req.body.id)
-        const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-        f.sendAlerta(msg,retorno.chatID)
-        alertas.urlID.push(url+req.body.id+"NA")
-        alertas.data.push(data) 
-      }else{
-        if (data-alertas.data[index]>=(60*60*1000)) {
-          const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-          f.sendAlerta(msg,retorno.chatID)
-          alertas.data[index] = data
-        }
-      }
-    }
-// ####################################################################### 
-      res.send("recebido");
-    })*/
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   router.get('/casa', function(req, res) {
@@ -280,21 +149,21 @@ module.exports = function(io){
     res.send(dados.leitura);
   });
 
-  const distancias = [
-   //Superior A
-    {cheio:26 , vazio:96 ,max:200, NB:50 },
-    //Superior B
-    {cheio:28 , vazio:101 ,max:200, NB:50 },
-    //Superior C
-    {cheio:26 , vazio:77 ,max:200, NB:50 },
-    //Superior D
-    {cheio:24 , vazio:88 ,max:200, NB:50 },
-    //Superior E
-    {cheio:25 , vazio:92 ,max:200, NB:50 },
-    //Superior F
-    {cheio:22 , vazio:89 ,max:200, NB:50 }]
+  
   router.post('/taguaLife/res',async (req,res) =>{
-    
+    const distancias = [
+      //Superior A
+       {cheio:26 , vazio:96 ,max:200, NB:40 },
+       //Superior B
+       {cheio:28 , vazio:101 ,max:200, NB:40 },
+       //Superior C
+       {cheio:26 , vazio:77 ,max:200, NB:40 },
+       //Superior D
+       {cheio:24 , vazio:88 ,max:200, NB:40 },
+       //Superior E
+       {cheio:25 , vazio:92 ,max:200, NB:40 },
+       //Superior F
+       {cheio:22 , vazio:89 ,max:200, NB:40 }]
       var d = new Date();
       var data = d.setHours(d.getHours() - 3)
     var url="taguaLife"
@@ -334,9 +203,9 @@ module.exports = function(io){
           alertas.urlID.push(url+req.body.id+"NB")
           alertas.data.push(data) 
         }else{
-          if (data-alertas.data[index]>=(60*60*1000)) {
+          if (data-alertas.data[index]>=(3*60*1000)) {
             const retorno = await model_Res.dadosAlerta(url,req.body.id)
-            const msg = "Alerta de nivel baixo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+            const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}`;
             f.sendAlerta(msg,retorno.chatID)
             alertas.data[index] = data
           }
@@ -349,14 +218,14 @@ module.exports = function(io){
         // console.log(index)
         if(index==-1){
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de trasbordo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}`
           f.sendAlerta(msg,retorno.chatID)
           alertas.urlID.push(url+req.body.id+"NA")
           alertas.data.push(data) 
         }else{
-          if (data-alertas.data[index]>=(60*60*1000)) {
+          if (data-alertas.data[index]>=(3*60*1000)) {
             const retorno = await model_Res.dadosAlerta(url,req.body.id)
-            const msg = "Alerta de trasbordo!\nReservatorio: "+ retorno.nome+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             f.sendAlerta(msg,retorno.chatID)
             alertas.data[index] = data
           }
@@ -365,13 +234,32 @@ module.exports = function(io){
     // #######################################################################
     }
     else{
-        f.sendAlerta(`fALHA AO OBTER DADOS DO TAGUA LIFE\nReservatorio: ${req.body.id}\nDistancia: ${req.body.distancia}\n ${data} `,[process.env.CHAT_ID_DEV])
+        f.sendAlerta(`FALHA AO OBTER DADOS DO TAGUA LIFE\nReservatorio: ${req.body.id}\nDistancia: ${req.body.distancia}\n ${data} `,[process.env.CHAT_ID_DEV])
     }
     res.send("recebido");
   })
 //----------------------- FIM TAGUA LIFE -------------------------------------------
 
+//-------------------------------- CONNECT TOWER -------------------------------------------------------------
 
+router.get('/connect', function(req, res) {
+  res.redirect('/users/connect/res')
+  //res.send("ola");
+});
+
+//router.get('/anchieta',chekToken, function(req, res) {
+router.get('/connect/res', function(req, res) {
+    res.render('connect_res', { title: 'Mep Tecnologia', nome:"Connect Tower" });
+  });
+
+router.get('/app/connect/res', async function(req, res) {
+  //console.log(req.query)
+  const dados= await model_Res.getDataStart(req.query.id,"connect")
+
+  res.send(dados.leitura);
+});
+
+//----------------------- FIM TAGUA CONNECT TOWER -------------------------------------------
 
   return router;
 }

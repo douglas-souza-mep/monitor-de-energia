@@ -26,7 +26,7 @@ class Reservatorio {
     //this.alerta = Math.round(this.volumeMax*0.2)
     //this.critico = Math.round(this.volumeMax*0.1)
     //this.gaugeOptions = {min: 0, max: this.volumeMax, yellowFrom: this.critico, yellowTo: this.alerta,
-      //redFrom: 0, redTo: this.critico, minorTicks: Math.round(this.volumeMax*0.05)};
+    //redFrom: 0, redTo: this.critico, minorTicks: Math.round(this.volumeMax*0.05)};
     
       this.chartOptions = {
       title: this.nome,
@@ -49,84 +49,83 @@ class Reservatorio {
     };
   }
 
-  iniciaGalge(){
-    try {
-      this.gaugeData = google.visualization.arrayToDataTable([
-        ['Label', 'Value'],
-        ["Normal", 0]
-        //[this.nome, 0]
-    ]);
-    this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
-    this.gauge.draw(this.gaugeData, this.gaugeOptions);
-    $(`#res${this.id}_local`).text(this.nome)
-    $(`#res${this.id}_nivel`).text(this.nivel) 
-    } catch (error) {
-      console.log(error)
-      google.charts.load('current', {'packages':['gauge','corechart']}).then( ()=>{
+    iniciaGalge(){
+      try {
         this.gaugeData = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
-          ["", 0]
+          ["Normal", 0]
           //[this.nome, 0]
-        ]);
-        setTimeout(() => {
-          this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
-          this.gauge.draw(this.gaugeData, this.gaugeOptions);
-        }, 1000);
-        $(`#res${this.id}_local`).text(this.nome)
-        $(`#res${this.id}_nivel`).text(this.nivel)
-      })
-    }
-      
-  }
-  
-  async send(leitura){
-      this.data =  leitura.data
-      this.volume =  leitura.volume
-      this.nivel =  leitura.nivel
-      this.distancia =  leitura.distancia
-      //this.graficos =  dados.graficos
-      try {
-        if(this.nivel<40){
-          this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-          this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
-        }
-        else{
-          if(this.nivel<105){
-            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-            this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
-          }
-          else{
-            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-            this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
-          }
-        }
-        this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-      } catch (error) {
-        await this.iniciarGalges()
-        if(this.nivel<40){
-          this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-          this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
-        }
-        else{
-          if(this.nivel<105){
-            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-            this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
-          }
-          else{
-            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
-            this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
-          }
-        }
-      }
-      $(`#res${this.id}_nivel`).text(this.nivel)
+      ]);
+      this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
       this.gauge.draw(this.gaugeData, this.gaugeOptions);
-      return
-  }
+      $(`#res${this.id}_local`).text(this.nome)
+      $(`#res${this.id}_nivel`).text(this.nivel) 
+      } catch (error) {
+        console.log(error)
+        google.charts.load('current', {'packages':['gauge','corechart']}).then( ()=>{
+          this.gaugeData = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ["", 0]
+            //[this.nome, 0]
+          ]);
+          setTimeout(() => {
+            this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
+            this.gauge.draw(this.gaugeData, this.gaugeOptions);
+          }, 1000);
+          $(`#res${this.id}_local`).text(this.nome)
+          $(`#res${this.id}_nivel`).text(this.nivel)
+        })
+      }
+        
+    }
+    async send(leitura){
+        this.data =  leitura.data
+        this.volume =  leitura.volume
+        this.nivel =  leitura.nivel
+        this.distancia =  leitura.distancia
+        //this.graficos =  dados.graficos
+        try {
+          if(this.nivel<40){
+            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+            this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
+          }
+          else{
+            if(this.nivel<105){
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
+            }
+            else{
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
+            }
+          }
+          this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+        } catch (error) {
+          await this.iniciarGalges()
+          if(this.nivel<40){
+            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+            this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
+          }
+          else{
+            if(this.nivel<105){
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
+            }
+            else{
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
+            }
+          }
+        }
+        $(`#res${this.id}_nivel`).text(this.nivel)
+        this.gauge.draw(this.gaugeData, this.gaugeOptions);
+        return
+    }
 }
 
 var reservatorios = [];
 var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
-url='taguaLife'
+url='connect'
 const socket = io();
 
 
@@ -202,7 +201,7 @@ async function iniciarPagina(){
     .catch(err => {
       console.error('Erro ao obter dados do usuário:', err);
       loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
-    });
+    }); 
   })
 
   botoesHistorico.forEach(botao => {
@@ -214,11 +213,11 @@ async function iniciarPagina(){
       startDate.setDate(startDate.getDate() - 1); // Subtrai um dia para obter ontem
       const id = this.value; //obtem o id do reservatorio
       const local = reservatorios[id-1].nome //obtem o o local do reservatorio
-
+    
       fetch('/get_historico_res', {
         method: 'POST',
         headers: {
-        'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ url: url, id: id , startDate, endDate, local: local  })
       })
