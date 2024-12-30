@@ -96,7 +96,7 @@ async function tratarLeitura(io,topico,msg,data){
             leituraRes(dados2,io)
         break;
         case 'casa/energ':
-            leituraEnerg(data,msg,"casa")
+            leituraEnerg(data,msg,"casa",io)
         break;
         case 'topico/luz':
         handleLuzTopic(messageStr);
@@ -122,10 +122,27 @@ async function leituraRes(dados,io){
     }
 }
 
-async function leituraEnerg(data,msg,url) {
+async function leituraEnerg(data,msg,url,io) {
     let leitura = JSON.parse(msg);
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
     leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
+
+    var dados = {
+        leitura:leitura,
+        consumos:{
+            consumo: retorno.consumos.consumo,
+            consumoDiaAnterior: retorno.consumos.consumoDiaAnterior,
+            consumoMensal:  retorno.consumos.consumoMensal,
+            consumoMesAnterior: retorno.consumos.consumoMesAnterior
+        },
+        graficos:{
+            diario: retorno.graficos.diario,
+            semanal: retorno.graficos.semanal,
+            semestral: retorno.graficos.semestral
+        }
+    }
+    io.emit("atualizar_casa"+leitura.id,dados)
+    f.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${url}_${req.body.id}`)
     //console.log(leitura)
 }
 module.exports = { subscribeToMqttTopics };
