@@ -8,6 +8,7 @@ const loadingPopup = document.getElementById('loadingPopup');
 
 //loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 let medidores = []
+const url = "santaMonica"
  let medidor = $('#medidor option:selected').val()
  let local = $('#medidor option:selected').text()
  console.log(medidor+" "+local)
