@@ -150,11 +150,11 @@ fetch('/get-dados-do-usuario', {
   body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
 })
 .then(response => {
-  console.log("resposta do servidor com usuario")
-  console.log(response)
   response.json()})
 .then(dados => {
+  console.log("resposta do servidor com usuario")
   usuario = dados
+  console.log(usuario)
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 })
