@@ -1,4 +1,5 @@
 google.charts.load('current', {'packages':['gauge','corechart']})
+const loadingPopup = document.getElementById('loadingPopup');
 
 class Reservatorio {
   constructor(id,nome){
