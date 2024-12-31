@@ -19,7 +19,8 @@ function subscribeToMqttTopics(io) {
         const topics = [
         'connect/res',
         'taguaLife/res',
-        'casa/energ'
+        'casa/energ',
+        'santaMonica/energ'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -98,11 +99,11 @@ async function tratarLeitura(io,topico,msg,data){
         case 'casa/energ':
             leituraEnerg(data,msg,"casa",io)
         break;
-        case 'topico/luz':
-        handleLuzTopic(messageStr);
+        case 'santaMonica/energ':
+            leituraEnerg(data,msg,"santaMonica",io)
         break;
         default:
-        console.log(`Tópico desconhecido: ${topic} - Mensagem: ${messageStr}`);
+        console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
     }
 }
 
@@ -141,7 +142,7 @@ async function leituraEnerg(data,msg,url,io) {
             semestral: retorno.graficos.semestral
         }
     }
-    io.emit("atualizar_casa"+leitura.id,dados)
+    io.emit("atualizar_"+url+leitura.id,dados)
     //console.log(leitura)
 }
 module.exports = { subscribeToMqttTopics };
