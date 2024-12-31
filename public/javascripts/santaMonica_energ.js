@@ -121,6 +121,7 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
       resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
   } else {
       resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixad</p>`;
+      console.log(dados)
       // Definir o cabeçalho do CSV
       const cabecalho = ['Local', 'id', 'Consumo(KWh)', 'Data inicial', 'Data final'];
     
