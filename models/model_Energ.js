@@ -311,8 +311,51 @@ const validacao = async (leitura) =>{
     return leitura
 }
 
+async function getRelatorio(usuario,startDate,endDate,disposisitos) {
+    var medidores = []
+    try {
+        for (let index = 0; index < disposisitos.length; index++) {
+            const medidor = disposisitos[index].id;
+            let [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data ASC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
+            if (consumoInicial == undefined) {
+                [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
+                if (consumoInicial == undefined) {
+                    [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ORDER BY data ASC LIMIT 1", moment(startDate).format('YYYY-MM-DD'))
+                }
+            }
+        
+            let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data DESC LIMIT 1",moment(endDateDate).format('YYYY-MM-DD'))
+            if (consumoFinal == undefined) {
+                [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
+                if (consumoFinal == undefined) {
+                    [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ORDER BY data ASC LIMIT 1", moment(endDate).format('YYYY-MM-DD'))
+                }
+            }   
+            const dados = {
+                consumo:{
+                    startDate: moment(startDate).format('DD-MM-YYYY'),
+                    endDate: moment(endDate).format('DD-MM-YYYY'),
+                    valor : parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                },
+                id: medidor,
+                nome: disposisitos[index].local
+            }
+        medidores.push(dados)
+        }
+    
+    return (medidores)
+    } catch (error) {
+        console.log(error)
+        return({error: error})
+    }
+    //const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
+    
+}
+
+
 module.exports = {
     atualizarDados,
     getDataStart,
-    getConsumo
+    getConsumo,
+    getRelatorio
 }

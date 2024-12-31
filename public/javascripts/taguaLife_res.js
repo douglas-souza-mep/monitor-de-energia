@@ -240,7 +240,7 @@ async function iniciarPagina(){
   })
 
   socket.on("atualizar_taguaLife_res",async dados =>{
-    console.log(atualizar)
+    console.log("atualizar")
     console.log(dados)
     atualizar_leitura([dados.leitura])
   }); 

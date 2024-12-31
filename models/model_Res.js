@@ -226,6 +226,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
     }
    // #######################################################################
 }
+
 module.exports = {
     atualizarDados,
     atualizarDados2,

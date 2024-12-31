@@ -101,6 +101,24 @@ app.io.on('connection', socket=>{
     }
   })
 
+  socket.on("obter_relatorio_geral", async (info)=>{
+    //console.log(dados)
+    const { startDate, endDate } = info.datas;
+    try {
+        const retorno = await model_Energ.getRelatorio(info.url,startDate,endDate,info.medidores)
+        console.log(retorno)
+        if(retorno.error){
+          socket.emit('resultado_get_relatorio_'+info.url, { error: 'Falha ao obter os dados'});
+        }else{
+          socket.emit('resultado_get_relatorio_'+info.url, retorno);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        socket.emit('resultado_get_relatorio_'+info.url, { error: 'Erro ao buscar leituras.' });
+    }
+  })
+
   socket.on("iniciarTelaAnchieta_Res", async (medidor)=>{
     const dados=await model_Res.getDataStart(medidor,"anchieta")
     //console.log("atualizar_anchieta: "+medidor)

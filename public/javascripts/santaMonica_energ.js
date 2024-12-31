@@ -6,8 +6,8 @@ const loadingPopup = document.getElementById('loadingPopup');
  const socket = io();
 
 
-loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
-
+//loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+let medidores = []
  let medidor = $('#medidor option:selected').val()
  let local = $('#medidor option:selected').text()
  console.log(medidor+" "+local)
@@ -16,26 +16,79 @@ loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos da
      local = $('#medidor option:selected').text()
      console.log(medidor+" "+local)
      socket.emit("iniciarTelasantaMonica",medidor)
-     loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados  
+    // loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados  
  })
 
- socket.on("connect", () => {
-     console.log(socket.id);
-     socket.emit("iniciarTelasantaMonica",medidor) 
-     //console.log("tela atualizada com "+dados.leitura.id )
-   });
+   fetch('/get-dados-do-usuario', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
+  })
+  .then(response => response.json())
+  .then(dados => {
+    
+    let text = dados.med_energia.split(";")
+    console.log(text)
+    for (let i = 0; i < text.length; i+=2) {
+      medidores.push({id:text[i], local:text[i+1]})
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao obter dados do usuário:', err);
+  //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+  });
 
-document.getElementById('event-form').addEventListener('submit', async function(event) {
+  socket.on("connect", () => {
+    console.log(socket.id);
+    socket.emit("iniciarTelasantaMonica",medidor) 
+    //console.log("tela atualizada com "+dados.leitura.id )
+  });
+
+// Função para calcular o consumo de energia
+function calcularConsumo(event) {
   event.preventDefault(); // Impede o envio padrão do formulário
-  
+
   // Coleta os valores do formulário
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
   
-  // Envia os dados para o servidor usando Socket IO
-  socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"santaMonica",local:local })
-  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
-});
+  // Envia os dados para o servidor usando Socket.IO
+  socket.emit("calcular_consumo_energ", {
+    id: medidor,
+    datas: { startDate, endDate },
+    url: "santaMonica",
+    local: local
+  });
+
+  // Exibe o pop-up de carregamento
+  loadingPopup.style.display = 'flex';
+}
+
+// Função para obter o relatório geral
+function obterRelatorio(event) {
+  event.preventDefault(); // Impede o envio padrão do formulário
+
+  // Coleta os valores do formulário
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
+
+  // Envia os dados para o servidor usando Socket.IO
+  socket.emit("obter_relatorio_geral", {
+    medidores:medidores,
+    datas: { startDate, endDate },
+    url: "santaMonica",
+  });
+
+  // Exibe o pop-up de carregamento
+  loadingPopup.style.display = 'flex';
+}
+
+// Adiciona os ouvintes de evento para os botões
+document.getElementById('calcular').addEventListener('click', calcularConsumo);
+document.getElementById('relatorio').addEventListener('click', obterRelatorio);
+
   
   // Ouve eventos de resposta do servidor em relação ao consumo
 socket.on('consumo_de_energia_santaMonica', (dados) => {
@@ -55,6 +108,42 @@ socket.on('consumo_de_energia_santaMonica', (dados) => {
               <p><strong>Consumo:</strong> ${dados.consumo} kWh</p>
           </div>
       `;    
+  }
+  loadingPopup.style.display = 'none'; // Esconde o pop-up
+});
+
+// Ouve eventos de resposta do servidor em relação ao consumo
+socket.on('resultado_get_relatorio_santaMonica', (dados) => {
+  const resultDiv = document.getElementById('result');
+  //console.log(dados)
+  if (dados.error) {
+      resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
+  } else {
+      // Definir o cabeçalho do CSV
+      const cabecalho = ['Local', 'id', 'Consumo(KWh)', 'Data inicial', 'Data final'];
+    
+      // Inicializar a string do CSV com o cabeçalho
+      let csvContent = cabecalho.join(';') + '\n';
+    
+      // Iterar sobre o array de dados e adicionar cada linha ao CSV
+      dados.forEach(dados => {
+        const linha = [
+          dados.nome,
+          dados.id,
+          dados.consumo.valor,
+          dados.consumo.startDate,
+          dados.consumo.endDate
+        ];
+        csvContent += linha.join(';') + '\n';
+      });
+    
+      // Criar o arquivo CSV e disparar o download
+      const link = document.createElement('a');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      link.href = URL.createObjectURL(blob);
+      link.download = `Consumo_de_Energia_Santa_Monica.csv`; // Nome do arquivo CSV
+      link.click();   
+    resultDiv.innerHTML = `<p style="color: blue;">Relatorio Baixado</p>`;
   }
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 });

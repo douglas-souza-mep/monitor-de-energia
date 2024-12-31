@@ -240,7 +240,7 @@ a {
 }
 
 .popup {
-  display: none; /* Esconde o pop-up por padrão */
+  display: flex; /* Aparece o pop-up por padrão */
   position: fixed;
   left: 0;
   top: 0;
