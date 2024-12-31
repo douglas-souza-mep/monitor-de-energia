@@ -151,6 +151,7 @@ fetch('/get-dados-do-usuario', {
 })
 .then(response => {
   console.log("resposta do servidor com usuario")
+  console.log(response)
   response.json()})
 .then(dados => {
   usuario = dados
