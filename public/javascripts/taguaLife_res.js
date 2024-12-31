@@ -73,7 +73,7 @@ class Reservatorio {
         setTimeout(() => {
           this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
           this.gauge.draw(this.gaugeData, this.gaugeOptions);
-        }, 1000);
+        }, 5000);
         $(`#res${this.id}_local`).text(this.nome)
         $(`#res${this.id}_nivel`).text(this.nivel)
       })
@@ -133,7 +133,8 @@ const socket = io();
 
 
 // caracteriscas do usuario
-var usuario
+var usuario = {}
+
 socket.on("connect", () => {
   console.log(socket.id);
 })
@@ -148,7 +149,9 @@ fetch('/get-dados-do-usuario', {
   },
   body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
 })
-.then(response => response.json())
+.then(response => {
+  console.log("resposta do servidor com usuario")
+  response.json()})
 .then(dados => {
   usuario = dados
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem

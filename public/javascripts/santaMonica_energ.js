@@ -151,13 +151,13 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
   }
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 });
- 
- socket.on("atualizar_santaMonica1",dados =>{
-   if(dados.leitura.id == medidor){
+
+socket.on("atualizar_santaMonica1",dados =>{
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   } 
+  } 
    loadingPopup.style.display = 'none'; // Esconde o pop-up 
- })
+})
  
  socket.on("atualizar_santaMonica2",dados =>{
    if(dados.leitura.id == medidor){
