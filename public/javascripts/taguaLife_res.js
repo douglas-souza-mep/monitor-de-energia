@@ -1,4 +1,5 @@
 google.charts.load('current', {'packages':['gauge','corechart']})
+
 const loadingPopup = document.getElementById('loadingPopup');
 
 class Reservatorio {
@@ -137,7 +138,9 @@ socket.on("connect", () => {
   console.log(socket.id);
 })
 
-loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
+loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
+
 fetch('/get-dados-do-usuario', {
   method: 'POST',
   headers: {
@@ -163,8 +166,6 @@ async function iniciarPagina(){
   }
   //console.log(reservatorios)
   await iniciarGalges();
-
-  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 
   fetch('/get-ultimas-leituras', {
     method: 'POST',

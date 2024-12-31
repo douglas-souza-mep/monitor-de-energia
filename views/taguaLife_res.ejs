@@ -9,7 +9,6 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-    <script src="/javascripts/taguaLife_res.js"></script>
 </head>
 <body>
   <header>
@@ -33,15 +32,15 @@
             <button onclick="menuShow()"><img class="icon" src="assets/img/menu_white_36dp.svg" alt=""></button>
         </div-->
     </nav>
+    <div id="loadingPopup" class="popup">
+        <div class="popup-content">
+            <div class="loader"></div>
+           <h2>Carregando...</h2>
+             <p>Por favor, aguarde.</p>
+        </div>
+      </div>
   </header>
 
-  <div id="loadingPopup" class="popup">
-    <div class="popup-content">
-        <div class="loader"></div>
-        <h2>Carregando...</h2>
-        <p>Por favor, aguarde.</p>
-    </div>
-  </div>
     <button id="recarregar">Recarregar</button>
     <div class="gauges">
         
@@ -92,5 +91,6 @@
     <div id=chart class="flex-chart">
     
     </div> 
+    <script src="/javascripts/taguaLife_res.js"></script>
 </body>
 </html>
