@@ -149,7 +149,7 @@ fetch('/get-dados-do-usuario', {
   },
   body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
 })
-.then(response => {response.json()})
+.then(response => response.json())
 .then(dados => {
   console.log("resposta do servidor com usuario")
   usuario = dados
