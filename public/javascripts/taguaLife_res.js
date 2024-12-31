@@ -136,6 +136,7 @@ socket.on("connect", () => {
   console.log(socket.id);
 })
 
+loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 fetch('/get-dados-do-usuario', {
   method: 'POST',
   headers: {
@@ -161,6 +162,8 @@ async function iniciarPagina(){
   }
   //console.log(reservatorios)
   await iniciarGalges();
+
+  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 
   fetch('/get-ultimas-leituras', {
     method: 'POST',
@@ -234,7 +237,7 @@ async function iniciarPagina(){
     })
   })
 
-  socket.on("atualizar_connect_res",async dados =>{
+  socket.on("atualizar_taguaLife_res",async dados =>{
     atualizar_leitura([dados.leitura])
   }); 
   
@@ -285,7 +288,8 @@ function historico(dados){
           // Coleta os valores do formulário
           const startDate = document.getElementById('start-date').value;
           const endDate = document.getElementById('end-date').value;
-      
+          loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
+
           fetch('/get_historico_res', {
             method: 'POST',
             headers: {

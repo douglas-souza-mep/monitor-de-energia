@@ -1,33 +1,39 @@
  //  Carrega a API de visualização e o pacote corechart.
- google.charts.load('current', {'packages':['corechart']});
+google.charts.load('current', {'packages':['corechart']});
 
 
 
- const socket = io();
+const socket = io();
+
+const loadingPopup = document.getElementById('loadingPopup');
+loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
+let medidor = $('#medidor option:selected').val()
+let local = $('#medidor option:selected').text()
+console.log(medidor+" "+local)
+$('#medidor').on('change', () => {
+    medidor = $('#medidor option:selected').val()
+    local = $('#medidor option:selected').text()
+    console.log(medidor+" "+local)
+    socket.emit("iniciarTelaCasa",medidor) 
+    loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
+})
+
+socket.on("connect", () => {
+    console.log(socket.id);
+    socket.emit("iniciarTelaCasa",medidor) 
+    //console.log("tela atualizada com "+dados.leitura.id )
+  });
  
- let medidor = $('#medidor option:selected').val()
- let local = $('#medidor option:selected').text()
- console.log(medidor+" "+local)
- $('#medidor').on('change', () => {
-     medidor = $('#medidor option:selected').val()
-     local = $('#medidor option:selected').text()
-     console.log(medidor+" "+local)
-     socket.emit("iniciarTelaCasa",medidor) 
- })
- 
- socket.on("connect", () => {
-     console.log(socket.id);
-     socket.emit("iniciarTelaCasa",medidor) 
-     //console.log("tela atualizada com "+dados.leitura.id )
-   });
- 
- socket.on("atualizar_casa1",dados =>{
-   if(dados.leitura.id == medidor){
-    atualizar(dados)
-   }  
- })
+socket.on("atualizar_casa1",dados =>{
+  if(dados.leitura.id == medidor){
+  atualizar(dados)
+  }
+  loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
 
 document.getElementById('event-form').addEventListener('submit', async function(event) {
+
   event.preventDefault(); // Impede o envio padrão do formulário
 
   // Coleta os valores do formulário
@@ -36,6 +42,7 @@ document.getElementById('event-form').addEventListener('submit', async function(
 
   // Envia os dados para o servidor usando Socket IO
   socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"casa",local:local })
+  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
 });
 
  // Ouve eventos de resposta do servidor em relação ao consumo
@@ -47,16 +54,18 @@ socket.on('consumo_de_energia_casa', (dados) => {
   } else {
       drawChartConsumo(dados.grafico,dados.id,dados.local)
       var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      
       resultDiv.innerHTML = '<h2>Consumo calculado com base nas leituras encontradas:</h2>' + `
           <div>
               <p><strong>Local:</strong> ${dados.local}</p>
               <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
               <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
-              <p><strong>Data Consumo:</strong> ${dados.consumo} kWh</p>
+              <p><strong>Consumo:</strong> ${dados.consumo.toFixed(2)} kWh</p>
           </div>
       `;
       
   }
+  loadingPopup.style.display = 'none'; // Esconde o pop-up
 });
 
  
@@ -132,7 +141,7 @@ socket.on('consumo_de_energia_casa', (dados) => {
 
 async function drawChartConsumo(dados,id,local) {
   let grafico = []
-  console.log(dados)
+  //console.log(dados)
   await dados.forEach(element => {
       grafico.push([new Date(element[0]), element[1]]);
     });

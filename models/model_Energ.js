@@ -1,16 +1,14 @@
 const db = require('./connection')
 const _ = require('../bin/funcoes')
 const moment = require('moment')
-var consumo = {
-    data: "",
-    valor: 0
-}
+
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
     //console.log(d);
     _.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${usuario}_${medidor}`)
     
+    let consumoD = {}
     leituraAtual = await validacao(leituraAtual)
     
     const sql =  "INSERT INTO tb_"+ usuario +"_m"+medidor+" (data,pa,pb,pc,pt,qa,qb,qc,qt,sa,sb,sc,st,uarms,ubrms,ucrms,iarms,ibrms,icrms,itrms,pfa,pfb,pfc,pft,pga,pgb,pgc,freq,epa,epb,epc,ept,eqa,eqb,eqc,eqt,yuaub, yuauc,yubuc,tpsd) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
@@ -25,20 +23,19 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
                 [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data LIMIT 1", moment(data).format('YYYY-MM-DD'))
             }
         }
-        let consumo ={}
         if(leituraAtual.ept_c == undefined){
-            consumo.valor = (leituraAtual.ept - CDio.ept).toFixed(2)
+            consumoD.valor = parseFloat((leituraAtual.ept - parseFloat(CDio.ept)).toFixed(2))
         }else{
-            consumo.valor = (leituraAtual.ept_c - CDio.ept).toFixed(2)
+            consumoD.valor = parseFloat((leituraAtual.ept_c - parseFloat(CDio.ept)).toFixed(2))
         }
+        
         try {
-            await db.query('INSERT INTO tb_'+ usuario +'_cd_m'+medidor+' (data,valor) VALUES (?,?) ', [moment(data).format('YYYY-MM-DD'),consumo.valor]);
+            await db.query('INSERT INTO tb_'+ usuario +'_cd_m'+medidor+' (data,valor) VALUES (?,?) ', [moment(data).format('YYYY-MM-DD'),consumoD.valor]);
             //console.log(`consumo diario iniciado: ${consumo.valor}`)
         } catch (error) {
-            let [x] = await db.query('UPDATE tb_'+ usuario +'_cd_m'+medidor+' SET valor = ? WHERE data = ?', [consumo.valor, moment(data).format('YYYY-MM-DD')]);
+            let [x] = await db.query('UPDATE tb_'+ usuario +'_cd_m'+medidor+' SET valor = ? WHERE data = ?', [consumoD.valor, moment(data).format('YYYY-MM-DD')]);
             //console.log(`consumo diario atualizado: ${consumo.valor}`)
         }
-        console.log("inseriu")
     } catch (error) {
         console.error(error);
     }
@@ -81,19 +78,17 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
         //console.log(mes)
     }                               
     
-    
     var consumos ={
-        consumo: consumo.valor.toFixed(3),
-        consumoMensal: consumoMensal.valor.toFixed(3),
+        consumo: consumoD.valor.toFixed(2),
+        consumoMensal: consumoMensal.valor.toFixed(2),
     }
-   
     try {
-        consumos.consumoDiaAnterior = cda.valor.toFixed(3)
+        consumos.consumoDiaAnterior = cda.valor.toFixed(2)
     } catch (error) {
         consumos.consumoDiaAnterior = 0
     }
     try {
-        consumos.consumoMesAnterior = cma.valor.toFixed(3)
+        consumos.consumoMesAnterior = cma.valor.toFixed(2)
     } catch (error) {
         consumos.consumoMesAnterior  = 0
     }
@@ -129,7 +124,8 @@ const getDataStart= async(medidor,usuario) =>{
     try{
         var [[consumo]] = await db.query("SELECT data,valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE data = ? LIMIT 1",
                                                 moment(ultimaLeitura.data).format('YYYY-MM-DD'))
-    }catch{
+    }catch(erro){
+        console.log(erro)
         var consumo={data: moment(ultimaLeitura.data).format('YYYY-MM-DD'), valor : 0}
     }
     //consumo no mes
@@ -228,6 +224,7 @@ const getDataStart= async(medidor,usuario) =>{
 
 const getConsumo = async (url,id,startDate,endDate)=>{
     let consumosDiario
+    let consumo
     //console.log(startDate)
     //console.log(endDate)
     const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
@@ -239,7 +236,7 @@ const getConsumo = async (url,id,startDate,endDate)=>{
 
         console.log(CD[CD.length-1])
         console.log(CD[0])
-        const consumo =  CD[CD.length-1].ept - CD[0].ept
+        consumo=  CD[CD.length-1].ept - CD[0].ept
     } catch (error) {
         console.log(error)
     }

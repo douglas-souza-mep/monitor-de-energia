@@ -4,7 +4,10 @@
 
 
  const socket = io();
- 
+
+ const loadingPopup = document.getElementById('loadingPopup');
+ loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
  let medidor = $('#medidor option:selected').val()
  let local = $('#medidor option:selected').text()
  console.log(medidor+" "+local)
@@ -12,7 +15,8 @@
      medidor = $('#medidor option:selected').val()
      local = $('#medidor option:selected').text()
      console.log(medidor+" "+local)
-     socket.emit("iniciarTelasantaMonica",medidor) 
+     socket.emit("iniciarTelasantaMonica",medidor)
+     loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados  
  })
 
  socket.on("connect", () => {
@@ -30,6 +34,7 @@ document.getElementById('event-form').addEventListener('submit', async function(
   
   // Envia os dados para o servidor usando Socket IO
   socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"santaMonica",local:local })
+  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 });
   
   // Ouve eventos de resposta do servidor em relação ao consumo
@@ -50,277 +55,323 @@ socket.on('consumo_de_energia_santaMonica', (dados) => {
           </div>
       `;    
   }
+  loadingPopup.style.display = 'none'; // Esconde o pop-up
 });
  
  socket.on("atualizar_santaMonica1",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
+   } 
+   loadingPopup.style.display = 'none'; // Esconde o pop-up 
  })
  
  socket.on("atualizar_santaMonica2",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
+   } 
+   loadingPopup.style.display = 'none'; // Esconde o pop-up 
  })
  
  socket.on("atualizar_santaMonica3",dados =>{
    if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
+   } 
+  loadingPopup.style.display = 'none'; // Esconde o pop-up 
  })
  
- socket.on("atualizar_santaMonica11",dados =>{
-   if(dados.leitura.id == medidor){
+socket.on("atualizar_santaMonica11",dados =>{
+    if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica12",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica101",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica102",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica103",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica104",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica105",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica106",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica107",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica108",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica109",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica110",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica111",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica112",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica113",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica114",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica201",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica202",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica203",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica204",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica205",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica206",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica207",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica208",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica209",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica210",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica211",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica212",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica213",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica214",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica301",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica302",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica303",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica304",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica305",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica306",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica307",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica308",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica309",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica310",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica311",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  socket.on("atualizar_santaMonica312",dados =>{
-   if(dados.leitura.id == medidor){
+  if(dados.leitura.id == medidor){
     atualizar(dados)
-   }  
- })
+    }
+   loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
  
  function atualizar (dados){
    $('#data').text(dados.leitura.data)
