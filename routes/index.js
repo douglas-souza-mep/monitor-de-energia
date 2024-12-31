@@ -28,7 +28,9 @@ router.post('/get-dados-do-usuario', async (req, res) => {
   const { url } = req.body; // Pega o URL enviado no corpo da requisição
 
   try {
+    console.log("inicia consulta ao BD")
     const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE url = ? LIMIT 1", [url]);
+    console.log("finaliza consulta ao BD ")
     res.json(usuario); // Envia os dados do usuário de volta como resposta JSON
   } catch (error) {
     console.error('Erro ao buscar dados do usuário:', error);
