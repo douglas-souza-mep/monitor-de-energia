@@ -59,7 +59,7 @@ function calcularConsumo(event) {
   socket.emit("calcular_consumo_energ", {
     id: medidor,
     datas: { startDate, endDate },
-    url: "santaMonica",
+    url: url,
     local: local
   });
 
@@ -79,7 +79,7 @@ function obterRelatorio(event) {
   socket.emit("obter_relatorio_geral", {
     medidores:medidores,
     datas: { startDate, endDate },
-    url: "santaMonica",
+    url:url
   });
 
   // Exibe o pop-up de carregamento
@@ -120,6 +120,7 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
   if (dados.error) {
       resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
   } else {
+      resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixad</p>`;
       // Definir o cabeçalho do CSV
       const cabecalho = ['Local', 'id', 'Consumo(KWh)', 'Data inicial', 'Data final'];
     
@@ -143,8 +144,9 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
       const blob = new Blob([csvContent], { type: 'text/csv' });
       link.href = URL.createObjectURL(blob);
       link.download = `Consumo_de_Energia_Santa_Monica.csv`; // Nome do arquivo CSV
-      link.click();   
-    resultDiv.innerHTML = `<p style="color: blue;">Relatorio Baixado</p>`;
+        
+    resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
+    link.click(); 
   }
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 });

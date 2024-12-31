@@ -314,6 +314,7 @@ const validacao = async (leitura) =>{
 async function getRelatorio(usuario,startDate,endDate,disposisitos) {
     var medidores = []
     try {
+        console.log("iniciando relatorio")
         for (let index = 0; index < disposisitos.length; index++) {
             const medidor = disposisitos[index].id;
             let [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data ASC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
@@ -342,7 +343,7 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
             }
         medidores.push(dados)
         }
-    
+        console.log("dados do relatorio enviados ")
     return (medidores)
     } catch (error) {
         console.log(error)
