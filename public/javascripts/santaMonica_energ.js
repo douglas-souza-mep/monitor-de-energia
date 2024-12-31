@@ -46,6 +46,7 @@ socket.on('consumo_de_energia_santaMonica', (dados) => {
   } else {
       drawChartConsumo(dados.grafico,dados.id,dados.local)
       var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+      console.log(dados.consumo)
       resultDiv.innerHTML = '<h2>Consumo calculado com base nas leituras encontradas:</h2>' + `
           <div>
               <p><strong>Local:</strong> ${dados.local}</p>

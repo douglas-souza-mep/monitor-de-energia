@@ -167,7 +167,7 @@ module.exports = function(io){
       var data = d.setHours(d.getHours() - 3)
     var url="taguaLife"
     //console.log('Dados recebidos! Tagua Life reservatorio: '+req.body.id)
-    console.log("id: "+req.body.id+"\ndist: "+req.body.distancia)
+    //console.log("id: "+req.body.id+"\ndist: "+req.body.distancia)
     let dist = distancias[req.body.id-1]
     if(req.body.distancia<dist.max){
       
