@@ -197,7 +197,7 @@ module.exports = function(io){
         //console.log(index)
         if(index==-1){
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
+          const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nNivel:"+dados.leitura.nivel+"%" 
           f.sendAlerta(msg,retorno.chatID)
           alertas.urlID.push(url+req.body.id+"NB")
           alertas.data.push(data) 

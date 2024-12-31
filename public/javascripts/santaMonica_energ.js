@@ -1,12 +1,12 @@
  //  Carrega a API de visualização e o pacote corechart.
  google.charts.load('current', {'packages':['corechart']});
-
+const loadingPopup = document.getElementById('loadingPopup');
 
 
  const socket = io();
 
- const loadingPopup = document.getElementById('loadingPopup');
- loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
+loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 
  let medidor = $('#medidor option:selected').val()
  let local = $('#medidor option:selected').text()
