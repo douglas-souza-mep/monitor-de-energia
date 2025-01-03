@@ -15,18 +15,18 @@ function calculoConsumo(t_star,t_end,pt){
     return T
   }
 
-  function datasAnteriorers ( ){
+  function datasAnteriorers (data){
     //dedifio umtimo dia do mes anterior
     var mes = new Date(moment().format('YYYY/MM/01')).setHours(-1)
     mes = moment(mes).format('YYYY-MM-DD')
 
-    const hoje = new Date();
+    const hoje = data;
 
     // Subtrai um dia da data atual
     const ontem = new Date(hoje);
     ontem.setDate(hoje.getDate() - 1);
     var dia = moment(ontem).format('YYYY-MM-DD')
-
+    console.log(`ontem: ${moment(ontem).format('YYYY-MM-DD HH:mm:ss')}`)
     return {dia: dia, mes:mes}
   }
 

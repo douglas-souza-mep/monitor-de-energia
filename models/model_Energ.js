@@ -5,7 +5,7 @@ const moment = require('moment')
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
-    //console.log(d);
+    console.log(d);
     _.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${usuario}_${medidor}`)
     
     let consumoD = {}
@@ -16,9 +16,9 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
         const insert =await inserir(d,leituraAtual,sql)
 
         //consumo diario
-        let [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data DESC LIMIT 1",_.datasAnteriorers().dia)
+        let [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data DESC LIMIT 1",_.datasAnteriorers(data).dia)
         if (CDio == undefined) {
-            [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",_.datasAnteriorers().dia)
+            [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",_.datasAnteriorers(data).dia)
             if (CDio == undefined) {
                 [[CDio]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data LIMIT 1", moment(data).format('YYYY-MM-DD'))
             }
@@ -115,7 +115,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
    //console.log(graficos.diario)
    
     //console.log("dados atualizados")
-    return {consumos:consumos,graficos:graficos};
+    return {leitura: leituraAtual, consumos:consumos,graficos:graficos};
 } 
 
 const getDataStart= async(medidor,usuario) =>{
