@@ -39,7 +39,7 @@ router.post('/get-dados-do-usuario', async (req, res) => {
 });
 
 // Definindo a rota para receber a requisição de das ultimas leituras dos reservarotios
-router.post('/get-ultimas-leituras', async (req, res) => {
+router.post('/get-ultimas-leituras/res', async (req, res) => {
   const { url, reservatorios } = req.body; 
   let dados = []
   try {
@@ -55,7 +55,7 @@ router.post('/get-ultimas-leituras', async (req, res) => {
 });
 
 // Definindo a rota para receber a requisição do historico das leituras dos reservarotios
-router.post('/get_historico_res', async (req, res) => {
+router.post('/get_historico/res', async (req, res) => {
   const { url, id, startDate, endDate, local } = req.body; 
   try {
     const retorno = await model_Res.getHistorico(url,id,startDate,endDate)

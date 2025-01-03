@@ -161,7 +161,7 @@ async function iniciarPagina(){
   //console.log(reservatorios)
   await iniciarGalges();
 
-  fetch('/get-ultimas-leituras', {
+  fetch('/get-ultimas-leituras/res', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ async function iniciarPagina(){
 
     loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 
-    fetch('/get-ultimas-leituras', {
+    fetch('/get-ultimas-leituras/res', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ async function iniciarPagina(){
       const id = this.value; //obtem o id do reservatorio
       const local = reservatorios[id-1].nome //obtem o o local do reservatorio
     
-      fetch('/get_historico_res', {
+      fetch('/get_historico/res', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -285,7 +285,7 @@ function historico(dados){
           const startDate = document.getElementById('start-date').value;
           const endDate = document.getElementById('end-date').value;
       
-          fetch('/get_historico_res', {
+          fetch('/get_historico/res', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
