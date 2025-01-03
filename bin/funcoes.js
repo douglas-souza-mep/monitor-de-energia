@@ -19,9 +19,10 @@ function calculoConsumo(t_star,t_end,pt){
     //dedifio umtimo dia do mes anterior
     var mes = new Date(moment().format('YYYY/MM/01')).setHours(-1)
     mes = moment(mes).format('YYYY-MM-DD')
+    
     console.log(data)
-    const hoje = data;
-
+    const hoje = new Date(data);
+    console.log(hoje)
     // Subtrai um dia da data atual
     const ontem = new Date(hoje);
     ontem.setDate(hoje.getDate() - 1);
