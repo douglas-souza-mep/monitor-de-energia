@@ -247,8 +247,8 @@ const getConsumo = async (url,id,startDate,endDate)=>{
 
 const getConsumo2 = async (url,id,startDate,endDate)=>{
     let consumosDiario
-    console.log(startDate)
-    console.log(endDate)
+    //console.log(startDate)
+    //console.log(endDate)
     const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
     try {
         [consumosDiario] = await db.query(sql,[startDate,endDate])
@@ -341,7 +341,7 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
                 id: medidor,
                 nome: disposisitos[index].local
             }
-        console.log(dados)
+        //console.log(dados)
         medidores.push(dados)
         }
         console.log("dados do relatorio enviados ")
@@ -359,5 +359,6 @@ module.exports = {
     atualizarDados,
     getDataStart,
     getConsumo,
+    getConsumo2,
     getRelatorio
 }

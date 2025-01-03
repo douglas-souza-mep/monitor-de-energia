@@ -32,18 +32,47 @@ socket.on("atualizar_casa1",dados =>{
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 })
 
-document.getElementById('event-form').addEventListener('submit', async function(event) {
-
+// Função para calcular o consumo de energia
+function calcularConsumo(event) {
   event.preventDefault(); // Impede o envio padrão do formulário
 
   // Coleta os valores do formulário
   const startDate = document.getElementById('start-date').value;
   const endDate = document.getElementById('end-date').value;
+  
+  // Envia os dados para o servidor usando Socket.IO
+  socket.emit("calcular_consumo_energ", {
+    id: medidor,
+    datas: { startDate, endDate },
+    url: url,
+    local: local
+  });
+  // Exibe o pop-up de carregamento
+  loadingPopup.style.display = 'flex';
+}
 
-  // Envia os dados para o servidor usando Socket IO
-  socket.emit("calcular_consumo_energ",{id: medidor , datas:{startDate, endDate},url:"casa",local:local })
-  loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
-});
+// Função para calcular o consumo de energia
+function calcularConsumo2(event) {
+  event.preventDefault(); // Impede o envio padrão do formulário
+
+  // Coleta os valores do formulário
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
+  
+  // Envia os dados para o servidor usando Socket.IO
+  socket.emit("calcular_consumo_energ2", {
+    id: medidor,
+    datas: { startDate, endDate },
+    url: url,
+    local: local
+  });
+  // Exibe o pop-up de carregamento
+  loadingPopup.style.display = 'flex';
+}
+
+// Adiciona os ouvintes de evento para os botões
+document.getElementById('calcular').addEventListener('click', calcularConsumo);
+document.getElementById('calcular2').addEventListener('click', calcularConsumo2);
 
  // Ouve eventos de resposta do servidor em relação ao consumo
 socket.on('consumo_de_energia_casa', (dados) => {

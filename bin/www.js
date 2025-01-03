@@ -101,6 +101,36 @@ app.io.on('connection', socket=>{
     }
   })
 
+  socket.on("calcular_consumo_energ2", async (info)=>{
+    //console.log(dados)
+    const { startDate, endDate } = info.datas;
+    try {
+        const retorno = await model_Energ.getConsumo2(info.url,info.id,startDate,endDate)
+        //console.log(retorno)
+        if(retorno.consumosDiario.length >= 1){
+          dados={
+            id: info.id,
+            local:info.local,
+            consumo:retorno.consumo,
+            dataL1:retorno.consumosDiario[0].data,
+            dataL2:retorno.consumosDiario[retorno.consumosDiario.length-1].data,
+            grafico:[]
+          }
+          await retorno.consumosDiario.forEach(element => {
+            dados.grafico.push([element.data, element.valor]);
+          });
+          socket.emit('consumo_de_energia_'+info.url, dados);
+          //console.log(dados)
+        }else{
+          socket.emit('consumo_de_energia_'+info.url, { error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.consumosDiario.length });
+        }
+        
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        socket.emit('consumo_de_energia'+info.url, { error: 'Erro ao buscar leituras.' });
+    }
+  })
+
   socket.on("obter_relatorio_geral", async (info)=>{
     //console.log(dados)
     const { startDate, endDate } = info.datas;
