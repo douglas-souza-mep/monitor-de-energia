@@ -191,8 +191,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
         //console.log(index)
         if(index==-1){
         const retorno = await dadosAlerta(url,id)
-        const msg = "Alerta de nivel baixo!\n Local:"+retorno.nome+"!\nReservatorio: "+ retorno.local+" (id:"+retorno.id+")\nNivel: ${leitura.nivel} \nHorario:"+moment(data).format('DD-MM-YYYY HH:mm:ss') 
-        sendAlerta(msg,retorno.chatID)
+        const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
+        //sendAlerta(msg,retorno.chatID)
         alertas.urlID.push(url+id+"NB")
         alertas.data.push(data) 
         }else{
