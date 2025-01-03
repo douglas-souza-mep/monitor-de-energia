@@ -136,7 +136,9 @@ const getDataStart= async(medidor,usuario) =>{
     
 
      //consumo do mes anterior e de ontem
-    const anterior = _.datasAnteriorers()
+    var d = new Date();
+    var data = d.setHours(d.getHours() - 3)
+    const anterior = _.datasAnteriorers(data)
     const [[cda]] = await db.query("SELECT valor FROM tb_"+ usuario+"_cd_m"+medidor+" WHERE DATE(data) = ? LIMIT 1",
                                     anterior.dia)
     const [[cma]] = await db.query("SELECT valor FROM tb_"+ usuario +"_cm_m"+medidor+" WHERE DATE(data) = ? LIMIT 1",
