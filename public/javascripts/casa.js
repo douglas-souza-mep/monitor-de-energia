@@ -2,7 +2,7 @@
 google.charts.load('current', {'packages':['corechart']});
 
 
-
+const url = "casa"
 const socket = io();
 
 const loadingPopup = document.getElementById('loadingPopup');
