@@ -20,14 +20,14 @@ function calculoConsumo(t_star,t_end,pt){
     var mes = new Date(moment().format('YYYY/MM/01')).setHours(-1)
     mes = moment(mes).format('YYYY-MM-DD')
     
-    console.log(data)
+    //console.log(data)
     const hoje = new Date(data);
-    console.log(hoje)
+    //console.log(hoje)
     // Subtrai um dia da data atual
     const ontem = new Date(hoje);
     ontem.setDate(hoje.getDate() - 1);
     var dia = moment(ontem).format('YYYY-MM-DD')
-    console.log(`ontem: ${moment(ontem).format('YYYY-MM-DD HH:mm:ss')}`)
+    //console.log(`ontem: ${moment(ontem).format('YYYY-MM-DD HH:mm:ss')}`)
     return {dia: dia, mes:mes}
   }
 

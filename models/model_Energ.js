@@ -5,7 +5,7 @@ const moment = require('moment')
 
 const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
-    console.log(d);
+    //console.log(d);
     _.adicionarSeNaoExistir( globalThis.medidoresEnergDinamico,`energ_${usuario}_${medidor}`)
     
     let consumoD = {}
