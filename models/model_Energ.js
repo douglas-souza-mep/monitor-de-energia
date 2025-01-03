@@ -256,7 +256,7 @@ const getConsumo2 = async (url,id,startDate,endDate)=>{
         console.log(error)
     }
     const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
-    return {consumosDiario,consumo}
+    return {consumosDiario,consumo: parseFloat(consumo)}
 }
 
 const inserir = async (d,leituraAtual,sql) =>{
