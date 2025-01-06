@@ -158,7 +158,7 @@ module.exports = function(io){
       {cheio:28 , vazio:101 ,max:200, NB:40 },
       //Superior C
       //cheio:26 , vazio:77 ,max:200, NB:40 },
-      {cheio:23 , vazio:85 ,max:200, NB:40 },
+      {cheio:26 , vazio:85 ,max:200, NB:40 },
       //Superior D
       //{cheio:24 , vazio:88 ,max:200, NB:40 },
       {cheio:33 , vazio:88 ,max:200, NB:40 },
