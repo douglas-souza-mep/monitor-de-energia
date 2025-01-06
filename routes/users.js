@@ -152,19 +152,24 @@ module.exports = function(io){
   router.post('/taguaLife/res',async (req,res) =>{
     const distancias = [
       //Superior A
-       {cheio:26 , vazio:96 ,max:200, NB:40 },
-       //Superior B
-       {cheio:28 , vazio:101 ,max:200, NB:40 },
-       //Superior C
-       {cheio:26 , vazio:77 ,max:200, NB:40 },
-       //Superior D
-       {cheio:24 , vazio:88 ,max:200, NB:40 },
-       //Superior E
-       {cheio:25 , vazio:92 ,max:200, NB:40 },
-       //Superior F
-       {cheio:22 , vazio:89 ,max:200, NB:40 }]
-      var d = new Date();
-      var data = d.setHours(d.getHours() - 3)
+      //{cheio:26 , vazio:96 ,max:200, NB:40 },
+      {cheio:29 , vazio:96 ,max:200, NB:30 },
+      //Superior B
+      {cheio:28 , vazio:101 ,max:200, NB:40 },
+      //Superior C
+      //cheio:26 , vazio:77 ,max:200, NB:40 },
+      {cheio:23 , vazio:85 ,max:200, NB:40 },
+      //Superior D
+      //{cheio:24 , vazio:88 ,max:200, NB:40 },
+      {cheio:33 , vazio:88 ,max:200, NB:40 },
+      //Superior E
+      {cheio:25 , vazio:92 ,max:200, NB:40 },
+      //Superior F
+      //{cheio:22 , vazio:89 ,max:200, NB:40 }
+      {cheio:26 , vazio:93 ,max:200, NB:40 }
+    ]
+    var d = new Date();
+    var data = d.setHours(d.getHours() - 3)
     var url="taguaLife"
     //console.log('Dados recebidos! Tagua Life reservatorio: '+req.body.id)
     //console.log("id: "+req.body.id+"\ndist: "+req.body.distancia)
