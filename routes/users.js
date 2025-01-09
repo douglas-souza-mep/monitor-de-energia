@@ -161,7 +161,7 @@ module.exports = function(io){
       {cheio:26 , vazio:85 ,max:200, NB:40 },
       //Superior D
       //{cheio:24 , vazio:88 ,max:200, NB:40 },
-      {cheio:33 , vazio:88 ,max:200, NB:40 },
+      {cheio:26 , vazio:88 ,max:200, NB:20 },
       //Superior E
       {cheio:25 , vazio:92 ,max:200, NB:40 },
       //Superior F
@@ -222,14 +222,14 @@ module.exports = function(io){
         // console.log(index)
         if(index==-1){
           const retorno = await model_Res.dadosAlerta(url,req.body.id)
-          const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}`
+          const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${dados.leitura.nivel}%`
           f.sendAlerta(msg,retorno.chatID)
           alertas.urlID.push(url+req.body.id+"NA")
           alertas.data.push(data) 
         }else{
           if (data-alertas.data[index]>=(3*60*1000)) {
             const retorno = await model_Res.dadosAlerta(url,req.body.id)
-            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${dados.leitura.nivel}%}` 
             f.sendAlerta(msg,retorno.chatID)
             alertas.data[index] = data
           }

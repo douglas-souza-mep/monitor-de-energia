@@ -17,7 +17,7 @@ function subscribeToMqttTopics(io) {
 
         // Lista de tópicos para subscrever
         const topics = [
-        'connect/res',
+        //'connect/res',
         'taguaLife/res',
         'casa/energ',
         'santaMonica/energ'

@@ -192,7 +192,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
         if(index==-1){
         const retorno = await dadosAlerta(url,id)
         const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
-        //sendAlerta(msg,retorno.chatID)
+        sendAlerta(msg,retorno.chatID)
         alertas.urlID.push(url+id+"NB")
         alertas.data.push(data) 
         }else{
@@ -211,14 +211,14 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
         // console.log(index)
         if(index==-1){
             const retorno = await dadosAlerta(url,id)
-            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}`
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
             sendAlerta(msg,retorno.chatID)
             alertas.urlID.push(url+id+"NA")
             alertas.data.push(data) 
         }else{
             if (data-alertas.data[index]>=(1*60*1000)) {
             const retorno = await dadosAlerta(url,id)
-            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nHorario:${+moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
+            const msg = `Alerta de trasbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             sendAlerta(msg,retorno.chatID)
             alertas.data[index] = data
             }
