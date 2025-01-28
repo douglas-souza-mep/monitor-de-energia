@@ -174,7 +174,7 @@ fetch('/get-dados-do-usuario', {
         }
     });
 
-    clientMQTT.publish("connect/comando/res2","status")
+    clientMQTT.publish("connect/comando/res1","status")
 
   });
 
