@@ -9,6 +9,7 @@ class Reservatorio {
     this.nivel =  0
     this.distancia =  0
     this.graficos =  []
+    this.modoOp = "Aut"
     //this.volumeMax = volumeMax
     this.alerta = 40
     this.critico = 10
@@ -83,9 +84,10 @@ class Reservatorio {
         this.volume =  leitura.volume
         this.nivel =  leitura.nivel
         this.distancia =  leitura.distancia
+        this.modoOp = leitura.modoOp
         //this.graficos =  dados.graficos
         try {
-          if(this.nivel<40){
+          if(this.nivel<this.alerta){
             this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
             this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
           }
@@ -127,10 +129,11 @@ var reservatorios = [];
 var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
 url='connect'
 const socket = io();
-
+var clientMQTT
 
 // caracteriscas do usuario
 var usuario
+
 socket.on("connect", () => {
   console.log(socket.id);
 })
@@ -145,13 +148,75 @@ fetch('/get-dados-do-usuario', {
 .then(response => response.json())
 .then(dados => {
   usuario = dados
+  //console.log(usuario)
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
+  //console.log (`usuario:${usuario.usuario}`)
+  //console.log (`senha:${usuario.senha}`)
+  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
+    username: "connect.tower",
+    password: "connect@tower"
+    });
+
+  clientMQTT.on('connect', () => {
+    console.log('Conectado ao broker MQTT');
+    
+    // Lista de tópicos para subscrever
+    const topics = [
+    'connect/comando/return',
+    'connect/status/res',
+    ];
+    // Subscrição em múltiplos tópicos
+    clientMQTT.subscribe(topics, (err) => {
+        if (err) {
+            console.error('Erro ao subscrever aos tópicos', err);
+        } else {
+            console.log('Subscrito aos tópicos:', topics.join(', '));
+        }
+    });
+
+    clientMQTT.publish("connect/comando/res2","status")
+
+  });
+
+  clientMQTT.on('message', (topic, message) => {
+    switch (topic) {
+      case 'connect/comando/return':
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        console.log(`Mensagem: ${message}`)
+        retornoDisp.innerText = message.toString()
+        popup.style.display = "flex"; // Exibe o popup
+      break;
+      case 'connect/status/res':
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        const msg = message.toString().split(';');
+        modosOP.forEach(function(checkbox) {
+          if (checkbox.value === msg[0]) {
+            if(msg[1] ==="Man"){
+              checkbox.checked = false
+            }else{
+              checkbox.checked = true
+            }
+          }
+        });
+        
+      break;
+      default:
+      console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
+    }
+  });
+
+    clientMQTT.on('error', (err) => {
+        console.error('Erro de conexão MQTT', err);
+    });
+
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 })
 .catch(err => {
   console.error('Erro ao obter dados do usuário:', err);
   loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
 });
+
+var modosOP
 
 async function iniciarPagina(){
   for (let i = 0; i < usuario.reservatorio*2; i+=2) {
@@ -178,12 +243,25 @@ async function iniciarPagina(){
     loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
   });
 
+  // Obtendo os elementos
   const botoesHistorico = document.querySelectorAll('.getHistorico');
-  const loadingPopup = document.getElementById('loadingPopup');
   const recarregar = document.getElementById('recarregar')
 
-  recarregar.addEventListener('click',function () {
+  // Obtendo os elementos
+  modosOP = document.querySelectorAll('.modoOp');
+  const BtsLigar = document.querySelectorAll('.BtLigar');
+  const BtsDesligar = document.querySelectorAll('.BtDesligar');
+  const loadingPopup = document.getElementById('loadingPopup');
+  const popup = document.getElementById("popup");
+  const retornoDisp = document.getElementById("retornoDisp");
+  const closePopupBtn = document.getElementById("closePopupBtn");
 
+// Função para fechar o popup
+closePopupBtn.addEventListener("click", function() {
+    popup.style.display = "none"; // Esconde o popup
+});
+
+  recarregar.addEventListener('click',function () {
     loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 
     fetch('/get-ultimas-leituras/res', {
@@ -230,6 +308,34 @@ async function iniciarPagina(){
         console.error('Erro ao obter dados do usuário:', err);
         loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
       });
+    })
+  })
+
+  modosOP.forEach(chekbox => {
+    chekbox.addEventListener('change',function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${chekbox.value}`
+      if(chekbox.checked==true){
+        clientMQTT.publish(topico,"automatico")
+      }else{
+        clientMQTT.publish(topico,"manual")
+      }
+    })
+  })
+
+  BtsDesligar.forEach(botao => {
+    botao.addEventListener('click', function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${botao.value}`
+      clientMQTT.publish(topico,"desligar")
+    })
+  })
+
+  BtsLigar.forEach(botao => {
+    botao.addEventListener('click', function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${botao.value}`
+      clientMQTT.publish(topico,"ligar")
     })
   })
 
@@ -308,11 +414,21 @@ function historico(dados){
 }
 
 async function atualizar_leitura(dados) {
-  console.log(dados)
+  //console.log(dados)
   for (let index = 0; index < dados.length; index++) {
     const leitura = dados[index];
     console.log(dados[index])
     await reservatorios[leitura.id-1].send(leitura)
+    modosOP.forEach(function(checkbox) {
+      if (checkbox.value === leitura.id) {
+        console.log(leitura)
+        if(leitura.modoOp =="Man"){
+          checkbox.checked = false
+        }else{
+          checkbox.checked = true
+        }
+      }
+    });
     let strdata = leitura.data.split("-")
     let data = new Date(strdata[1]+"-"+strdata[0]+"-"+strdata[2])
   

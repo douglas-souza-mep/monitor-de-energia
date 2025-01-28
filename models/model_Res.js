@@ -35,10 +35,10 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     return {leitura:leituraAtual};
 }
 
-const atualizarDados2 = async (data,distancia,dimensoes,id,usuario,nome) =>{
+const atualizarDados2 = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
     
-    leituraAtual = await validacao2(distancia,dimensoes,id,nome);
+    leituraAtual = await validacao2(distancia,dimensoes,id,nome,modoOp);
     
     if(leituraAtual.erro == 1){
         return {erro:"Dados invalidos"}
@@ -141,13 +141,14 @@ const validacao = async (leitura) =>{
     return leitura
 }
 
-const validacao2 = async (distancia,dimensoes,id,cliente) =>{
+const validacao2 = async (distancia,dimensoes,id,cliente,modoOp) =>{
     let leituraAtual = {} 
 
     if(distancia<dimensoes.max){
         leituraAtual.id = id
         leituraAtual.distancia = distancia
         leituraAtual.nivel = await calcularNivel(distancia,dimensoes.vazio,dimensoes.cheio)
+        leituraAtual.modoOp = modoOp
         leituraAtual.volume = 0
         leituraAtual.erro = 0
     }

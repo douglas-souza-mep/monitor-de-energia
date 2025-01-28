@@ -153,15 +153,15 @@ module.exports = function(io){
     const distancias = [
       //Superior A
       //{cheio:26 , vazio:96 ,max:200, NB:40 },
-      {cheio:29 , vazio:96 ,max:200, NB:30 },
+      {cheio:29 , vazio:96 ,max:200, NB:40 },
       //Superior B
-      {cheio:28 , vazio:101 ,max:200, NB:40 },
+      {cheio:28 , vazio:92 ,max:200, NB:40 },
       //Superior C
       //cheio:26 , vazio:77 ,max:200, NB:40 },
       {cheio:26 , vazio:85 ,max:200, NB:40 },
       //Superior D
       //{cheio:24 , vazio:88 ,max:200, NB:40 },
-      {cheio:26 , vazio:88 ,max:200, NB:20 },
+      {cheio:26 , vazio:88 ,max:200, NB:35 },
       //Superior E
       {cheio:25 , vazio:92 ,max:200, NB:40 },
       //Superior F

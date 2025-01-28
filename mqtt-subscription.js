@@ -17,7 +17,7 @@ function subscribeToMqttTopics(io) {
 
         // Lista de tópicos para subscrever
         const topics = [
-        //'connect/res',
+        'connect/res',
         'taguaLife/res',
         'casa/energ',
         'santaMonica/energ'
@@ -34,7 +34,7 @@ function subscribeToMqttTopics(io) {
     });
 
     client.on('message', (topic, message) => {
-     // Converte a mensagem em string
+    // Converte a mensagem em string
     //console.log(`topico: ${topic}`)
     //console.log(`Mensagem: ${message}`)
     var d = new Date();
@@ -55,7 +55,7 @@ async function tratarLeitura(io,topico,msg,data){
         case 'connect/res':
             const distancias1 = [
                 //Superior
-                {cheio:26 , vazio:96 ,max:200, NB:40 },
+                {cheio:26 , vazio:96 ,max:200, NB:40 }
             ]
             const array1 = msg.split(';');
             console.log(array1)
@@ -63,6 +63,7 @@ async function tratarLeitura(io,topico,msg,data){
                 id : array1[0],
                 distancia : array1[1],
                 dist : distancias1[array1[0]-1],
+                modoOP : array1[2],
                 url :"connect",
                 nome : 'Connect Tower', 
                 data: data
@@ -75,13 +76,13 @@ async function tratarLeitura(io,topico,msg,data){
                 //{cheio:26 , vazio:96 ,max:200, NB:40 },
                 {cheio:29 , vazio:96 ,max:200, NB:30 },
                 //Superior B
-                {cheio:28 , vazio:101 ,max:200, NB:40 },
+                {cheio:28 , vazio:92 ,max:200, NB:40 },
                 //Superior C
                 //cheio:26 , vazio:77 ,max:200, NB:40 },
-                {cheio:34 , vazio:85 ,max:200, NB:40 },
+                {cheio:26 , vazio:85 ,max:200, NB:40 },
                 //Superior D
                 //{cheio:24 , vazio:88 ,max:200, NB:40 },
-                {cheio:33 , vazio:88 ,max:200, NB:40 },
+                {cheio:33 , vazio:88 ,max:200, NB:35 },
                 //Superior E
                 {cheio:25 , vazio:92 ,max:200, NB:40 },
                 //Superior F
@@ -113,7 +114,7 @@ async function tratarLeitura(io,topico,msg,data){
 
 async function leituraRes(dados,io){
     try {
-        const retorno = await model_Res.atualizarDados2(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome)
+        const retorno = await model_Res.atualizarDados2(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
         if(retorno.erro){
             console.log("erro")
             return
