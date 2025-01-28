@@ -58,7 +58,7 @@ async function tratarLeitura(io,topico,msg,data){
                 {cheio:27 , vazio:125 ,max:200, NB:30 }
             ]
             const array1 = msg.split(';');
-            console.log(array1)
+            //console.log(array1)
             const dados1 ={
                 id : array1[0],
                 distancia : array1[1],
@@ -90,7 +90,7 @@ async function tratarLeitura(io,topico,msg,data){
                 {cheio:26 , vazio:93 ,max:200, NB:40 }
             ]
             const array2 = msg.split(';');
-            console.log(array2)
+            //console.log(array2)
             const dados2 ={
                 id : array2[0],
                 distancia : array2[1],
