@@ -450,7 +450,7 @@ function iniciarGalges(){
 function drawChart(id,local,graficos,chartOptions) {
   let dados = []
   const trasbordo =105
-  const nivelBaixo = 40
+  const nivelBaixo = 30
   graficos.forEach(element => {
     dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo])
   });

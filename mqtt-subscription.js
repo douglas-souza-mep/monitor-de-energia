@@ -55,7 +55,7 @@ async function tratarLeitura(io,topico,msg,data){
         case 'connect/res':
             const distancias1 = [
                 //Superior
-                {cheio:26 , vazio:96 ,max:200, NB:40 }
+                {cheio:27 , vazio:125 ,max:200, NB:30 }
             ]
             const array1 = msg.split(';');
             console.log(array1)
