@@ -106,6 +106,7 @@ class Reservatorio {
         this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
       } catch (error) {
         await this.iniciarGalges()
+        console.log(this.alertas)
         if(this.nivel<this.alertas.NB){
           this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
           this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
