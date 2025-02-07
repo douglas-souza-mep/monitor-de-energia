@@ -349,8 +349,8 @@ function iniciarGalges(){
 
 function drawChart(id,local,graficos,chartOptions) {
   let dados = []
-  const trasbordo =reservatorios[dados.id-1].alertas.NA
-  const nivelBaixo = reservatorios[dados.id-1].alertas.NB
+  const trasbordo =reservatorios[id-1].alertas.NA
+  const nivelBaixo = reservatorios[id-1].alertas.NB
   graficos.forEach(element => {
     dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo])
   });
