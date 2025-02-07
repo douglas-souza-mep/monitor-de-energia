@@ -12,7 +12,7 @@ class Reservatorio {
     this.distancia =  0
     this.graficos =  []
     //this.volumeMax = volumeMax
-    this.alertas = {NB:40,NA:105}
+    this.alertas = {NB:40, NA:105}
     this.critico = 10
     this.gaugeOptions = {min: 0, max: 110, 
       yellowFrom: this.critico, yellowTo: this.alerta,
@@ -86,10 +86,11 @@ class Reservatorio {
       this.volume =  leitura.volume
       this.nivel =  leitura.nivel
       this.distancia =  leitura.distancia
-      this.alertas = leitura.alertas
+      if(leituras.alertas != undefined){
+        this.alertas = leitura.alertas
+      }
       //this.graficos =  dados.graficos
       try {
-        console.log(this.alertas)
         if(this.nivel<this.alertas.NB){
           this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
           this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
