@@ -12,7 +12,7 @@ class Reservatorio {
     this.distancia =  0
     this.graficos =  []
     //this.volumeMax = volumeMax
-    this.alerta = 40
+    this.alertas = {NB:40,NA:105}
     this.critico = 10
     this.gaugeOptions = {min: 0, max: 110, 
       yellowFrom: this.critico, yellowTo: this.alerta,
@@ -86,14 +86,15 @@ class Reservatorio {
       this.volume =  leitura.volume
       this.nivel =  leitura.nivel
       this.distancia =  leitura.distancia
+      this.alertas = leitura.alertas
       //this.graficos =  dados.graficos
       try {
-        if(this.nivel<40){
+        if(this.nivel<this.alertas.NB){
           this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
           this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
         }
         else{
-          if(this.nivel<105){
+          if(this.nivel<this.alertas.NA){
             this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
             this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
           }
@@ -105,12 +106,12 @@ class Reservatorio {
         this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
       } catch (error) {
         await this.iniciarGalges()
-        if(this.nivel<40){
+        if(this.nivel<this.alertas.NB){
           this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
           this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
         }
         else{
-          if(this.nivel<105){
+          if(this.nivel<this.alertas.NB){
             this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
             this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
           }
@@ -153,7 +154,7 @@ fetch('/get-dados-do-usuario', {
 .then(dados => {
   console.log("resposta do servidor com usuario")
   usuario = dados
-  console.log(usuario)
+  //console.log(usuario)
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 })
@@ -320,10 +321,10 @@ function historico(dados){
 }
 
 async function atualizar_leitura(dados) {
-  console.log(dados)
+  //console.log(dados)
   for (let index = 0; index < dados.length; index++) {
     const leitura = dados[index];
-    console.log(dados[index])
+    //console.log(dados[index])
     await reservatorios[leitura.id-1].send(leitura)
     let strdata = leitura.data.split("-")
     let data = new Date(strdata[1]+"-"+strdata[0]+"-"+strdata[2])
@@ -345,8 +346,8 @@ function iniciarGalges(){
 
 function drawChart(id,local,graficos,chartOptions) {
   let dados = []
-  const trasbordo =105
-  const nivelBaixo = 40
+  const trasbordo =reservatorios[dados.id-1].alertas.NA
+  const nivelBaixo = reservatorios[dados.id-1].alertas.NB
   graficos.forEach(element => {
     dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo])
   });

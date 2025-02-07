@@ -65,7 +65,7 @@ async function tratarLeitura(io,topico,msg,data){
                 dist : distancias1[array1[0]-1],
                 modoOP : array1[2],
                 url :"connect",
-                nome : 'Connect Tower', 
+                nome : 'Connect Towers', 
                 data: data
             }
             leituraRes(dados1,io)
@@ -74,20 +74,20 @@ async function tratarLeitura(io,topico,msg,data){
             const distancias2 = [
                 //Superior A
                 //{cheio:26 , vazio:96 ,max:200, NB:40 },
-                {cheio:29 , vazio:96 ,max:200, NB:30 },
+                {cheio:20 , vazio:96 ,max:200, NB:35, NA:102 },
                 //Superior B
-                {cheio:28 , vazio:92 ,max:200, NB:40 },
+                {cheio:28 , vazio:92 ,max:200, NB:35, NA:105 },
                 //Superior C
                 //cheio:26 , vazio:77 ,max:200, NB:40 },
-                {cheio:26 , vazio:85 ,max:200, NB:40 },
+                {cheio:20 , vazio:85 ,max:200, NB:35, NA:102 },
                 //Superior D
                 //{cheio:24 , vazio:88 ,max:200, NB:40 },
-                {cheio:33 , vazio:88 ,max:200, NB:35 },
+                {cheio:33 , vazio:88 ,max:200, NB:35, NA:105 },
                 //Superior E
-                {cheio:25 , vazio:92 ,max:200, NB:40 },
+                {cheio:25 , vazio:92 ,max:200, NB:30, NA:105 },
                 //Superior F
                 //{cheio:22 , vazio:89 ,max:200, NB:40 }
-                {cheio:26 , vazio:93 ,max:200, NB:40 }
+                {cheio:26 , vazio:93 ,max:200, NB:30, NA:105}
             ]
             const array2 = msg.split(';');
             //console.log(array2)

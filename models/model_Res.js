@@ -2,43 +2,15 @@ const db = require('./connection')
 const moment = require('moment')
 const { sendAlerta } = require('../bin/funcoes');
 
-
-
 var alertas ={
     urlID:[],
     data: []
 }
 
-const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
-    const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
-    //console.log(d);
-    
-    leituraAtual = await validacao(leituraAtual);
-
-    const sql =  "INSERT INTO tb_"+ usuario +"_res (id,data,volume,nivel,distancia) VALUES (?,?,?,?,?)";
-    const insert = await inserir(medidor,d,leituraAtual,sql);
-    if(insert.error){
-        return {erro:insert.error}
-    }
-    /*let data2 = data.setHours(data.getHours() - 48)
-    const [cd] = await db.query("SELECT id,data,nivel,distancia FROM tb_"+ usuario +"_res WHERE id = "+medidor+" AND DATE(data)>=?",
-    moment(data2).format('YYYY-MM-DD'))
-
-    const graficos = []
-
-    cd.forEach((dado) => {
-        //let hora = moment(dado.data).format('HH:mm:ss')
-        let hora =moment(dado.data).format('YYYY-MM-DD[T]HH:mm:ss')
-        graficos.push([hora,dado.volume,dado.nivel,dado.distancia])
-    });*/
-    
-    return {leitura:leituraAtual};
-}
-
-const atualizarDados2 = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =>{
+const atualizarDados = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =>{
     const d = moment(data).format('YYYY-MM-DD HH:mm:ss');
     
-    leituraAtual = await validacao2(distancia,dimensoes,id,nome,modoOp);
+    leituraAtual = await validacao(distancia,dimensoes,id,nome,modoOp);
     
     if(leituraAtual.erro == 1){
         return {erro:"Dados invalidos"}
@@ -130,18 +102,7 @@ async function dadosAlerta(url,id){
     }
 }
 
-const validacao = async (leitura) =>{
-    //console.log(leitura.distancia)
-   if(leitura.distancia==undefined){
-      leitura.distancia = parseInt(leitura.d)
-      leitura.nivel = parseInt(leitura.nivel)
-      leitura.volume = parseInt(leitura.volume)
-      //console.log(leitura)
-   } 
-    return leitura
-}
-
-const validacao2 = async (distancia,dimensoes,id,cliente,modoOp) =>{
+const validacao = async (distancia,dimensoes,id,cliente,modoOp) =>{
     let leituraAtual = {} 
 
     if(distancia<dimensoes.max){
@@ -151,6 +112,7 @@ const validacao2 = async (distancia,dimensoes,id,cliente,modoOp) =>{
         leituraAtual.modoOp = modoOp
         leituraAtual.volume = 0
         leituraAtual.erro = 0
+        leituraAtual.alertas = {NB: dimensoes.NB, NA:dimensoes.NA}
     }
     else{
         sendAlerta(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
@@ -230,7 +192,6 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
 
 module.exports = {
     atualizarDados,
-    atualizarDados2,
     getDataStart,
     dadosAlerta,
     getHistorico,
