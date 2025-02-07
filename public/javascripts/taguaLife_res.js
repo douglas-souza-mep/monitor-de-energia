@@ -15,10 +15,10 @@ class Reservatorio {
     this.alertas = {NB:40, NA:105}
     this.critico = 10
     this.gaugeOptions = {min: 0, max: 110, 
-      yellowFrom: this.critico, yellowTo: this.alerta,
+      yellowFrom: this.critico, yellowTo: this.alerta.NB,
       redFrom: 0, redTo: this.critico,
       blueFrom: 100, blueTo: 110,
-      greenFrom: this.alerta, greenTo: 100,
+      greenFrom: this.alerta.NB, greenTo: 100,
       minorTicks: 5,
     };
     
