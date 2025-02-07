@@ -51,7 +51,7 @@ class Reservatorio {
     };
   }
 
-  iniciaGalge(){
+  async iniciaGalge(){
     try {
       this.gaugeData = google.visualization.arrayToDataTable([
         ['Label', 'Value'],

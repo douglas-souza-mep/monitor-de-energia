@@ -114,7 +114,7 @@ async function tratarLeitura(io,topico,msg,data){
 
 async function leituraRes(dados,io){
     try {
-        const retorno = await model_Res.atualizarDados2(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
+        const retorno = await model_Res.atualizarDados(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
         if(retorno.erro){
             console.log("erro")
             return
