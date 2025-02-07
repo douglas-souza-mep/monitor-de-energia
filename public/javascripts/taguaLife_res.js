@@ -86,7 +86,7 @@ class Reservatorio {
       this.volume =  leitura.volume
       this.nivel =  leitura.nivel
       this.distancia =  leitura.distancia
-      if(leituras.alertas != undefined){
+      if(leitura.alertas != undefined){
         this.alertas = leitura.alertas
       }
       //this.graficos =  dados.graficos
