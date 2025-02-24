@@ -1,9 +1,7 @@
 google.charts.load('current', {'packages':['gauge','corechart']})
 
-var gauge1,gauge2;
-
 class Reservatorio {
-  constructor(id,nome,volumeMax){
+  constructor(id,nome){
     this.id = id
     this.nome = nome
     this.data =  '01-01-2000 00:00:00'
@@ -11,168 +9,500 @@ class Reservatorio {
     this.nivel =  0
     this.distancia =  0
     this.graficos =  []
-    this.volumeMax = volumeMax
-    this.alerta = 20
+    this.modoOp = "Aut"
+    //this.volumeMax = volumeMax
+    this.alerta = 40
     this.critico = 10
-    this.gaugeOptions = {min: 0, max: 100, yellowFrom: this.critico, yellowTo: this.alerta,
-      redFrom: 0, redTo: this.critico, minorTicks: 5};
+    this.gaugeOptions = {min: 0, max: 110, 
+      yellowFrom: this.critico, yellowTo: this.alerta,
+      redFrom: 0, redTo: this.critico,
+      blueFrom: 100, blueTo: 110,
+      greenFrom: this.alerta, greenTo: 100,
+      minorTicks: 5,
+    };
+    
+    this.gaugeData 
+    this.gauge 
     
     //this.alerta = Math.round(this.volumeMax*0.2)
     //this.critico = Math.round(this.volumeMax*0.1)
     //this.gaugeOptions = {min: 0, max: this.volumeMax, yellowFrom: this.critico, yellowTo: this.alerta,
-      //redFrom: 0, redTo: this.critico, minorTicks: Math.round(this.volumeMax*0.05)};
+    //redFrom: 0, redTo: this.critico, minorTicks: Math.round(this.volumeMax*0.05)};
     
       this.chartOptions = {
       title: this.nome,
-      hAxis: {title: 'Horario',  titleTextStyle: {color: '#333'}},
-      vAxis: {minValue: 0},
+      hAxis: {title: 'Horario', 
+      format: 'dd-MM-yy hh:mm', // Formato da data no eixo horizontal
+      titleTextStyle: {color: '#333'}
+      },
+      vAxis: {
+        minValue: 0,},
       height: 330,
+      series: {
+        0: {lineWidth: 2} // largura da linha
+      },
+      pointSize: 1, // tamanho dos pontos
+      pointShape: 'circle', // forma dos pontos
+      tooltip: {
+        isHtml: true, // Permite HTML no tooltip
+        trigger: 'selection' // Exibe tooltip ao selecionar um ponto
+      }
     };
   }
-  async send(dados){
-    this.data =  dados.leitura.data
-    this.volume =  dados.leitura.volume
-    this.nivel =  dados.leitura.nivel
-    this.distancia =  dados.leitura.distancia
-    this.graficos =  dados.graficos
 
-    return
-  }
+    iniciaGalge(){
+      try {
+        this.gaugeData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ["Normal", 0]
+          //[this.nome, 0]
+      ]);
+      this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
+      this.gauge.draw(this.gaugeData, this.gaugeOptions);
+      $(`#res${this.id}_local`).text(this.nome)
+      $(`#res${this.id}_nivel`).text(this.nivel) 
+      } catch (error) {
+        console.log(error)
+        google.charts.load('current', {'packages':['gauge','corechart']}).then( ()=>{
+          this.gaugeData = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ["", 0]
+            //[this.nome, 0]
+          ]);
+          setTimeout(() => {
+            this.gauge = new google.visualization.Gauge(document.getElementById(`res${this.id}`));
+            this.gauge.draw(this.gaugeData, this.gaugeOptions);
+          }, 1000);
+          $(`#res${this.id}_local`).text(this.nome)
+          $(`#res${this.id}_nivel`).text(this.nivel)
+        })
+      }
+        
+    }
+    async send(leitura){
+        this.data =  leitura.data
+        this.volume =  leitura.volume
+        this.nivel =  leitura.nivel
+        this.distancia =  leitura.distancia
+        this.modoOp = leitura.modoOp
+        //this.graficos =  dados.graficos
+        try {
+          if(this.nivel<this.alerta){
+            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+            this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
+          }
+          else{
+            if(this.nivel<105){
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
+            }
+            else{
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
+            }
+          }
+          this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+        } catch (error) {
+          await this.iniciarGalges()
+          if(this.nivel<40){
+            this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+            this.gaugeData.setCell(0, 0, "Baixo", `nivel`, 'lebel');
+          }
+          else{
+            if(this.nivel<105){
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Normal", `nivel`, 'lebel');
+            }
+            else{
+              this.gaugeData.setCell(0, 1, this.nivel, `${this.nivel}%`, 'number');
+              this.gaugeData.setCell(0, 0, "Transbordo", `nivel`, 'lebel');
+            }
+          }
+        }
+        $(`#res${this.id}_nivel`).text(this.nivel)
+        this.gauge.draw(this.gaugeData, this.gaugeOptions);
+        return
+    }
 }
 
 var reservatorios = [];
-
+var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
+url='test'
 const socket = io();
+var clientMQTT
 
 // caracteriscas do usuario
 var usuario
-socket.on("connect", () => {
-  console.log(socket.id);
-  socket.emit("Get_dados_do_usuario", "test")
- })
 
-  socket.on("return_dados_do_usuario_test",async (dados) =>{
-  usuario = await dados
-  console.log(usuario)
-  iniciarPagina(usuario)
+socket.on("test", () => {
+  console.log(socket.id);
 })
 
+fetch('/get-dados-do-usuario', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
+})
+.then(response => response.json())
+.then(dados => {
+  usuario = dados
+  //console.log(usuario)
+  google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
+  //console.log (`usuario:${usuario.usuario}`)
+  //console.log (`senha:${usuario.senha}`)
+  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
+    username: "connect.tower",
+    password: "connect@tower"
+    });
 
+  clientMQTT.on('connect', () => {
+    console.log('Conectado ao broker MQTT');
+    
+    // Lista de tópicos para subscrever
+    const topics = [
+    'test/comando/return',
+    'test/status/res',
+    ];
+    // Subscrição em múltiplos tópicos
+    clientMQTT.subscribe(topics, (err) => {
+        if (err) {
+            console.error('Erro ao subscrever aos tópicos', err);
+        } else {
+            console.log('Subscrito aos tópicos:', topics.join(', '));
+        }
+    });
 
+    clientMQTT.publish("test/comando/res1","status")
+
+  });
+
+  clientMQTT.on('message', (topic, message) => {
+    switch (topic) {
+      case 'test/comando/return':
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        console.log(`Mensagem: ${message}`)
+        retornoDisp.innerText = message.toString()
+        popup.style.display = "flex"; // Exibe o popup
+      break;
+      case 'test/status/res':
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        const msg = message.toString().split(';');
+        modosOP.forEach(function(checkbox) {
+          if (checkbox.value === msg[0]) {
+            if(msg[1] ==="Man"){
+              checkbox.checked = false
+            }else{
+              checkbox.checked = true
+            }
+          }
+        });
+        
+      break;
+      default:
+      console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
+    }
+  });
+
+    clientMQTT.on('error', (err) => {
+        console.error('Erro de conexão MQTT', err);
+    });
+
+  loadingPopup.style.display = 'none'; // Esconde o pop-up
+})
+.catch(err => {
+  console.error('Erro ao obter dados do usuário:', err);
+  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+});
+
+var modosOP
 
 async function iniciarPagina(){
-  for (let i = 1; i < 3; i++) {
+  for (let i = 0; i < usuario.reservatorio*2; i+=2) {
     let text = usuario.reservatorios.split(";");
-    reservatorios.push(new Reservatorio(i, text[(i * 2) - 2], text[(i * 2) - 1]))
+    reservatorios.push(new Reservatorio(text[i], text[i+1],))
   }
-  console.log(reservatorios)
-  $('#res1_titulo').text(reservatorios[0].nome)
-  $('#res2_titulo').text(reservatorios[1].nome)
-  
-  // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-  gauge1 = await google.setOnLoadCallback(drawGauge1);
-  
-  socket.emit("iniciarTelaTest_Res", 1)
-  // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-  gauge2 = await google.setOnLoadCallback(drawGauge2);
+  //console.log(reservatorios)
+  await iniciarGalges();
 
-  //await google.setOnLoadCallback(drawChart1(reservatorios[1].graficos,reservatorios[1].chartOptions));
-  socket.emit("iniciarTelaTest_Res", 2)
+  fetch('/get-ultimas-leituras/res', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: url, reservatorios: usuario.reservatorio })
+  })
+  .then(response => response.json())
+  .then(dados => {
+    atualizar_leitura(dados)
+    loadingPopup.style.display = 'none'; // Esconde o pop-up
+  })
+  .catch(err => {
+    console.error('Erro ao obter dados do usuário:', err);
+    loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+  });
 
-  socket.on("atualizar_test_res1",  async (dados) =>{
-    await reservatorios[0].send(dados)
-    //console.log(reservatorios[0])
-    drawGauge1()
+  // Obtendo os elementos
+  const botoesHistorico = document.querySelectorAll('.getHistorico');
+  const recarregar = document.getElementById('recarregar')
 
-    drawChart1(reservatorios[0].graficos,reservatorios[0].chartOptions)
+  // Obtendo os elementos
+  modosOP = document.querySelectorAll('.modoOp');
+  const BtsLigar = document.querySelectorAll('.BtLigar');
+  const BtsDesligar = document.querySelectorAll('.BtDesligar');
+  const loadingPopup = document.getElementById('loadingPopup');
+  const popup = document.getElementById("popup");
+  const retornoDisp = document.getElementById("retornoDisp");
+  const closePopupBtn = document.getElementById("closePopupBtn");
 
-    if(new Date(reservatorios[0].data) >= new Date(reservatorios[1].data)){
-      $('#data').text(reservatorios[0].data)
-    }
+// Função para fechar o popup
+closePopupBtn.addEventListener("click", function() {
+    popup.style.display = "none"; // Esconde o popup
+});
+
+  recarregar.addEventListener('click',function () {
+    loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+
+    fetch('/get-ultimas-leituras/res', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: url, reservatorios: usuario.reservatorio })
+    })
+    .then(response => response.json())
+    .then(dados => {
+      atualizar_leitura(dados)
+      loadingPopup.style.display = 'none'; // Esconde o pop-up
+    })
+    .catch(err => {
+      console.error('Erro ao obter dados do usuário:', err);
+      loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+    }); 
   })
 
-
-  socket.on("atualizar_test_res2",async dados =>{
-    await reservatorios[1].send(dados)
-    drawGauge2()
-    drawChart2(reservatorios[1].graficos,reservatorios[1].chartOptions)
+  botoesHistorico.forEach(botao => {
+    botao.addEventListener('click', function() {
+      // Coleta os valores para o grafico
+      loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
+      const startDate  = new Date(); // Data de hoje
+      const endDate = new Date(startDate); // Copia a data de hoje
+      startDate.setDate(startDate.getDate() - 1); // Subtrai um dia para obter ontem
+      const id = this.value; //obtem o id do reservatorio
+      const local = reservatorios[id-1].nome //obtem o o local do reservatorio
     
-    if(new Date(reservatorios[1].data) >= new Date(reservatorios[0].data)){
-      $('#data').text(reservatorios[1].data)
-    }
+      fetch('/get_historico/res', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url, id: id , startDate, endDate, local: local  })
+      })
+      .then(response => response.json())
+      .then(dados => {
+        historico(dados)
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+      })
+      .catch(err => {
+        console.error('Erro ao obter dados do usuário:', err);
+        loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+      });
+    })
   })
+
+  modosOP.forEach(chekbox => {
+    chekbox.addEventListener('change',function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${chekbox.value}`
+      if(chekbox.checked==true){
+        clientMQTT.publish(topico,"automatico")
+      }else{
+        clientMQTT.publish(topico,"manual")
+      }
+    })
+  })
+
+  BtsDesligar.forEach(botao => {
+    botao.addEventListener('click', function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${botao.value}`
+      clientMQTT.publish(topico,"desligar")
+    })
+  })
+
+  BtsLigar.forEach(botao => {
+    botao.addEventListener('click', function () {
+      loadingPopup.style.display = 'flex';
+      let topico = `${url}/comando/res${botao.value}`
+      clientMQTT.publish(topico,"ligar")
+    })
+  })
+
+  socket.on("atualizar_test_res",async dados =>{
+    atualizar_leitura([dados.leitura])
+  }); 
   
 }
 
-function drawGauge1() {
+function historico(dados){
+  const chartDiv = document.getElementById('chart');
+    chartDiv.innerHTML =`
+      <div class="item1">
+        <form id="event-form">
+            <h3>Periodo de leituras</h3>
+            <label for="start-date">Data de Início:</label>
+            <input type="date" id="start-date" name="start-date" required>
+            
+            <label for="end-date">Data de Término:</label>
+            <input type="date" id="end-date" name="end-date" required>
+            
+            <button type="submit">Obter</button>
+        </form>
+        
+      </div>
+      <div id='resultado' class="item2"></div>
+      <div id="res_chart_div" class="item1"></div>`
 
-  $('#res'+reservatorios[0].id+'_data').text(reservatorios[0].data)
-  $('#res'+reservatorios[0].id+'_dis').text(reservatorios[0].distancia + " cm" ) 
-  $('#res'+reservatorios[0].id+'_p').text(reservatorios[0].volume+ " L" )
+    
+    //console.log(dados)
+    if (dados.error) {
+        document.getElementById('event-form').innerHTML = ''; // Limpa todos os elementos
+        document.getElementById('res_chart_div').innerHTML = ''; // Limpa todos os elementos
+        document.getElementById('resultado').innerHTML = `<p style="color: red;">${dados.error}</p>`;
+    } else {
+        const resultDiv = document.getElementById('resultado');
+        
+        var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        resultDiv.innerHTML = `
+            <div>
+                <p><strong>Local:</strong> ${dados.local}</p>
+                <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
+                <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
+            </div>
+        `;
 
-  // Cria a tabela de dados para gauge
-  var gaugeData = new google.visualization.DataTable();
-  gaugeData.addColumn('number', 'Nivel(%)');
-  gaugeData.addRows(1);
+        drawChart(dados.id,dados.local,dados.grafico,reservatorios[dados.id-1].chartOptions)
 
-  gaugeData.setCell(0, 0, reservatorios[0].nivel);
-
-  gauge = new google.visualization.Gauge(document.getElementById('res1_gauge_div'));
-  return gauge.draw(gaugeData,reservatorios[0].gaugeOptions);
+        document.getElementById('event-form').addEventListener('submit', async function(event) {
+          event.preventDefault(); // Impede o envio padrão do formulário
+      
+          // Coleta os valores do formulário
+          const startDate = document.getElementById('start-date').value;
+          const endDate = document.getElementById('end-date').value;
+      
+          fetch('/get_historico/res', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: url, id: dados.id , startDate, endDate, local: dados.local })
+          })
+          .then(response => response.json())
+          .then(dados => {
+            historico(dados)
+            loadingPopup.style.display = 'none'; // Esconde o pop-up
+          })
+          .catch(err => {
+            console.error('Erro ao obter dados do usuário:', err);
+            loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+          });
+      });
+        
+    }
+    loadingPopup.style.display = 'none'; // Esconde o pop-up 
 }
 
-function drawGauge2() {
-
+async function atualizar_leitura(dados) {
+  //console.log(dados)
+  for (let index = 0; index < dados.length; index++) {
+    const leitura = dados[index];
+    console.log(dados[index])
+    await reservatorios[leitura.id-1].send(leitura)
+    modosOP.forEach(function(checkbox) {
+      if (checkbox.value === leitura.id) {
+        console.log(leitura)
+        if(leitura.modoOp =="Man"){
+          checkbox.checked = false
+        }else{
+          checkbox.checked = true
+        }
+      }
+    });
+    let strdata = leitura.data.split("-")
+    let data = new Date(strdata[1]+"-"+strdata[0]+"-"+strdata[2])
   
-  $('#res'+reservatorios[1].id+'_data').text(reservatorios[1].data)
-  $('#res'+reservatorios[1].id+'_dis').text(reservatorios[1].distancia + " cm" ) 
-  $('#res'+reservatorios[1].id+'_p').text(reservatorios[1].volume+ " L" )
-
-  // Cria a tabela de dados para gauge
-  var gaugeData = new google.visualization.DataTable();
-  gaugeData.addColumn('number', 'Nivel (%)');
-  gaugeData.addRows(1);
-
-  
-  gaugeData.setCell(0, 0, reservatorios[1].nivel);
-
-  gauge = new google.visualization.Gauge(document.getElementById('res2_gauge_div'));
-  return gauge.draw(gaugeData,reservatorios[1].gaugeOptions);
+    $(`#res${leitura.id}_data`).text(reservatorios[leitura.id-1].data)
+    if(data >= ultimaAtualizacao){
+      ultimaAtualizacao = data
+      $('#data').text(reservatorios[leitura.id-1].data)
+    }
+  }
 }
 
-function drawChart1(graficos,chartOptions) {
+function iniciarGalges(){
+    reservatorios.forEach(res =>{
+      //console.log(res)
+        res.iniciaGalge()
+    })
+}
+
+function drawChart(id,local,graficos,chartOptions) {
+  let dados = []
+  const trasbordo =105
+  const nivelBaixo = 30
   graficos.forEach(element => {
-    element[0]=new Date(element[0])
+    dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo])
   });
   
   var dataChart = new google.visualization.DataTable();
   dataChart.addColumn('date', 'Horario');
-  dataChart.addColumn('number', 'Volume(L)');
-  dataChart.addColumn('number', 'nivel(%)');
-  dataChart.addColumn('number', 'distancia(cm)');
-  dataChart.addRows(graficos);
+  dataChart.addColumn('number', 'Nivel(%)');
+  dataChart.addColumn('number', 'Transbordo');
+  dataChart.addColumn('number', 'Nivel Bixo');
+  dataChart.addRows(dados);
   
-  
-  chart = new google.visualization.AreaChart(document.getElementById('res1_chart_div'));
-  chart.draw(dataChart, chartOptions);
-   return
+  //console.log(dataChart)
+  // Função para formatar o tooltip
+  function formatTooltip(date, value) {
+    var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };//timeZoneName: 'short' };
+    var formattedDate = date.toLocaleDateString('pt-BR', options);
+    return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
 }
 
-function drawChart2(graficos,chartOptions) {
-  graficos.forEach(element => {
-    element[0]=new Date(element[0])
-  });
- 
-  var dataChart = new google.visualization.DataTable();
-  dataChart.addColumn('date', 'Horario');
-  dataChart.addColumn('number', 'Volume(L)');
-  dataChart.addColumn('number', 'nivel(%)');
-  dataChart.addColumn('number', 'distancia(cm)');
-  dataChart.addRows(graficos);
-  
-  
-  chart = new google.visualization.AreaChart(document.getElementById('res2_chart_div'));
-  chart.draw(dataChart, chartOptions);
-   return
+ // Modifica os dados para incluir o tooltip HTML
+var formattedData = [];
+for (var i = 0; i < dataChart.getNumberOfRows(); i++) {
+  var date = dataChart.getValue(i, 0);
+  var value = dataChart.getValue(i, 1);
+  var tooltip1 = formatTooltip(date, value);
+  var tooltip2 = `<div><strong>Alerta de trasbordo ${trasbordo}%</strong></div>`;
+  var tooltip3 = `<div><strong>Alerta de nivel baixo ${nivelBaixo}%</strong></div>`;
+  formattedData.push([date, value,tooltip1,trasbordo,tooltip2,nivelBaixo,tooltip3]);
 }
+  //console.log(formattedData)
+ // Cria uma nova tabela com os dados formatados
+var dataWithTooltip = google.visualization.arrayToDataTable([
+  ['Data','Nivel(%)',{ role: 'tooltip', type: 'string', p: { html: true } },'trasbordo',
+  { role: 'tooltip', type: 'string', p: { html: true } },
+  'Nivel Baixo',{ role: 'tooltip', type: 'string', p: { html: true } }],
+  ...formattedData
+]);
+  
+  chart = new google.visualization.AreaChart(document.getElementById('res_chart_div'));
+  chart.draw(dataWithTooltip, chartOptions);
+  return
+}
+
+function comparaData(data1, data2) {
+  
+  strdata1 = data1.split("-")
+  strdata2 = data2.split("-")
+  if(new Date(strdata1[1]+"-"+strdata1[0]+"-"+strdata1[2]) >= new Date(strdata2[1]+"-"+strdata2[0]+"-"+strdata2[2])){
+    return(data1)
+  }
+  return(data2)
+}
+
+
 

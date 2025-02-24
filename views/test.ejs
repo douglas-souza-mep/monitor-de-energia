@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/reservatorio.css' />
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
@@ -21,15 +22,8 @@
      
       <div class="nav-list"> 
         <ul>
-          <div>
-            Medidor Selecionado:
-            <select name="medidor" id="medidor"> 
-              <option value='1'>Reservatorios</option>
-              <option value='3'>Energia</option>
-            </select>
-          </div>
-          
-          <p class="data">Ultima atualização: <span id="data"></span></p>
+            <h1><%= nome %></h1>
+            <p class="data">Ultima atualização: <span id="data"></span></p>
         </ul>
       </div>
         <div class="login-button">
@@ -40,30 +34,71 @@
             <button onclick="menuShow()"><img class="icon" src="assets/img/menu_white_36dp.svg" alt=""></button>
         </div-->
     </nav>
-  </header-->
-  <div class="flex-container">
-    <div class = "flex-item-1">
-      <p class='titulo' id="res1_titulo">Reservatorio 1 </p>
-      <div id="res1_gauge_div"  class="gauge"></div>
-      <p class="dado"  id='res1_p'>%</p>
-      <p class="dado"  id='res1_dis'>cm</p>
-      <p class='ultimaLeitura'>Ultima atualização: <span id="res1_data"></span></p>
-    </div>
-    <div class = "flex-item-2">
-      <div id="res1_chart_div" ></div>
-    </div>
-    <div class = "flex-item-3">
-      <p class='titulo' id="res2_titulo">Reservatorio 2 </p>
-      <div id="res2_gauge_div"  class="gauge"></div>
-      <p class="dado"  id='res2_p'>%</p>
-      <p class="dado"  id='res2_dis'>cm</p>
-      <p class='ultimaLeitura'>Ultima atualização: <span id="res2_data"></span></p>
-    </div>
-    <div class = "flex-item-4">
-      <div id="res2_chart_div" ></div>
-    </div>
-    
-  </div>
-</body>
+  </header>
 
+   <!-- Popup loading-->
+  <div id="loadingPopup" class="popup">
+    <div class="popup-content">
+        <div class="loader"></div>
+        <h2>Carregando...</h2>
+        <p>Por favor, aguarde.</p>
+    </div>
+  </div>
+  
+  <!-- Popup -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+        <p id="retornoDisp"></p>
+        <button id="closePopupBtn">OK</button>
+    </div>
+</div>
+  
+
+    <button id="recarregar">Recarregar</button>
+    <div class="gauges">
+      <div class="gauge-container">
+          <div id="res1_local"></div>
+          <div id="res1" class="gauge"></div>
+          <div>Nivel: <span id="res1_nivel"></span>%</div>
+          <div class="ultimaLeitura">Ultima atualização:  <span id="res1_data"></span></div>
+          <button class="getHistorico" value="1">historico</button>
+          <!-- Toggle Switch com Status -->
+          <div class="toggle-container">
+            <span class="toggle-label">Modo de operação:</span>
+            <input type="checkbox" class="modoOp" value="1">
+          </div>
+          
+          <!-- Título e botões de comando -->
+          <div class="comandos">
+            <h2>Comandos</h2>
+            <button class="BtLigar" value="1">Ligar</button>
+            <button class="BtDesligar" value="1">Desligar</button>
+          </div>
+      </div>
+
+      <div class="gauge-container">
+        <div id="res2_local"></div>
+        <div id="res2" class="gauge"></div>
+        <div>Nivel: <span id="res2_nivel"></span>%</div>
+        <div class="ultimaLeitura">Ultima atualização:  <span id="res2_data"></span></div>
+        <button class="getHistorico" value="2">historico</button>
+        <!-- Toggle Switch com Status -->
+        <div class="toggle-container">
+          <span class="toggle-label">Modo de operação:</span>
+          <input type="checkbox" class="modoOp" value="2">
+        </div>
+        
+        <!-- Título e botões de comando -->
+        <div class="comandos">
+          <h2>Comandos</h2>
+          <button class="BtLigar" value="2">Ligar</button>
+          <button class="BtDesligar" value="2">Desligar</button>
+        </div>
+    </div>
+  </div>
+
+    <div id=chart class="flex-chart">
+      
+    </div> 
+</body>
 </html>

@@ -17,12 +17,15 @@ module.exports = function(io){
   var router = express.Router();
   /* GET users listing. */
   
-  router.post('/teste_agua',async (req,res) =>{
-    const d = new Date();
-    d.setHours(d.getHours() - 3)
-    //console.log(req.body)
-    res.send('Dados recebidos! dispositivo: teste_agua');
-  })
+  router.get('/test', function(req, res) {
+    res.redirect('/users/test/res')
+    //res.send("ola");
+  });
+
+  //router.get('/anchieta',chekToken, function(req, res) {
+  router.get('/test/res', function(req, res) {
+      res.render('test', { title: 'Mep Tecnologia', nome:"Condominio" });
+    });
   //--------------------------------------------------------------------------
   //router.get('/brisas',chekToken, function(req, res) {
   router.get('/brisas', function(req, res) {
@@ -140,6 +143,10 @@ module.exports = function(io){
   //router.get('/anchieta',chekToken, function(req, res) {
   router.get('/taguaLife/res', function(req, res) {
       res.render('taguaLife_res', { title: 'Mep Tecnologia', nome:"Tagua Life" });
+    });
+
+    router.get('/manutencao', function(req, res) {
+      res.render('manutencao', { title: 'Mep Tecnologia', nome:"Tagua Life" });
     });
 
   router.get('/app/taguaLife/res', async function(req, res) {
