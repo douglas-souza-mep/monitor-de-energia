@@ -17,10 +17,11 @@ function subscribeToMqttTopics(io) {
 
         // Lista de tópicos para subscrever
         const topics = [
-        'santaMonica/energ',
-        'connect/res',
-        'taguaLife/res',
-        'casa/energ'
+            'test/res',
+            'santaMonica/energ',
+            'connect/res',
+            'taguaLife/res',
+            'casa/energ'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -52,6 +53,24 @@ function subscribeToMqttTopics(io) {
 
 async function tratarLeitura(io,topico,msg,data){
     switch (topico) {
+        case 'test/res':
+            const distancias0 = [
+                //Superior
+                {cheio:30 , vazio:130 ,max:200, NB:30,NA:105, T:110}
+            ]
+            const array0 = msg.split(';');
+            //console.log(array1)
+            const dados0 ={
+                id : array1[0],
+                distancia : array0[1],
+                dist : distancias0[array0[0]-1],
+                modoOP : array0[2],
+                url :"test",
+                nome : 'Teste', 
+                data: data
+            }
+            leituraRes(dados0,io)
+        break;
         case 'connect/res':
             const distancias1 = [
                 //Superior

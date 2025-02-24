@@ -82,3 +82,7 @@ INSERT INTO `usuarios` (`usuario`, `senha`,`nome`,`url`, `energia`, `med_energia
 CREATE TABLE `medidores_de_energia`.`tb_test_res` (`id` INT NOT NULL, `data` DATETIME NOT NULL , `volume` INT NOT NULL , `nivel` INT NOT NULL , `distancia` INT NULL , PRIMARY KEY (`data`,`id`)) ENGINE = InnoDB;
 
 INSERT INTO `usuarios` (`usuario`, `senha`,`nome`,`url`, `energia`, `med_energia`, `reservatorio`,`reservatorios`, `hidrometro`, `hidrometros`) VALUES ('connect.tower', 'connect@tower','Connect Tower','connect',0, " ", 1, '1;R. Superior', 0, " ");
+
+CREATE TABLE `medidores_de_energia`.`tb_tagualife_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Bloco A', '105', '25', '119', '44', '116', '1', '1');
