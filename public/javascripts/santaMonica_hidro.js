@@ -9,8 +9,8 @@ $('#hidrometros').on('change', () => {
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
     socket.emit("getLeituasHidrometro",{hidrometro, url:"santaMonica"})
-     
- })
+
+})
 
 socket.on("connect", () => {
     console.log(socket.id);
@@ -28,6 +28,92 @@ socket.on("atualizar_santaMonica_hidrometros", async (dados) => {
     console.log(hidrometro)
     socket.emit("getLeituasHidrometro",{hidrometro, url:"santaMonica"})
 })
+var hidrometros = [];
+fetch('/get-dados-do-usuario', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
+  })
+  .then(response => response.json())
+  .then(dados => {
+    
+    let text = dados.hidrometros.split(";")
+    console.log(text)
+    for (let i = 0; i < text.length; i+=2) {
+      hidrometros.push({id:text[i], local:text[i+1]})
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao obter dados do usuário:', err);
+  //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+  });
+
+
+// Função para obter o relatório geral
+function obterRelatorio(event) {
+    event.preventDefault(); // Impede o envio padrão do formulário
+
+    // Coleta os valores do formulário
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+
+    // Envia os dados para o servidor usando Socket.IO
+    info = {
+        hidrometros:hidrometros,
+        datas: { startDate, endDate },
+        url:url
+    };
+
+    fetch('/get-relatorio/hidro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ info: info }) // Envia o dado da URL como JSON
+    })
+    .then(response => response.json())
+    .then(dados =>{
+        const resultDiv = document.getElementById('result');
+        //console.log(dados)
+        if (dados.error) {
+            resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
+        } else {
+            resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixad</p>`;
+            //console.log(dados)
+            // Definir o cabeçalho do CSV
+            const cabecalho = ['Local', 'id', 'Consumo(m3)', 'Data inicial', 'Leitura Inicial','Data final','Leitura Final'];
+          
+            // Inicializar a string do CSV com o cabeçalho
+            let csvContent = cabecalho.join(';') + '\n';
+          
+            // Iterar sobre o array de dados e adicionar cada linha ao CSV
+            dados.forEach(dados => {
+              const linha = [
+                dados.nome,
+                dados.id,
+                dados.consumo.valor,
+                dados.consumo.startDate,
+                dados.consumo.start.valor,
+                dados.consumo.endDate,
+                dados.consumo.end.valor
+              ];
+              csvContent += linha.join(';') + '\n';
+            });
+          
+            // Criar o arquivo CSV e disparar o download
+            const link = document.createElement('a');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            link.href = URL.createObjectURL(blob);
+            link.download = `Consumo_de_Agua_Santa_Monica.csv`; // Nome do arquivo CSV
+              
+          resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
+          link.click(); 
+        }
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+    });
+}
 
 document.getElementById('event-form').addEventListener('submit', async function(event) {
     event.preventDefault(); // Impede o envio padrão do formulário

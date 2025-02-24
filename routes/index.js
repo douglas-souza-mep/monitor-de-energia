@@ -23,6 +23,7 @@ router.post('/app/login', async (req, res) => {
   res.json(loguin);
 })
 
+//---------------------- usuarios ------------------------------------------------
 // Definindo a rota para receber a requisição de dados do usuário
 router.post('/get-dados-do-usuario', async (req, res) => {
   const { url } = req.body; // Pega o URL enviado no corpo da requisição
@@ -37,6 +38,26 @@ router.post('/get-dados-do-usuario', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar dados do usuário' });
   }
 });
+//-------------------------- hidrometros -------------------------------------------------------------
+router.post('/get-relatorio/hidro', async (req,res) => {
+  const info = req.body.info
+  const { startDate, endDate } = info.datas;
+    try {
+        const retorno = await model_Hidro.getRelatorio(info.url,startDate,endDate,info.hidrometros)
+        console.log(retorno)
+        if(retorno.error){
+          res.json({ error: 'Falha ao obter os dados'});
+        }else{
+          res.json(retorno);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        res.json({ error: 'Erro ao buscar leituras.' });
+    }
+})
+
+//------------------------- reservatorios ------------------------------------------------------------
 
 // Definindo a rota para receber a requisição de das ultimas leituras dos reservarotios
 router.post('/get-ultimas-leituras/res', async (req, res) => {

@@ -74,7 +74,7 @@ async function tratarLeitura(io,topico,msg,data){
             const distancias2 = [
                 //Superior A
                 //{cheio:26 , vazio:96 ,max:200, NB:40 },
-                {cheio:20 , vazio:96 ,max:200, NB:35, NA:102 },
+                {cheio:20 , vazio:96 ,max:200, NB:30, NA:102 },
                 //Superior B
                 {cheio:28 , vazio:92 ,max:200, NB:35, NA:105 },
                 //Superior C
@@ -87,7 +87,7 @@ async function tratarLeitura(io,topico,msg,data){
                 {cheio:25 , vazio:92 ,max:200, NB:30, NA:105 },
                 //Superior F
                 //{cheio:22 , vazio:89 ,max:200, NB:40 }
-                {cheio:26 , vazio:93 ,max:200, NB:30, NA:105}
+                {cheio:20  , vazio:93 ,max:200, NB:30, NA:105}
             ]
             const array2 = msg.split(';');
             //console.log(array2)

@@ -123,7 +123,7 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
       resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixad</p>`;
       console.log(dados)
       // Definir o cabeçalho do CSV
-      const cabecalho = ['Local', 'id', 'Consumo(KWh)', 'Data inicial', 'Data final'];
+      const cabecalho = ['Local', 'id', 'Consumo(KWh)', 'Data inicial', 'Data final','Leitura inicial','Leitura final'];
     
       // Inicializar a string do CSV com o cabeçalho
       let csvContent = cabecalho.join(';') + '\n';
@@ -135,7 +135,9 @@ socket.on('resultado_get_relatorio_santaMonica', (dados) => {
           dados.id,
           dados.consumo.valor,
           dados.consumo.startDate,
-          dados.consumo.endDate
+          dados.consumo.endDate,
+          dados.consumo.startValor,
+          dados.consumo.endValor
         ];
         csvContent += linha.join(';') + '\n';
       });
