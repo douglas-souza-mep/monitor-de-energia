@@ -1,6 +1,6 @@
 //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
-
+const url = "santaMonica"
 const socket = io();
 
 let hidrometro = $('#hidrometros option:selected').val()
@@ -8,7 +8,7 @@ let hidrometro = $('#hidrometros option:selected').val()
 $('#hidrometros').on('change', () => {
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
-    socket.emit("getLeituasHidrometro",{hidrometro, url:"santaMonica"})
+    socket.emit("getLeituasHidrometro",{hidrometro, url:url})
 
 })
 

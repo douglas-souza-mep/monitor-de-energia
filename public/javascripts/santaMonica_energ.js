@@ -3,24 +3,25 @@
 const loadingPopup = document.getElementById('loadingPopup');
 
 
- const socket = io();
+const socket = io();
 
 
 //loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
 let medidores = []
 const url = "santaMonica"
- let medidor = $('#medidor option:selected').val()
- let local = $('#medidor option:selected').text()
- console.log(medidor+" "+local)
- $('#medidor').on('change', () => {
-     medidor = $('#medidor option:selected').val()
-     local = $('#medidor option:selected').text()
-     console.log(medidor+" "+local)
-     socket.emit("iniciarTelasantaMonica",medidor)
-    // loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados  
- })
 
-   fetch('/get-dados-do-usuario', {
+let medidor = $('#medidor option:selected').val()
+let local = $('#medidor option:selected').text()
+console.log(medidor+" "+local)
+$('#medidor').on('change', () => {
+    medidor = $('#medidor option:selected').val()
+    local = $('#medidor option:selected').text()
+    console.log(medidor+" "+local)
+    socket.emit("iniciarTelasantaMonica",medidor)
+    // loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados  
+})
+
+  fetch('/get-dados-do-usuario', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,7 +32,7 @@ const url = "santaMonica"
   .then(dados => {
     
     let text = dados.med_energia.split(";")
-    console.log(text)
+    //console.log(text)
     for (let i = 0; i < text.length; i+=2) {
       medidores.push({id:text[i], local:text[i+1]})
     }
