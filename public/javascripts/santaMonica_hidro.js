@@ -62,7 +62,7 @@ socket.on('consumo_santaMonica_hidro', (dados) => {
     }
 });
 
-/*
+
 document.getElementById('upload-button').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-input');
     if (fileInput.files.length === 0) {
@@ -105,7 +105,7 @@ document.getElementById('upload-button').addEventListener('click', async () => {
     };
 
     reader.readAsText(file);
-});*/
+});
 
 socket.on('retornoArquivo_santaMonica', (retorno) => {
     const arquivoDiv = document.getElementById('retornoArquivo');

@@ -327,7 +327,7 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
                 }
             }
         
-            let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data DESC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
+            let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data ASC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
             if (consumoFinal == undefined) {
                 [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
                 if (consumoFinal == undefined) {
@@ -339,6 +339,8 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
                     startDate: moment(startDate).format('DD-MM-YYYY'),
                     endDate: moment(endDate).format('DD-MM-YYYY'),
                     valor : parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                    endValor: parseFloat(consumoFinal.ept).toFixed(2),
+                    startValor: parseFloat(consumoInicial.ept).toFixed(2)
                 },
                 id: medidor,
                 nome: disposisitos[index].local

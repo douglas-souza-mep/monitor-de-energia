@@ -55,7 +55,7 @@ async function tratarLeitura(io,topico,msg,data){
         case 'connect/res':
             const distancias1 = [
                 //Superior
-                {cheio:27 , vazio:125 ,max:200, NB:30 }
+                {cheio:40 , vazio:139 ,max:200, NB:30,NA:108 }
             ]
             const array1 = msg.split(';');
             //console.log(array1)
@@ -73,21 +73,17 @@ async function tratarLeitura(io,topico,msg,data){
         case 'taguaLife/res':
             const distancias2 = [
                 //Superior A
-                //{cheio:26 , vazio:96 ,max:200, NB:40 },
-                {cheio:20 , vazio:96 ,max:200, NB:35, NA:102 },
+                {cheio:44 , vazio:116 ,max:200, NB:25, NA:105 T:119},
                 //Superior B
-                {cheio:28 , vazio:92 ,max:200, NB:35, NA:105 },
+                {cheio:38 , vazio:109 ,max:200, NB:25, NA:105 T:114},
                 //Superior C
-                //cheio:26 , vazio:77 ,max:200, NB:40 },
-                {cheio:20 , vazio:85 ,max:200, NB:35, NA:102 },
+                {cheio:47 , vazio:140 ,max:200, NB:25, NA:105 T:109},
                 //Superior D
-                //{cheio:24 , vazio:88 ,max:200, NB:40 },
-                {cheio:33 , vazio:88 ,max:200, NB:35, NA:105 },
+                {cheio:45 , vazio:127 ,max:200, NB:25, NA:105 T:115},
                 //Superior E
-                {cheio:25 , vazio:92 ,max:200, NB:30, NA:105 },
+                {cheio:44 , vazio:121 ,max:200, NB:25, NA:105 T:110},
                 //Superior F
-                //{cheio:22 , vazio:89 ,max:200, NB:40 }
-                {cheio:26 , vazio:93 ,max:200, NB:30, NA:105}
+                {cheio:30 , vazio:101 ,max:200, NB:25, NA:100 T:105}
             ]
             const array2 = msg.split(';');
             //console.log(array2)

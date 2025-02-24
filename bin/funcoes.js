@@ -144,7 +144,7 @@ async function tarefaPeriodica() {
 
                   // Envia o alerta
                   console.log(msg)
-                  sendAlerta(msg, retorno.chatID);
+                  sendAlerta(msg, [process.env.CHAT_ID_DEV])//retorno.chatID);
               } catch (alertError) {
                   console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
               }
@@ -167,7 +167,7 @@ async function tarefaPeriodica() {
 
                   // Envia o alerta
                   console.log(msg)
-                  sendAlerta(msg, retorno.chatID);
+                  sendAlerta(msg, [process.env.CHAT_ID_DEV]);
               } catch (alertError) {
                   console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
               }

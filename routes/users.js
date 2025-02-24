@@ -142,6 +142,10 @@ module.exports = function(io){
       res.render('taguaLife_res', { title: 'Mep Tecnologia', nome:"Tagua Life" });
     });
 
+    router.get('/manutencao', function(req, res) {
+      res.render('manutencao', { title: 'Mep Tecnologia', nome:"Tagua Life" });
+    });
+
   router.get('/app/taguaLife/res', async function(req, res) {
     //console.log(req.query)
     const dados= await model_Res.getDataStart(req.query.id,"taguaLife")
