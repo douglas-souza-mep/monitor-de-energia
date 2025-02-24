@@ -61,7 +61,7 @@ async function tratarLeitura(io,topico,msg,data){
             const array0 = msg.split(';');
             //console.log(array1)
             const dados0 ={
-                id : array1[0],
+                id : array0[0],
                 distancia : array0[1],
                 dist : distancias0[array0[0]-1],
                 modoOP : array0[2],
@@ -69,12 +69,13 @@ async function tratarLeitura(io,topico,msg,data){
                 nome : 'Teste', 
                 data: data
             }
+            console.log(dados0)
             leituraRes(dados0,io)
         break;
         case 'connect/res':
             const distancias1 = [
                 //Superior
-                {cheio:40 , vazio:139 ,max:200, NB:30,NA:108 }
+                {cheio:40 , vazio:139 ,max:200, NB:30,NA:108, T:120}
             ]
             const array1 = msg.split(';');
             //console.log(array1)
