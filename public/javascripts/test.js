@@ -1,7 +1,7 @@
 google.charts.load('current', {'packages':['gauge','corechart']})
 
 class Reservatorio {
-  constructor(id,nome){
+  constructor(id,nome,NA,NB,T){
     this.id = id
     this.nome = nome
     this.data =  '01-01-2000 00:00:00'
@@ -9,15 +9,15 @@ class Reservatorio {
     this.nivel =  0
     this.distancia =  0
     this.graficos =  []
-    this.modoOp = "Aut"
+    this.modoOp = "Man"
     //this.volumeMax = volumeMax
-    this.alerta = 40
+    this.alertas = {NB:NB, NA:NA, T:T}
     this.critico = 10
     this.gaugeOptions = {min: 0, max: 110, 
-      yellowFrom: this.critico, yellowTo: this.alerta,
+      yellowFrom: this.critico, yellowTo: this.alertas.NB,
       redFrom: 0, redTo: this.critico,
       blueFrom: 100, blueTo: 110,
-      greenFrom: this.alerta, greenTo: 100,
+      greenFrom: this.alertas.NB, greenTo: 100,
       minorTicks: 5,
     };
     
@@ -131,14 +131,11 @@ url='test'
 const socket = io();
 var clientMQTT
 
-// caracteriscas do usuario
-var usuario
-
 socket.on("test", () => {
   console.log(socket.id);
 })
 
-fetch('/get-dados-do-usuario', {
+fetch('/get-dados-do-usuario/res', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -147,8 +144,10 @@ fetch('/get-dados-do-usuario', {
 })
 .then(response => response.json())
 .then(dados => {
-  usuario = dados
-  //console.log(usuario)
+  console.log(dados)
+  dados.forEach(element => {
+    reservatorios.push(new Reservatorio(element.id,element.nome,element.NA,element.NB,element.T))
+  });
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
   //console.log (`usuario:${usuario.usuario}`)
   //console.log (`senha:${usuario.senha}`)
@@ -219,11 +218,6 @@ fetch('/get-dados-do-usuario', {
 var modosOP
 
 async function iniciarPagina(){
-  for (let i = 0; i < usuario.reservatorio*2; i+=2) {
-    let text = usuario.reservatorios.split(";");
-    reservatorios.push(new Reservatorio(text[i], text[i+1],))
-  }
-  //console.log(reservatorios)
   await iniciarGalges();
 
   fetch('/get-ultimas-leituras/res', {
@@ -231,7 +225,7 @@ async function iniciarPagina(){
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ url: url, reservatorios: usuario.reservatorio })
+    body: JSON.stringify({ url: url, reservatorios: reservatorios.length })
   })
   .then(response => response.json())
   .then(dados => {
@@ -269,7 +263,7 @@ closePopupBtn.addEventListener("click", function() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ url: url, reservatorios: usuario.reservatorio })
+      body: JSON.stringify({ url: url, reservatorios: reservatorios.length })
     })
     .then(response => response.json())
     .then(dados => {
@@ -449,10 +443,11 @@ function iniciarGalges(){
 
 function drawChart(id,local,graficos,chartOptions) {
   let dados = []
-  const trasbordo =105
-  const nivelBaixo = 30
+  const trasbordo = reservatorios[id-1].alertas.T
+  const nivelAlto = reservatorios[id-1].alertas.NA
+  const nivelBaixo = reservatorios[id-1].alertas.NB
   graficos.forEach(element => {
-    dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo])
+    dados.push([new Date(element[0]),element[1],trasbordo,nivelBaixo,nivelAlto])
   });
   
   var dataChart = new google.visualization.DataTable();
@@ -460,6 +455,7 @@ function drawChart(id,local,graficos,chartOptions) {
   dataChart.addColumn('number', 'Nivel(%)');
   dataChart.addColumn('number', 'Transbordo');
   dataChart.addColumn('number', 'Nivel Bixo');
+  dataChart.addColumn('number', 'Nivel Alto');
   dataChart.addRows(dados);
   
   //console.log(dataChart)
@@ -468,26 +464,27 @@ function drawChart(id,local,graficos,chartOptions) {
     var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };//timeZoneName: 'short' };
     var formattedDate = date.toLocaleDateString('pt-BR', options);
     return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
-}
+  }
 
  // Modifica os dados para incluir o tooltip HTML
-var formattedData = [];
-for (var i = 0; i < dataChart.getNumberOfRows(); i++) {
-  var date = dataChart.getValue(i, 0);
-  var value = dataChart.getValue(i, 1);
-  var tooltip1 = formatTooltip(date, value);
-  var tooltip2 = `<div><strong>Alerta de trasbordo ${trasbordo}%</strong></div>`;
-  var tooltip3 = `<div><strong>Alerta de nivel baixo ${nivelBaixo}%</strong></div>`;
-  formattedData.push([date, value,tooltip1,trasbordo,tooltip2,nivelBaixo,tooltip3]);
-}
-  //console.log(formattedData)
- // Cria uma nova tabela com os dados formatados
-var dataWithTooltip = google.visualization.arrayToDataTable([
-  ['Data','Nivel(%)',{ role: 'tooltip', type: 'string', p: { html: true } },'trasbordo',
-  { role: 'tooltip', type: 'string', p: { html: true } },
-  'Nivel Baixo',{ role: 'tooltip', type: 'string', p: { html: true } }],
-  ...formattedData
-]);
+  var formattedData = [];
+  for (var i = 0; i < dataChart.getNumberOfRows(); i++) {
+    var date = dataChart.getValue(i, 0);
+    var value = dataChart.getValue(i, 1);
+    var tooltip1 = formatTooltip(date, value);
+    var tooltip2 = `<div><strong>Alerta de trasbordo ${trasbordo}%</strong></div>`;
+    var tooltip3 = `<div><strong>Alerta de nivel baixo ${nivelBaixo}%</strong></div>`;
+    var tooltip4 = `<div><strong>Alerta de nivel baixo ${nivelAlto}%</strong></div>`;
+    formattedData.push([date, value,tooltip1,trasbordo,tooltip2,nivelBaixo,tooltip3,nivelAlto,tooltip4]);
+  }
+   //console.log(formattedData)
+  // Cria uma nova tabela com os dados formatados
+  var dataWithTooltip = google.visualization.arrayToDataTable([
+    ['Data','Nivel(%)',{ role: 'tooltip', type: 'string', p: { html: true } },'Trasbordo',
+    { role: 'tooltip', type: 'string', p: { html: true } },
+    'Nivel Baixo',{ role: 'tooltip', type: 'string', p: { html: true } },'Nivel Alto',{ role: 'tooltip', type: 'string', p: { html: true } }],
+    ...formattedData
+  ]);
   
   chart = new google.visualization.AreaChart(document.getElementById('res_chart_div'));
   chart.draw(dataWithTooltip, chartOptions);

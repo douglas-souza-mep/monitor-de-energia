@@ -83,6 +83,28 @@ CREATE TABLE `medidores_de_energia`.`tb_test_res` (`id` INT NOT NULL, `data` DAT
 
 INSERT INTO `usuarios` (`usuario`, `senha`,`nome`,`url`, `energia`, `med_energia`, `reservatorio`,`reservatorios`, `hidrometro`, `hidrometros`) VALUES ('connect.tower', 'connect@tower','Connect Tower','connect',0, " ", 1, '1;R. Superior', 0, " ");
 
+--------------------------------------------------------------------------------------
+
 CREATE TABLE `medidores_de_energia`.`tb_tagualife_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Bloco A', '105', '25', '119', '44', '116', '1', '1');
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('2', 'Bloco B', '105', '25', '114', '38', '109', '1', '1');
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('3', 'Bloco C', '105', '25', '109', '47', '140', '1', '1');
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('4', 'Bloco D', '105', '25', '115', '45', '137', '1', '1');
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('5', 'Bloco E', '105', '25', '110', '44', '121', '1', '1');
+
+INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('6', 'Bloco F', '100', '25', '105', '30', '101', '1', '1');
+
+CREATE TABLE `medidores_de_energia`.`tb_connect_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+INSERT INTO `tb_connect_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Res. Superior', '105', '30', '119', '39', '139', '1', '1');
+
+CREATE TABLE `medidores_de_energia`.`tb_test_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+INSERT INTO `tb_test_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Res. Test 1', '105', '25', '110', '30', '130', '1', '1');
+
+INSERT INTO `tb_test_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('2', 'Res. Test 2', '105', '40', '108', '25', '125', '1', '1');

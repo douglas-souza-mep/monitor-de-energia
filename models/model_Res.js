@@ -222,12 +222,18 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
    // #######################################################################
 }
 
+async function getInfo(url,id) {
+    const [[retorno]]= await db.query(`SELECT cheio,vazio,T,NA,NB,alertas,status FROM tb_${url}_res_info where id = ?  LIMIT 1`,id)
+    return retorno
+}
+
 module.exports = {
     atualizarDados,
     getDataStart,
     dadosAlerta,
     getHistorico,
     calcularNivel,
+    getInfo,
     verificarAlarmes
 }
 

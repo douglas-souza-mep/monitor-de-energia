@@ -18,10 +18,10 @@ function subscribeToMqttTopics(io) {
         // Lista de tópicos para subscrever
         const topics = [
             'test/res',
-            'santaMonica/energ',
+            //'santaMonica/energ',
             'connect/res',
             'taguaLife/res',
-            'casa/energ'
+            //'casa/energ'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -36,8 +36,8 @@ function subscribeToMqttTopics(io) {
 
     client.on('message', (topic, message) => {
     // Converte a mensagem em string
-    //console.log(`topico: ${topic}`)
-    //console.log(`Mensagem: ${message}`)
+    console.log(`topico: ${topic}`)
+    console.log(`Mensagem: ${message}`)
     var d = new Date();
     var data = d.setHours(d.getHours() - 3)
     const messageStr = message.toString();
@@ -52,70 +52,31 @@ function subscribeToMqttTopics(io) {
  // Funções de tratamento para cada tópico
 
 async function tratarLeitura(io,topico,msg,data){
+    const array = msg.split(';'); 
+    var dados = {
+        id : array[0],
+        distancia : array[1],
+        modoOP : array[2],
+        data: data
+    };
     switch (topico) {
         case 'test/res':
-            const distancias0 = [
-                //Superior
-                {cheio:30 , vazio:130 ,max:200, NB:30,NA:105, T:110}
-            ]
-            const array0 = msg.split(';');
-            //console.log(array1)
-            const dados0 ={
-                id : array0[0],
-                distancia : array0[1],
-                dist : distancias0[array0[0]-1],
-                modoOP : array0[2],
-                url :"test",
-                nome : 'Teste', 
-                data: data
-            }
-            console.log(dados0)
-            leituraRes(dados0,io)
+            dados.url = "test"
+            dados.nome = 'Teste', 
+            dados.dist = await model_Res.getInfo("test",array[0])
+            leituraRes(dados,io)
         break;
         case 'connect/res':
-            const distancias1 = [
-                //Superior
-                {cheio:40 , vazio:139 ,max:200, NB:30,NA:108, T:120}
-            ]
-            const array1 = msg.split(';');
-            //console.log(array1)
-            const dados1 ={
-                id : array1[0],
-                distancia : array1[1],
-                dist : distancias1[array1[0]-1],
-                modoOP : array1[2],
-                url :"connect",
-                nome : 'Connect Towers', 
-                data: data
-            }
-            leituraRes(dados1,io)
+            dados.url = "connect"
+            dados.nome = 'Connect Towers', 
+            dados.dist = await model_Res.getInfo("connect",array[0])
+            leituraRes(dados,io)
         break;
         case 'taguaLife/res':
-            const distancias2 = [
-                //Superior A
-                {cheio:44 , vazio:116 ,max:200, NB:25, NA:105, T:119},
-                //Superior B
-                {cheio:38 , vazio:109 ,max:200, NB:25, NA:105, T:114},
-                //Superior C
-                {cheio:47 , vazio:140 ,max:200, NB:25, NA:105, T:109},
-                //Superior D
-                {cheio:45 , vazio:127 ,max:200, NB:25, NA:105, T:115},
-                //Superior E
-                {cheio:44 , vazio:121 ,max:200, NB:25, NA:105, T:110},
-                //Superior F
-                {cheio:30 , vazio:101 ,max:200, NB:25, NA:100, T:105}
-            ]
-            const array2 = msg.split(';');
-            //console.log(array2)
-            const dados2 ={
-                id : array2[0],
-                distancia : array2[1],
-                dist : distancias2[array2[0]-1],
-                url :"taguaLife",
-                nome : 'Tagua Life', 
-                data: data
-            }
-            leituraRes(dados2,io)
+            dados.url = "taguaLife"
+            dados.nome = 'Tagua Life', 
+            dados.dist = await model_Res.getInfo("taguaLife",array[0])
+            leituraRes(dados,io)
         break;
         case 'casa/energ':
             leituraEnerg(data,msg,"casa",io)
@@ -129,6 +90,8 @@ async function tratarLeitura(io,topico,msg,data){
 }
 
 async function leituraRes(dados,io){
+    dados.dist.max = 200
+    //console.log(dados)
     try {
         const retorno = await model_Res.atualizarDados(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
         if(retorno.erro){
