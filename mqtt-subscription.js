@@ -18,10 +18,10 @@ function subscribeToMqttTopics(io) {
         // Lista de tópicos para subscrever
         const topics = [
             'test/res',
-            //'santaMonica/energ',
+            'santaMonica/energ',
             'connect/res',
             'taguaLife/res',
-            //'casa/energ'
+            'casa/energ'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -36,8 +36,8 @@ function subscribeToMqttTopics(io) {
 
     client.on('message', (topic, message) => {
     // Converte a mensagem em string
-    console.log(`topico: ${topic}`)
-    console.log(`Mensagem: ${message}`)
+    //console.log(`topico: ${topic}`)
+    //console.log(`Mensagem: ${message}`)
     var d = new Date();
     var data = d.setHours(d.getHours() - 3)
     const messageStr = message.toString();
