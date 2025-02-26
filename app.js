@@ -16,7 +16,7 @@ var app = express();
 app.io = require('socket.io')();
 
 // Iniciar a subscrição MQTT
-subscribeToMqttTopics(app.io);
+subscribeToMqttTopics();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -5,7 +5,7 @@ const moment = require('moment')
 
 
 // Função para conectar ao broker MQTT e subscrever vários tópicos
-function subscribeToMqttTopics(io) {
+function subscribeToMqttTopics() {
 
     const client = mqtt.connect(process.env.MQTTBROKER, {
     username: process.env.usernameMQTT,
@@ -41,7 +41,7 @@ function subscribeToMqttTopics(io) {
     var d = new Date();
     var data = d.setHours(d.getHours() - 3)
     const messageStr = message.toString();
-    tratarLeitura(client,io,topic,messageStr,data)
+    tratarLeitura(client,topic,messageStr,data)
     });
 
     client.on('error', (err) => {
@@ -51,7 +51,7 @@ function subscribeToMqttTopics(io) {
 
  // Funções de tratamento para cada tópico
 
-async function tratarLeitura(client,io,topico,msg,data){
+async function tratarLeitura(client,topico,msg,data){
     const array = msg.split(';'); 
     var dados = {
         id : array[0],
@@ -64,33 +64,32 @@ async function tratarLeitura(client,io,topico,msg,data){
             dados.url = "test"
             dados.nome = 'Teste', 
             dados.dist = await model_Res.getInfo("test",array[0])
-            leituraRes(dados,io,client)
+            leituraRes(dados,client)
         break;
         case 'connect/res':
             dados.url = "connect"
             dados.nome = 'Connect Towers', 
             dados.dist = await model_Res.getInfo("connect",array[0])
-            leituraRes(dados,io,client)
+            leituraRes(dados,client)
         break;
         case 'taguaLife/res':
             dados.url = "taguaLife"
             dados.nome = 'Tagua Life', 
             dados.dist = await model_Res.getInfo("taguaLife",array[0])
-            leituraRes(dados,io,client)
+            leituraRes(dados,client)
         break;
         case 'casa/energ':
-            leituraEnerg(data,msg,"casa",io,client)
+            leituraEnerg(data,msg,"casa",client)
         break;
         case 'santaMonica/energ':
-            leituraEnerg(data,msg,"santaMonica",io,client)
+            leituraEnerg(data,msg,"santaMonica",client)
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
     }
 }
 
-async function leituraRes(dados,io,client){
-    dados.dist.max = 200
+async function leituraRes(dados,client){
     //console.log(dados)
     try {
         const retorno = await model_Res.atualizarDados(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
@@ -113,7 +112,7 @@ async function leituraRes(dados,io,client){
     }
 }
 
-async function leituraEnerg(data,msg,url,io,client) {
+async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
     leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')

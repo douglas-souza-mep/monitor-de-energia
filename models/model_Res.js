@@ -105,7 +105,7 @@ async function dadosAlerta(url,id){
 const validacao = async (distancia,dimensoes,id,cliente,modoOp) =>{
     let leituraAtual = {} 
 
-    if(distancia<dimensoes.max){
+    if(distancia<200){
         leituraAtual.id = id
         leituraAtual.distancia = distancia
         leituraAtual.nivel = await calcularNivel(distancia,dimensoes.vazio,dimensoes.cheio)
