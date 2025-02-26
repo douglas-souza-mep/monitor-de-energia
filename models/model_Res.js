@@ -13,6 +13,7 @@ const atualizarDados = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =
     leituraAtual = await validacao(distancia,dimensoes,id,nome,modoOp);
     
     if(leituraAtual.erro == 1){
+        console.log(leituraAtual)
         return {erro:"Dados invalidos"}
     }
     const sql =  "INSERT INTO tb_"+ usuario +"_res (id,data,volume,nivel,distancia) VALUES (?,?,?,?,?)";
