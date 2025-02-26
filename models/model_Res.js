@@ -13,7 +13,6 @@ const atualizarDados = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =
     leituraAtual = await validacao(distancia,dimensoes,id,nome,modoOp);
     
     if(leituraAtual.erro == 1){
-        console.log(leituraAtual)
         return {erro:"Dados invalidos"}
     }
     const sql =  "INSERT INTO tb_"+ usuario +"_res (id,data,volume,nivel,distancia) VALUES (?,?,?,?,?)";
@@ -115,6 +114,7 @@ const validacao = async (distancia,dimensoes,id,cliente,modoOp) =>{
         leituraAtual.erro = 0
     }
     else{
+        console.log(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`)
         sendAlerta(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
         leituraAtual.erro = 1
     }

@@ -94,7 +94,7 @@ async function leituraRes(dados,client){
     try {
         const retorno = await model_Res.atualizarDados(dados.data,dados.distancia,dados.dist,dados.id,dados.url,dados.nome,dados.modoOP)
         if(retorno.erro){
-            console.log("erro ao atualizar dados de reservatorios")
+            console.log(retorno.erro)
             return
             }
         leitura = retorno.leitura,
