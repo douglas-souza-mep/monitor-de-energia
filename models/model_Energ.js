@@ -54,7 +54,7 @@ const atualizarDados = async (leituraAtual,data,medidor,usuario) =>{
     var [[x]] = await db.query("SELECT data,valor FROM tb_"+ usuario +"_cm_m"+medidor+" WHERE data = ? LIMIT 1",mesAtual)
     if(x == undefined){
         await db.query('INSERT INTO tb_'+ usuario +'_cm_m'+medidor+' (data,valor) VALUES (?,?)' ,
-         [consumoMensal.data, consumoMensal.valor.toFixed(3)]);
+        [consumoMensal.data, consumoMensal.valor.toFixed(3)]);
     }else{
         await db.query('UPDATE tb_'+ usuario +'_cm_m'+medidor+' SET valor = ? WHERE data = ?', 
         [consumoMensal.valor, consumoMensal.data]);
@@ -160,7 +160,7 @@ const getDataStart= async(medidor,usuario) =>{
             consumo: 0
         }
     }
-   try {
+    try {
         consumos.consumoMensal= consumoMensal.valor.toFixed(3)
     } catch (error) {
         consumos.consumoMensal = 0
@@ -193,7 +193,7 @@ const getDataStart= async(medidor,usuario) =>{
     consumosMensais.forEach((dado) => {
         graficos.semestral.unshift([_.traduzMes(moment(dado.data).format('MMMM-YYYY')),dado.valor])
     });
-   
+
     cd.forEach((dado) => {
         let hora = moment(dado.data).format('HH:mm:ss')
         graficos.diario.push([hora,dado.pt])
@@ -201,15 +201,17 @@ const getDataStart= async(medidor,usuario) =>{
     
         try {
             var dados = {
-            leitura:ultimaLeitura, 
-            consumos: consumos,
-            graficos: graficos
+                id:medidor,
+                leitura:ultimaLeitura, 
+                consumos: consumos,
+                graficos: graficos
             }
             dados.leitura.id = medidor
             dados.leitura.data = moment(dados.leitura.data).format('DD-MM-YYYY HH:mm:ss')
         } catch (error) {
             const d = moment(data).format('DD-MM-YYYY HH:mm:ss')
             var dados = {
+                id:medidor,
                 leitura: {id: medidor, data: d, pa: 0, pb: 0, pc: 0, pt: 0, qa: 0, qb: 0, qc: 0, 
                             qt: 0, sa: 0, sb: 0, sc: 0, st: 0, uarms: 0, ubrms: 0, ucrms: 0, iarms: 0, 
                             ibrms: 0,icrms: 0, itrms: 0, pfa: 0, pfb: 0, pfc: 0, pft: 0, pga: 0, pgb: 0,
@@ -219,47 +221,48 @@ const getDataStart= async(medidor,usuario) =>{
                 graficos: graficos
             }
         }
-
-    
     return dados
 }
 
-const getConsumo = async (url,id,startDate,endDate)=>{
-    let consumosDiario
-    let consumo
-    //console.log(startDate)
-    //console.log(endDate)
-    const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
-    
-    const sql2 = "SELECT data,ept FROM tb_"+url+"_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
+const getConsumo = async (usuario,medidor,startDate,endDate)=>{
     try {
-        [consumosDiario] = await db.query(sql,[startDate,endDate]);
-        [CD] = await db.query(sql2,[startDate,endDate])
-
-        console.log(CD[CD.length-1])
-        console.log(CD[0])
-        consumo=  CD[CD.length-1].ept - CD[0].ept
+        let [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data ASC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
+        if (consumoInicial == undefined) {
+            [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
+            if (consumoInicial == undefined) {
+                [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ? ORDER BY data ASC LIMIT 1", moment(startDate).format('YYYY-MM-DD'))
+            }
+        }
+    
+        let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) = ? ORDER BY data ASC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
+        if (consumoFinal == undefined) {
+            [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
+            if (consumoFinal == undefined) {
+                [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ? ORDER BY data ASC LIMIT 1", moment(endDate).format('YYYY-MM-DD'))
+            }
+        }
+        let [consumosDiario] = await db.query("SELECT * FROM tb_"+usuario+"_cd_m"+medidor+" WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC",[consumoInicial.data,consumoFinal.data]);
+        
+        
+        const dados = {
+            consumo:{
+                startDate: moment(consumoInicial.data).format('DD-MM-YYYY'),
+                endDate: moment(consumoFinal.data).format('DD-MM-YYYY'),
+                valor : parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                endValor: parseFloat(consumoFinal.ept).toFixed(2),
+                startValor: parseFloat(consumoInicial.ept).toFixed(2)
+            },
+            consumosDiario:consumosDiario,
+            id: medidor,
+        }
+        return dados
     } catch (error) {
         console.log(error)
+        return {error}
     }
     //const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
-    return {consumosDiario,consumo}
 }
 
-
-const getConsumo2 = async (url,id,startDate,endDate)=>{
-    let consumosDiario
-    //console.log(startDate)
-    //console.log(endDate)
-    const sql = "SELECT * FROM tb_"+url+"_cd_m"+id+" WHERE DATE(data) >= ? AND DATE(data) <= ? ORDER BY data ASC"
-    try {
-        [consumosDiario] = await db.query(sql,[startDate,endDate])
-    } catch (error) {
-        console.log(error)
-    }
-    const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
-    return {consumosDiario,consumo: parseFloat(consumo)}
-}
 
 const inserir = async (d,leituraAtual,sql) =>{
     //console.log(leituraAtual)
@@ -323,21 +326,21 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
             if (consumoInicial == undefined) {
                 [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(startDate).format('YYYY-MM-DD'))
                 if (consumoInicial == undefined) {
-                    [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ORDER BY data ASC LIMIT 1", moment(startDate).format('YYYY-MM-DD'))
+                    [[consumoInicial]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ? ORDER BY data ASC LIMIT 1", moment(startDate).format('YYYY-MM-DD'))
                 }
             }
         
-            let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)=? ORDER BY data ASC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
+            let [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) = ? ORDER BY data ASC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
             if (consumoFinal == undefined) {
                 [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data) < ? ORDER BY data DESC LIMIT 1",moment(endDate).format('YYYY-MM-DD'))
                 if (consumoFinal == undefined) {
-                    [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ORDER BY data ASC LIMIT 1", moment(endDate).format('YYYY-MM-DD'))
+                    [[consumoFinal]] = await db.query("SELECT data,ept FROM tb_"+ usuario +"_m"+medidor+" WHERE DATE(data)> ? ORDER BY data ASC LIMIT 1", moment(endDate).format('YYYY-MM-DD'))
                 }
             }   
             const dados = {
                 consumo:{
-                    startDate: moment(startDate).format('DD-MM-YYYY'),
-                    endDate: moment(endDate).format('DD-MM-YYYY'),
+                    startDate: moment(consumoInicial.data).format('DD-MM-YYYY'),
+                    endDate: moment(consumoFinal.data).format('DD-MM-YYYY'),
                     valor : parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
                     endValor: parseFloat(consumoFinal.ept).toFixed(2),
                     startValor: parseFloat(consumoInicial.ept).toFixed(2)
@@ -363,6 +366,5 @@ module.exports = {
     atualizarDados,
     getDataStart,
     getConsumo,
-    getConsumo2,
     getRelatorio
 }

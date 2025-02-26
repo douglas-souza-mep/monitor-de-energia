@@ -18,7 +18,7 @@ function subscribeToMqttTopics(io) {
         // Lista de tópicos para subscrever
         const topics = [
             'test/res',
-            'santaMonica/energ',
+            //'santaMonica/energ',
             'connect/res',
             'taguaLife/res',
             'casa/energ'
@@ -41,7 +41,7 @@ function subscribeToMqttTopics(io) {
     var d = new Date();
     var data = d.setHours(d.getHours() - 3)
     const messageStr = message.toString();
-    tratarLeitura(io,topic,messageStr,data)
+    tratarLeitura(client,io,topic,messageStr,data)
     });
 
     client.on('error', (err) => {
@@ -51,7 +51,7 @@ function subscribeToMqttTopics(io) {
 
  // Funções de tratamento para cada tópico
 
-async function tratarLeitura(io,topico,msg,data){
+async function tratarLeitura(client,io,topico,msg,data){
     const array = msg.split(';'); 
     var dados = {
         id : array[0],
@@ -64,32 +64,32 @@ async function tratarLeitura(io,topico,msg,data){
             dados.url = "test"
             dados.nome = 'Teste', 
             dados.dist = await model_Res.getInfo("test",array[0])
-            leituraRes(dados,io)
+            leituraRes(dados,io,client)
         break;
         case 'connect/res':
             dados.url = "connect"
             dados.nome = 'Connect Towers', 
             dados.dist = await model_Res.getInfo("connect",array[0])
-            leituraRes(dados,io)
+            leituraRes(dados,io,client)
         break;
         case 'taguaLife/res':
             dados.url = "taguaLife"
             dados.nome = 'Tagua Life', 
             dados.dist = await model_Res.getInfo("taguaLife",array[0])
-            leituraRes(dados,io)
+            leituraRes(dados,io,client)
         break;
         case 'casa/energ':
-            leituraEnerg(data,msg,"casa",io)
+            leituraEnerg(data,msg,"casa",io,client)
         break;
         case 'santaMonica/energ':
-            leituraEnerg(data,msg,"santaMonica",io)
+            leituraEnerg(data,msg,"santaMonica",io,client)
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
     }
 }
 
-async function leituraRes(dados,io){
+async function leituraRes(dados,io,client){
     dados.dist.max = 200
     //console.log(dados)
     try {
@@ -100,19 +100,26 @@ async function leituraRes(dados,io){
             }
         leitura = retorno.leitura,
         leitura.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss')
-        io.emit("atualizar_"+dados.url+"_res",{leitura})
+        // Serializar o objeto para JSON
+        const mensagem = JSON.stringify(leitura);
+        client.publish(`${dados.url}/atualizarTela/res`, mensagem, (err) => {
+            if (err) {
+                console.error('Erro ao publicar mensagem:', err);
+            }
+        })
         model_Res.verificarAlarmes(dados.id,dados.dist,leitura,dados.url,dados.data)
     } catch (error) {
         console.log(error)
     }
 }
 
-async function leituraEnerg(data,msg,url,io) {
+async function leituraEnerg(data,msg,url,io,client) {
     let leitura = JSON.parse(msg);
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
     leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
 
     var dados = {
+        id:leitura.id,
         leitura:leitura,
         consumos:{
             consumo: retorno.consumos.consumo,
@@ -126,7 +133,12 @@ async function leituraEnerg(data,msg,url,io) {
             semestral: retorno.graficos.semestral
         }
     }
-    io.emit("atualizar_"+url+leitura.id,dados)
+    const mensagem = JSON.stringify(dados);
+        client.publish(`${url}/atualizarTela/energ`, mensagem, (err) => {
+            if (err) {
+                console.error('Erro ao publicar mensagem:', err);
+            }
+        })
     //console.log(leitura)
 }
 module.exports = { subscribeToMqttTopics };

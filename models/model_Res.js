@@ -112,7 +112,6 @@ const validacao = async (distancia,dimensoes,id,cliente,modoOp) =>{
         leituraAtual.modoOp = modoOp
         leituraAtual.volume = 0
         leituraAtual.erro = 0
-        leituraAtual.alertas = {NB: dimensoes.NB, NA:dimensoes.NA}
     }
     else{
         sendAlerta(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
@@ -139,7 +138,11 @@ const inserir = async (id,d,leituraAtual,sql) =>{
 }
 
 async function calcularNivel (distancia, vazio, cheio) {
-    return parseInt((distancia - vazio) * (100) / (cheio - vazio));
+    let nivel = parseInt((distancia - vazio) * (100) / (cheio - vazio));
+    if (nivel<0) {
+        nivel = 0
+    }
+    return nivel;
 }
 
 async function verificarAlarmes(id,dimensoes,leitura,url,data) {

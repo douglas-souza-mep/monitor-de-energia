@@ -131,12 +131,7 @@ class Reservatorio {
 var reservatorios = [];
 var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
 url='taguaLife'
-const socket = io();
-
-socket.on("connect", () => {
-  console.log(socket.id);
-})
-
+var clientMQTT
 
 loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados
 
@@ -154,6 +149,71 @@ fetch('/get-dados-do-usuario/res', {
     reservatorios.push(new Reservatorio(element.id,element.nome,element.NA,element.NB,element.T))
   });
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
+
+  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
+    username: "connect.tower",
+    password: "connect@tower"
+    });
+
+  clientMQTT.on('connect', () => {
+    console.log('Conectado ao broker MQTT');
+    
+    // Lista de tópicos para subscrever
+    const topics = [
+    `${url}/comando/return`,
+    `${url}/status/res`,
+    `${url}/atualizarTela/res`
+    ];
+    // Subscrição em múltiplos tópicos
+    clientMQTT.subscribe(topics, (err) => {
+        if (err) {
+            console.error('Erro ao subscrever aos tópicos', err);
+        } else {
+            console.log('Subscrito aos tópicos:', topics.join(', '));
+        }
+    });
+
+    clientMQTT.publish(`${url}/comando/res1`,"status")
+
+  });
+
+  clientMQTT.on('message', (topic, message) => {
+    switch (topic) {
+      case `${url}/comando/return`:
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        console.log(`Mensagem: ${message}`)
+        retornoDisp.innerText = message.toString()
+        popup.style.display = "flex"; // Exibe o popup
+      break;
+      case `${url}/status/res`:
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
+        const msg = message.toString().split(';');
+        modosOP.forEach(function(checkbox) {
+          if (checkbox.value === msg[0]) {
+            if(msg[1] ==="Man"){
+              checkbox.checked = false
+            }else{
+              checkbox.checked = true
+            }
+          }
+        });
+        
+      break;
+      case `${url}/atualizarTela/res`:
+        // Desserializar a mensagem JSON para objeto
+        const leitura = JSON.parse(message.toString());
+        console.log('Nova leitura:', leitura);
+        atualizar_leitura([leitura])
+      break;
+      default:
+      console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
+    }
+  });
+
+    clientMQTT.on('error', (err) => {
+        console.error('Erro de conexão MQTT', err);
+    });
+
   loadingPopup.style.display = 'none'; // Esconde o pop-up
 })
 .catch(err => {
@@ -235,13 +295,6 @@ async function iniciarPagina(){
       });
     })
   })
-
-  socket.on("atualizar_taguaLife_res",async dados =>{
-    console.log("atualizar")
-    console.log(dados)
-    atualizar_leitura([dados.leitura])
-  }); 
-  
 }
 
 function historico(dados){
@@ -350,7 +403,7 @@ function drawChart(id,local,graficos,chartOptions) {
   dataChart.addColumn('date', 'Horario');
   dataChart.addColumn('number', 'Nivel(%)');
   dataChart.addColumn('number', 'Transbordo');
-  dataChart.addColumn('number', 'Nivel Bixo');
+  dataChart.addColumn('number', 'Nivel Baixo');
   dataChart.addColumn('number', 'Nivel Alto');
   dataChart.addRows(dados);
   
@@ -368,9 +421,9 @@ function drawChart(id,local,graficos,chartOptions) {
     var date = dataChart.getValue(i, 0);
     var value = dataChart.getValue(i, 1);
     var tooltip1 = formatTooltip(date, value);
-    var tooltip2 = `<div><strong>Alerta de trasbordo ${trasbordo}%</strong></div>`;
-    var tooltip3 = `<div><strong>Alerta de nivel baixo ${nivelBaixo}%</strong></div>`;
-    var tooltip4 = `<div><strong>Alerta de nivel baixo ${nivelAlto}%</strong></div>`;
+    var tooltip2 = `<div><strong>Alerta de Trasbordo ${trasbordo}%</strong></div>`;
+    var tooltip3 = `<div><strong>Alerta de nivel Baixo ${nivelBaixo}%</strong></div>`;
+    var tooltip4 = `<div><strong>Alerta de nivel Alto ${nivelAlto}%</strong></div>`;
     formattedData.push([date, value,tooltip1,trasbordo,tooltip2,nivelBaixo,tooltip3,nivelAlto,tooltip4]);
   }
    //console.log(formattedData)

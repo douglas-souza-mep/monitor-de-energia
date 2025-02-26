@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Logar = require('../controller/logar')
 const db = require('../models/connection')
-const model_Eneg = require('../models/model_Energ')
+const model_Energ = require('../models/model_Energ')
 const model_Res = require('../models/model_Res')
 const model_Hidro = require('../models/model_Hidro')
 
@@ -27,7 +27,7 @@ router.post('/app/login', async (req, res) => {
 // Definindo a rota para receber a requisição de dados do usuário
 router.post('/get-dados-do-usuario', async (req, res) => {
   const { url } = req.body; // Pega o URL enviado no corpo da requisição
-
+  console.log(`Usuario connectado: ${url}`)
   try {
     const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE url = ? LIMIT 1", [url]);
     res.json(usuario); // Envia os dados do usuário de volta como resposta JSON
@@ -39,7 +39,7 @@ router.post('/get-dados-do-usuario', async (req, res) => {
 
 router.post('/get-dados-do-usuario/res', async (req, res) => {
   const { url } = req.body; // Pega o URL enviado no corpo da requisição
-
+  console.log(`Usuario connectado: ${url}`)
   try {
     const [reservatorios] = await db.query(`SELECT id,nome,cheio,vazio,T,NA,NB,alertas,status FROM tb_${url}_res_info`)
     res.json(reservatorios); // Envia os dados do usuário de volta como resposta JSON
@@ -107,5 +107,66 @@ router.post('/get_historico/res', async (req, res) => {
     res.status(500).json({ error: 'Ainda não ha leituras' });
   }
 });
+
+//-------------------------- Energia -------------------------------------------------------------
+
+router.post('/get_ultimas_leituras/energ', async (req, res) => {
+  const { url, medidor } = req.body; 
+  try {
+    const dados=await model_Energ.getDataStart(medidor,url)
+    res.json(dados); // Envia os dados do medidor de volta como resposta JSON
+  } catch (error) {
+    console.error('Erro ao consultar o banco de dados:', error);
+    res.status(500).json({ error: 'Ainda não ha leituras' });
+  }
+})
+
+router.post('/get_consumo/energ', async (req, res) => {
+  const {info} = req.body; 
+  console.log(info)
+  const { startDate, endDate } = info.datas;
+  try {
+    const retorno = await model_Energ.getConsumo(info.url,info.id,startDate,endDate)
+    console.log(retorno)
+    if(retorno.consumosDiario.length >= 1){
+      dados={
+        id: retorno.id,
+        local:info.local,
+        consumo:retorno.consumo.valor,
+        dataL1:retorno.consumo.startDate,
+        dataL2:retorno.consumo.endDate,
+        grafico:[]
+      }
+      await retorno.consumosDiario.forEach(element => {
+        dados.grafico.push([element.data, element.valor]);
+      });
+      res.json(dados); // Envia os dados do medidor de volta como resposta JSON
+  }else{
+    res.json({error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.consumosDiario.length });
+  }  
+  } catch (error) {
+    console.error('Erro ao consultar o banco de dados:', error);
+    res.json({error: 'Erro ao buscar leituras.' });
+  }
+})
+
+router.post('/get_relatorio_geral/energ', async (req, res) => {
+  const {info} = req.body; 
+  console.log(info)
+  const { startDate, endDate } = info.datas;
+    try {
+        const retorno = await model_Energ.getRelatorio(info.url,startDate,endDate,info.medidores)
+        console.log(retorno)
+        if(retorno.error){
+          res.json({ error: 'Falha ao obter os dados'});
+        }else{
+          res.json(retorno);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao consultar o banco de dados:', error);
+        res.json({ error: 'Erro ao buscar leituras.' });
+    }
+})
 
 module.exports = router;

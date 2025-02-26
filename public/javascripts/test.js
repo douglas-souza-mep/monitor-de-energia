@@ -128,12 +128,7 @@ class Reservatorio {
 var reservatorios = [];
 var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
 url='test'
-const socket = io();
 var clientMQTT
-
-socket.on("test", () => {
-  console.log(socket.id);
-})
 
 fetch('/get-dados-do-usuario/res', {
   method: 'POST',
@@ -161,8 +156,9 @@ fetch('/get-dados-do-usuario/res', {
     
     // Lista de tópicos para subscrever
     const topics = [
-    'test/comando/return',
-    'test/status/res',
+    `${url}/comando/return`,
+    `${url}/status/res`,
+    `${url}/atualizarTela/res`
     ];
     // Subscrição em múltiplos tópicos
     clientMQTT.subscribe(topics, (err) => {
@@ -173,19 +169,19 @@ fetch('/get-dados-do-usuario/res', {
         }
     });
 
-    clientMQTT.publish("test/comando/res1","status")
+    clientMQTT.publish(`${url}/comando/res1`,"status")
 
   });
 
   clientMQTT.on('message', (topic, message) => {
     switch (topic) {
-      case 'test/comando/return':
+      case `${url}/comando/return`:
         loadingPopup.style.display = 'none'; // Esconde o pop-up
         console.log(`Mensagem: ${message}`)
         retornoDisp.innerText = message.toString()
         popup.style.display = "flex"; // Exibe o popup
       break;
-      case 'test/status/res':
+      case `${url}/status/res`:
         loadingPopup.style.display = 'none'; // Esconde o pop-up
         const msg = message.toString().split(';');
         modosOP.forEach(function(checkbox) {
@@ -198,6 +194,12 @@ fetch('/get-dados-do-usuario/res', {
           }
         });
         
+      break;
+      case `${url}/atualizarTela/res`:
+        // Desserializar a mensagem JSON para objeto
+        const leitura = JSON.parse(message.toString());
+        console.log('Nova leitura:', leitura);
+        atualizar_leitura([leitura])
       break;
       default:
       console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
@@ -332,10 +334,6 @@ closePopupBtn.addEventListener("click", function() {
       clientMQTT.publish(topico,"ligar")
     })
   })
-
-  socket.on("atualizar_test_res",async dados =>{
-    atualizar_leitura([dados.leitura])
-  }); 
   
 }
 

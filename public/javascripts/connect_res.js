@@ -128,12 +128,7 @@ class Reservatorio {
 var reservatorios = [];
 var ultimaAtualizacao = new Date('01-01-2000 00:00:00')
 url='connect'
-const socket = io();
 var clientMQTT
-
-socket.on("connect", () => {
-  console.log(socket.id);
-})
 
 fetch('/get-dados-do-usuario/res', {
   method: 'POST',
@@ -154,7 +149,7 @@ fetch('/get-dados-do-usuario/res', {
   //console.log (`senha:${usuario.senha}`)
   clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
     username: "connect.tower",
-    password: "connect@tower"
+    password: "connect@tower",
     });
 
   clientMQTT.on('connect', () => {
@@ -162,8 +157,9 @@ fetch('/get-dados-do-usuario/res', {
     
     // Lista de tópicos para subscrever
     const topics = [
-    'connect/comando/return',
-    'connect/status/res',
+    `${url}/comando/return`,
+    `${url}/status/res`,
+    `${url}/atualizarTela/res`
     ];
     // Subscrição em múltiplos tópicos
     clientMQTT.subscribe(topics, (err) => {
@@ -174,19 +170,19 @@ fetch('/get-dados-do-usuario/res', {
         }
     });
 
-    clientMQTT.publish("connect/comando/res1","status")
+    clientMQTT.publish(`${url}/comando/res1`,"status")
 
   });
 
   clientMQTT.on('message', (topic, message) => {
     switch (topic) {
-      case 'connect/comando/return':
+      case `${url}/comando/return`:
         loadingPopup.style.display = 'none'; // Esconde o pop-up
         console.log(`Mensagem: ${message}`)
         retornoDisp.innerText = message.toString()
         popup.style.display = "flex"; // Exibe o popup
       break;
-      case 'connect/status/res':
+      case `${url}/status/res`:
         loadingPopup.style.display = 'none'; // Esconde o pop-up
         const msg = message.toString().split(';');
         modosOP.forEach(function(checkbox) {
@@ -199,6 +195,12 @@ fetch('/get-dados-do-usuario/res', {
           }
         });
         
+      break;
+      case `${url}/atualizarTela/res`:
+        // Desserializar a mensagem JSON para objeto
+        const leitura = JSON.parse(message.toString());
+        console.log('Nova leitura:', leitura);
+        atualizar_leitura([leitura])
       break;
       default:
       console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
@@ -333,11 +335,6 @@ closePopupBtn.addEventListener("click", function() {
       clientMQTT.publish(topico,"ligar")
     })
   })
-
-  socket.on("atualizar_connect_res",async dados =>{
-    atualizar_leitura([dados.leitura])
-  }); 
-  
 }
 
 function historico(dados){

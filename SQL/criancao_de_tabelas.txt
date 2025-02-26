@@ -99,11 +99,7 @@ INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `va
 
 INSERT INTO `tb_tagualife_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('6', 'Bloco F', '100', '25', '105', '30', '101', '1', '1');
 
-CREATE TABLE `medidores_de_energia`.`tb_connect_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
-
 INSERT INTO `tb_connect_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Res. Superior', '105', '30', '119', '39', '139', '1', '1');
-
-CREATE TABLE `medidores_de_energia`.`tb_test_res_info` (`id` INT NOT NULL , `nome` VARCHAR (16) NOT NULL , `NA` INT NOT NULL , `NB` INT NOT NULL , `T` INT NOT NULL , `cheio` INT NOT NULL , `vazio` INT NOT NULL , `alertas` INT NOT NULL , `status` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 INSERT INTO `tb_test_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Res. Test 1', '105', '25', '110', '30', '130', '1', '1');
 
