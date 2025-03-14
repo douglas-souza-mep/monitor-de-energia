@@ -72,8 +72,8 @@ fetch('/get_ultimas_leituras/energ', {
   }
 
   clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
-    username: "santa.monica",
-    password: "santa@monica"
+    username: "douglas",
+    password: "8501"
     });
 
   clientMQTT.on('connect', () => {
