@@ -296,6 +296,7 @@ async function drawChartConsumo(dados,id,local) {
   }
 
 async function criarSelect(lista,select) {
+    console.log(lista)
     for (let index = 0; index < lista.length; index += 2) {
 
         // Cria um novo elemento option

@@ -88,6 +88,7 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"santaMonica",client)
         break;
         case 'HospitalBase/energ':
+            console.log(msg)
             leituraEnerg(data,msg,"HospitalBase",client)
         break;
         case 'HospitalBase/hidro':
