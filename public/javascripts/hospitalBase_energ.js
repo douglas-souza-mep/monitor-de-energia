@@ -1,16 +1,14 @@
  //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
-
-
 const loadingPopup = document.getElementById('loadingPopup');
+
 let medidores = []
-const url = "casa"
+const url = "hospitalBase"
 var clientMQTT;
 
 let medidor = $('#medidor option:selected').val()
 let local = $('#medidor option:selected').text()
 console.log(medidor+" "+local)
-
 $('#medidor').on('change', () => {
   loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
   medidor = $('#medidor option:selected').val()
@@ -44,16 +42,17 @@ fetch('/get-dados-do-usuario', {
 })
 .then(response => response.json())
 .then(dados => {
-  let text = dados.med_energia.split(";")
-  //console.log(text)
-  for (let i = 0; i < text.length; i+=2) {
-    medidores.push({id:text[i], local:text[i+1]})
-  }
+    let text = dados.med_energia.split(";")
+    //console.log(text)
+    for (let i = 0; i < text.length; i+=2) {
+      medidores.push({id:text[i], local:text[i+1]})
+    }
 })
 .catch(err => {
-  console.error('Erro ao obter dados do usuário:', err);
-//  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+    console.error('Erro ao obter dados do usuário:', err);
+  //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
 });
+
 
 fetch('/get_ultimas_leituras/energ', {
   method: 'POST',
@@ -64,6 +63,7 @@ fetch('/get_ultimas_leituras/energ', {
 })
 .then(response => response.json())
 .then(dados => {
+  console.log(dados)
   if(dados.id == medidor){
     atualizar(dados)
   }else{
@@ -144,15 +144,15 @@ function calcularConsumo(event) {
   } else {
       drawChartConsumo(dados.grafico,dados.id,dados.local)
       var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
-      //console.log(dados)
+      console.log(dados.consumo)
       resultDiv.innerHTML = '<h2>Consumo calculado com base nas leituras encontradas:</h2>' + `
           <div>
               <p><strong>Local:</strong> ${dados.local}</p>
-              <p><strong>Data Início:</strong> ${dados.dataL1}</p>
-              <p><strong>Data Término:</strong> ${dados.dataL2}</p>
+              <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>
+              <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR',options)}</p>
               <p><strong>Consumo:</strong> ${dados.consumo} kWh</p>
           </div>
-      `;  //${new Date(dados.dataL1).toLocaleDateString('pt-BR',options)}</p>  
+      `;    
   }
   loadingPopup.style.display = 'none'; // Esconde o pop-up
   })
@@ -219,8 +219,8 @@ function obterRelatorio(event) {
   })
 }
 
+
 function atualizar (dados){
-  console.log(dados)
   $('#data').text(dados.leitura.data)
   $('#va').text(dados.leitura.uarms + " V" ) 
   $('#vb').text(dados.leitura.ubrms + " V" )
@@ -237,7 +237,7 @@ function atualizar (dados){
   $('#pb').text(dados.leitura.pb + " W" )
   $('#pc').text(dados.leitura.pc + " W" )
   $('#pt').text(dados.leitura.pt + " W" )
-  $('#cd').text(dados.consumos.consumo + " KWh") 
+  $('#cd').text(dados.graficos.semanal[dados.graficos.semanal.length-1][1] + " KWh") 
   $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
   $('#cm').text(dados.consumos.consumoMensal + " KWh") 
   $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
@@ -249,46 +249,43 @@ function atualizar (dados){
   // Retorno de chamada que cria e preenche uma tabela de dados,
  // instancia o tipo de gráfico, passa os dados e desenha
 function drawChart(dados) {
-    // Cria a tabela de dados.
-    var data1 = new google.visualization.DataTable();
-    data1.addColumn('string', 'Horario');
-    data1.addColumn('number', 'potencia ativa Total');
-    data1.addRows(dados.diario);
-    //console.log(data1)
-    // Set chart options
-    var options1 = {title:'Consumo hoje'}
+  // Cria a tabela de dados.
+  var data1 = new google.visualization.DataTable();
+  data1.addColumn('string', 'Horario');
+  data1.addColumn('number', 'potencia ativa Total');
+  data1.addRows(dados.diario);
+  //console.log(data1)
+  // Set chart options
+  var options1 = {title:'Consumo hoje'}
 
-    // Cria a tabela de dados.
-    var data2 = new google.visualization.DataTable();
-    data2.addColumn('string', 'Datas');
-    data2.addColumn('number', 'Consumo');
-    data2.addRows(dados.semestral);
-   // console.log(dados.semestral)
+  // Cria a tabela de dados.
+  var data2 = new google.visualization.DataTable();
+  data2.addColumn('string', 'Datas');
+  data2.addColumn('number', 'Consumo');
+  data2.addRows(dados.semestral);
+  // console.log(dados.semestral)
 
-    // Set chart options
-    var options2 = {title:'Consumos mensais'}
-
-    // Cria a tabela de dados.
-    var data3 = new google.visualization.DataTable();
-    data3.addColumn('string', 'Datas');
-    data3.addColumn('number', 'Consumo');
-    data3.addRows(dados.semanal);
-
-    // Set chart options
-    var options3 = {title:'Consumo nos ultimos 7 dias'}
-
-    // Instantiate and draw our chart, passing in some options.
-    var chart1 = new google.visualization.AreaChart(document.getElementById('chart_div1'));
-    var chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
-    var chart3 = new google.visualization.ColumnChart(document.getElementById('chart_div3'));
-    chart1.draw(data1, options1);
-    chart2.draw(data2, options2);
-    chart3.draw(data3, options3);
-  }
+  // Set chart options
+  var options2 = {title:'Consumos mensais'}
+  // Cria a tabela de dados.
+  var data3 = new google.visualization.DataTable();
+  data3.addColumn('string', 'Datas');
+  data3.addColumn('number', 'Consumo');
+  data3.addRows(dados.semanal);
+  // Set chart options
+  var options3 = {title:'Consumo nos ultimos 7 dias'}
+  // Instantiate and draw our chart, passing in some options.
+  var chart1 = new google.visualization.AreaChart(document.getElementById('chart_div1'));
+  var chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
+  var chart3 = new google.visualization.ColumnChart(document.getElementById('chart_div3'));
+  chart1.draw(data1, options1);
+  chart2.draw(data2, options2);
+  chart3.draw(data3, options3);
+}
 
 async function drawChartConsumo(dados,id,local) {
   let grafico = []
-  //console.log(dados)
+  console.log(dados)
   await dados.forEach(element => {
       grafico.push([new Date(element[0]), element[1]]);
     });
@@ -301,31 +298,30 @@ async function drawChartConsumo(dados,id,local) {
 
   // Set chart options
   var options = {
-      title:'Leituras: ' + local+" ("+id+")",
-      hAxis: {
-        title: 'data', 
-        format: 'dd-MM-yy', // Formato da data no eixo horizontal
-        titleTextStyle: {color: '#333'}},
-      vAxis: {title: 'leitura (em m3)'},
-      series: {
-          0: {lineWidth: 2} // largura da linha
-        },
-      pointSize: 5, // tamanho dos pontos
-      pointShape: 'circle', // forma dos pontos
-      colors: ['#1c91c0'], // cor da linha e dos pontos
-      tooltip: {
-          isHtml: true, // Permite HTML no tooltip
-          trigger: 'selection' // Exibe tooltip ao selecionar um ponto
-        }
+    title:'Leituras: ' + local+" ("+id+")",
+    hAxis: {
+      title: 'data', 
+      format: 'dd-MM-yy', // Formato da data no eixo horizontal
+      titleTextStyle: {color: '#333'}},
+    vAxis: {title: 'leitura (em m3)'},
+    series: {
+        0: {lineWidth: 2} // largura da linha
+      },
+    pointSize: 5, // tamanho dos pontos
+    pointShape: 'circle', // forma dos pontos
+    colors: ['#1c91c0'], // cor da linha e dos pontos
+    tooltip: {
+      isHtml: true, // Permite HTML no tooltip
+      trigger: 'selection' // Exibe tooltip ao selecionar um ponto
+    }
   }
-
   // Função para formatar o tooltip
   function formatTooltip(date, value) {
-      var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+    var options = { year: 'numeric', month: '2-digit', day: '2-digit'};
       var formattedDate = date.toLocaleDateString('pt-BR', options);
       return `<div><strong>Data e Hora:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value}</div>`;
   }
-
+  
   // Modifica os dados para incluir o tooltip HTML
   var formattedData = [];
   for (var i = 0; i < data.getNumberOfRows(); i++) {

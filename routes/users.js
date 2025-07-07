@@ -271,6 +271,16 @@ router.get('/app/connect/res', async function(req, res) {
 });
 
 //----------------------- FIM TAGUA CONNECT TOWER -------------------------------------------
+//----------------------- Inicio Hopital de Base -------------------------------------------
+router.get('/hospitalBase', function(req, res) {
+  res.render('hospitalBase_energ', { title: 'Mep Tecnologia', nome:"Hospital de Base DF"  });
+});
+
+router.get('/hospitalBase_hidro', function(req, res) {
+  res.render('hospitalBase_hidro', { title: 'Mep Tecnologia', nome:"Hospital de Base DF" });
+});
+
+//----------------------- FIM Hospital de Base -------------------------------------------
 
   return router;
 }

@@ -1,6 +1,7 @@
 const mqtt = require('mqtt');
 const model_Energ = require('./models/model_Energ')
 const model_Res = require('./models/model_Res')
+const model_Hidro = require('./models/model_Hidro')
 const moment = require('moment')
 
 
@@ -21,7 +22,9 @@ function subscribeToMqttTopics() {
             'santaMonica/energ',
             'connect/res',
             'taguaLife/res',
-            'casa/energ'
+            'casa/energ',
+            'HospitalBase/energ',
+            'HospitalBase/hidro'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -84,6 +87,14 @@ async function tratarLeitura(client,topico,msg,data){
         case 'santaMonica/energ':
             leituraEnerg(data,msg,"santaMonica",client)
         break;
+        case 'HospitalBase/energ':
+            console.log(msg)
+            leituraEnerg(data,msg,"HospitalBase",client)
+        break;
+        case 'HospitalBase/hidro':
+            console.log(msg)
+            leituraHidro(data,msg,"HospitalBase",client)
+        break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
     }
@@ -139,5 +150,15 @@ async function leituraEnerg(data,msg,url,client) {
             }
         })
     //console.log(leitura)
+}
+
+async function leituraHidro(data,msg,url,client) {
+    let leitura = JSON.parse(msg);
+    let dados ={
+        id:leitura.id,
+        data: data,
+        leitura:leitura.consumo
+        }
+        retorno = await model_Hidro.addLeitura(url,dados)
 }
 module.exports = { subscribeToMqttTopics };

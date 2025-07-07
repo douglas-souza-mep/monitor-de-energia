@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+  <header>
+    <nav class="nav-bar">
+     
+        <figure >
+          <img  src="/images/logo_mep.png" alt="Logo Mep Engenharia">
+       </figure>
+     
+      <div class="nav-list"> 
+        <ul>
+          <div>
+              <h2><%= nome %></h2>
+          </div>
+          <div>
+            <a href="http://monitor.mep.eng.br:5000/users/hospitalBase_hidro"><button>Hidrometros</button></a>
+          </div>
+          <div>
+            Medidor Selecionado:
+            <select name="medidor" id="medidor">
+              <option value='36'>Cozinha Maxima 01</option>
+              <option value='37'>Cozinha Maxima 02</option>
+            </select>
+          </div>
+          
+          <p class="data">Ultima atualização: <span id="data"></span></p>
+        </ul>
+      </div>
+        <div class="login-button">
+            
+        </div>
+
+        <!--div class="mobile-menu-icon">
+            <button onclick="menuShow()"><img class="icon" src="assets/img/menu_white_36dp.svg" alt=""></button>
+        </!--div-->
+    </nav>
+  </header>
+
+  <div id="loadingPopup" class="popup">
+    <div class="popup-content">
+        <div class="loader"></div>
+        <h2>Carregando...</h2>
+        <p>Por favor, aguarde.</p>
+    </div>
+  </div>
+  
+    <div>
+      <div class='titulo'>Tensão(V)</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='va'>V</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='vb'>V</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='vc'>V</p>
+        </div>
+      </div>
+        
+      <div class='titulo'>Corrente</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='ia'>A</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='ib'>A</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='ic'>A</p>
+        </div>
+        <div class="item4">
+         <p class="total">Total</p>
+          <p class="dado"  id='it'>A</p>
+        </div>
+      </div>
+
+      <div class='titulo'>Fator de Potencia</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='pfa'></p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='pfb'></p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='pfc'></p>
+        </div>
+        <div class="item4">
+          <p class="total">Total</p>
+          <p class="dado"  id='pft'></p>
+        </div>
+      </div>
+
+      <div class='titulo'>Potencia Ativa</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p class="fase">Fase A</p>
+          <p class="dado"  id='pa'>W</p>
+        </div>
+        <div class="item2">
+          <p class="fase">Fase B</p>
+          <p class="dado"  id='pb'>W</p>
+        </div>
+        <div class="item3">
+          <p class="fase">Fase C</p>
+          <p class="dado"  id='pc'>W</p>
+        </div>
+        <div class="item4">
+          <p class="total">Total</p>
+          <p class="dado"  id='pt'>W</p>
+        </div>
+      </div>
+
+      <div class='titulo'>Consumo (KWh)</div>
+      <div class="flex-container">
+        <div class="item1">
+          <p>Hoje</p>
+          <p class="dado"  id='cd'>KWh</p>
+        </div>
+        <div class="item2">
+          <p>Ontem</p>
+          <p class="dado"  id='cda'>KWh</p>
+        </div>
+        <div class="item3">
+          <p>Consumo Mensal</p>
+          <p class="dado"  id='cm'>KWh</p>
+        </div>
+        <div class="item4">
+          <p>Mes anterior</p>
+          <p class="dado"  id='cma'>KWh</p>
+        </div>
+      </div>
+      <div class="flex-chart">
+        <div id="chart_div1" class="item1"></div>
+      </div>  
+      <div class="flex-chart">
+        <div id="chart_div2" class="item1"></div>
+        <div id="chart_div3" class="item2"></div>
+      </div>  
+    </div>
+    
+    <!--                                   Calculo de consumo                                   -->
+    <div class="flex-container">
+      <div class="item1">
+          <h3>Periodo de cobrança</h3>
+          <form id="event-form">
+              <label for="start-date">Data de Início:</label>
+              <input type="date" id="start-date" name="start-date" required>
+              
+              <label for="end-date">Data de Término:</label>
+              <input type="date" id="end-date" name="end-date" required>
+              
+              <button id="calcular" type="submit">Calcular</button>
+              <button id="relatorio" type="submit">Obter Relatorio Geral</button>
+          </form>
+          
+      </div>
+    </div>
+
+    <div class="flex-chart">
+        <div id="chart_consumo" class="item1"></div>
+        <div id="result" class="item2"></div>
+      
+    </div> 
+    <!--                                   Calculo de consumo                                   -->
+</body>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+<script src="/javascripts/hospitalBase_energ.js"></script>
+</html>

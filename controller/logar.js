@@ -11,6 +11,7 @@ async function logar(req,res){
     if(usuario == undefined){
         return res.status(422).json({ msg:"Usuario não encontrado" })
     }
+
     if(usuario.senha == password){
         /*
         const token = await jwt.sign({

@@ -1,6 +1,6 @@
 //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
-const url = "santaMonica"
+const url = "hospitalBase"
 const socket = io();
 
 let hidrometro = $('#hidrometros option:selected').val()
@@ -8,17 +8,17 @@ let hidrometro = $('#hidrometros option:selected').val()
 $('#hidrometros').on('change', () => {
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
-    socket.emit("getLeituasHidrometro_santaMonica",{hidrometro, url:url})
+    socket.emit("getLeituasHidrometro_hospitalBase",{hidrometro, url:url})
 
 })
 
 socket.on("connect", () => {
     console.log(socket.id);
-    socket.emit("iniciarTelasantaMonica_hidro") 
+    socket.emit("iniciarTelahospitalBase_hidro") 
     console.log("iniciartela" )
 });
 
-socket.on("atualizar_santaMonica_hidrometros", async (dados) => {
+socket.on("atualizar_hospitalBase_hidrometros", async (dados) => {
      // Obtém o elemento select
     const select = document.getElementById('hidrometros');
     const lista = dados.hidrometros.split(';');
@@ -26,29 +26,29 @@ socket.on("atualizar_santaMonica_hidrometros", async (dados) => {
 
     hidrometro = $('#hidrometros option:selected').val()
     console.log(hidrometro)
-    socket.emit("getLeituasHidrometro_santaMonica",{hidrometro, url:url})
+    socket.emit("getLeituasHidrometro_hospitalBase",{hidrometro, url:url})
 })
 var hidrometros = [];
 fetch('/get-dados-do-usuario', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+    'Content-Type': 'application/json',
     },
     body: JSON.stringify({ url: url }) // Envia o dado da URL como JSON
-  })
-  .then(response => response.json())
-  .then(dados => {
+})
+.then(response => response.json())
+.then(dados => {
     
     let text = dados.hidrometros.split(";")
     console.log(text)
     for (let i = 0; i < text.length; i+=2) {
-      hidrometros.push({id:text[i], local:text[i+1]})
+        hidrometros.push({id:text[i], local:text[i+1]})
     }
-  })
-  .catch(err => {
+})
+.catch(err => {
     console.error('Erro ao obter dados do usuário:', err);
   //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
-  });
+});
 
 
 // Função para obter o relatório geral
@@ -69,7 +69,7 @@ function obterRelatorio(event) {
     fetch('/get-relatorio/hidro', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({ info: info }) // Envia o dado da URL como JSON
     })
@@ -84,32 +84,32 @@ function obterRelatorio(event) {
             //console.log(dados)
             // Definir o cabeçalho do CSV
             const cabecalho = ['Local', 'id', 'Consumo(m3)', 'Data inicial', 'Leitura Inicial','Data final','Leitura Final'];
-          
+            
             // Inicializar a string do CSV com o cabeçalho
             let csvContent = cabecalho.join(';') + '\n';
-          
+            
             // Iterar sobre o array de dados e adicionar cada linha ao CSV
             dados.forEach(dados => {
-              const linha = [
-                dados.nome,
-                dados.id,
-                dados.consumo.valor,
-                dados.consumo.startDate,
-                dados.consumo.start.valor,
-                dados.consumo.endDate,
-                dados.consumo.end.valor
-              ];
-              csvContent += linha.join(';') + '\n';
+                const linha = [
+                    dados.nome,
+                    dados.id,
+                    dados.consumo.valor,
+                    dados.consumo.startDate,
+                    dados.consumo.start.valor,
+                    dados.consumo.endDate,
+                    dados.consumo.end.valor
+                ];
+                csvContent += linha.join(';') + '\n';
             });
-          
+            
             // Criar o arquivo CSV e disparar o download
             const link = document.createElement('a');
             const blob = new Blob([csvContent], { type: 'text/csv' });
             link.href = URL.createObjectURL(blob);
             link.download = `Consumo_de_Agua_Santa_Monica.csv`; // Nome do arquivo CSV
-              
-          resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
-          link.click(); 
+            
+            resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
+            link.click(); 
         }
         loadingPopup.style.display = 'none'; // Esconde o pop-up
     });
@@ -123,12 +123,12 @@ document.getElementById('event-form').addEventListener('submit', async function(
     const endDate = document.getElementById('end-date').value;
 
     // Envia os dados para o servidor usando Socket IO
-    socket.emit("calcular_consumo_santaMonica_hidro",{hidrometro: hidrometro , datas:{startDate, endDate} })
+    socket.emit("calcular_consumo_hospitalBase_hidro",{hidrometro: hidrometro , datas:{startDate, endDate} })
 });
 
 
 // Ouve eventos de resposta do servidor
-socket.on('consumo_santaMonica_hidro', (dados) => {
+socket.on('consumo_hospitalBase_hidro', (dados) => {
     const resultDiv = document.getElementById('result');
     console.log(dados)
     if (dados.error) {
@@ -149,67 +149,7 @@ socket.on('consumo_santaMonica_hidro', (dados) => {
 });
 
 
-document.getElementById('upload-button').addEventListener('click', async () => {
-    const fileInput = document.getElementById('file-input');
-    if (fileInput.files.length === 0) {
-        alert('Por favor, selecione um arquivo.');
-        return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-
-    reader.onload = () => {
-        const content = reader.result;
-        
-        // Divide o conteúdo por linhas
-        const lines = content.split('\n');
-
-        // Divide cada linha por tabulação
-        const leituras = lines.map(line => {
-            const l = line.split('\t')
-            if(l[21]==undefined){
-                return
-            }
-            const data = l[21].split('/')
-            return {
-                id:l[9],
-                local:l[15],
-                data:data[2]+"/"+data[1]+"/"+data[0]+" "+l[22],
-                leitura:l[23]
-            }
-        });
-        // Envia o conteúdo do arquivo para o servidor
-        socket.emit('addLeituraHidrometro_santaMonica', leituras);
-
-        // Atualiza o status
-        document.getElementById('retornoArquivo').innerText = 'Enviando arquivo ...';
-    };
-
-    reader.onerror = () => {
-        document.getElementById('retornoArquivo').innerText = 'Erro ao ler o arquivo.';
-    };
-
-    reader.readAsText(file);
-});
-
-socket.on('retornoArquivo_santaMonica', (retorno) => {
-    const arquivoDiv = document.getElementById('retornoArquivo');
-
-    if (retorno.negados>0) {
-        console.log(retorno)
-        arquivoDiv.innerHTML = `<h3> Leituras carregadas: ${retorno.inseridos}</h3>`+
-                                `<h3> Leituras não carregadas: ${retorno.negados}</h3>` + retorno.log.map(e => `
-            <div "scrollbox"style="color: red;">
-                <p><strong>Erro:</strong> ${e.erro}</p>
-            </div>
-        `).join('');
-    } else {
-       arquivoDiv.innerHTML = `<h3> Leituras carregadas: ${retorno.inseridos}</h3>`
-    }
-})
-
-socket.on('atualizar_santaMonica_hidro', (dados) => {
+socket.on('atualizar_hospitalBase_hidro', (dados) => {
     //console.log(dados)
    try {
         if(dados[0].id == hidrometro){
