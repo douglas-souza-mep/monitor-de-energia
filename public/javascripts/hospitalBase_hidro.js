@@ -1,6 +1,6 @@
 //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
-const url = "hospitalBase"
+const url = "HospitalBase"
 const socket = io();
 
 let hidrometro = $('#hidrometros option:selected').val()

@@ -3,7 +3,7 @@ google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
 
 let medidores = []
-const url = "hospitalBase"
+const url = "HospitalBase"
 var clientMQTT;
 
 let medidor = $('#medidor option:selected').val()
