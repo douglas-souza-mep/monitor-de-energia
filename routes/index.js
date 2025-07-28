@@ -38,7 +38,6 @@ router.post('/get-dados-do-usuario', async (req, res) => {
   console.log(`Usuario connectado: ${url}`)
   try {
     const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE url = ? LIMIT 1", [url]);
-    console.log(usuario)
     res.json(usuario); // Envia os dados do usuário de volta como resposta JSON
   } catch (error) {
     console.error('Erro ao buscar dados do usuário:', error);
@@ -65,6 +64,7 @@ router.post('/get_leituras/hidro', async (req,res)=>{
     res.json(leituras)
   }
 })
+
 router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
   const { startDate, endDate } = info.datas;

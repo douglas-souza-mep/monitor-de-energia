@@ -1,6 +1,7 @@
  //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
+google.charts.setOnLoadCallback(iciniarPagina);
 
 let medidores = []
 const url = "santaMonica"
@@ -244,8 +245,7 @@ function atualizar (dados){
   $('#cm').text(dados.consumos.consumoMensal + " KWh") 
   $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
   
-   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-  google.charts.setOnLoadCallback(drawChart(dados.graficos));
+  drawChart(dados.graficos);
 }
 
   // Retorno de chamada que cria e preenche uma tabela de dados,
