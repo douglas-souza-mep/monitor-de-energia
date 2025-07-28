@@ -88,12 +88,12 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"santaMonica",client)
         break;
         case 'HospitalBase/energ':
-            console.log(msg)
+            //console.log(msg)
             leituraEnerg(data,msg,"HospitalBase",client)
         break;
         case 'HospitalBase/hidro':
             leituraHidro(data,msg,"HospitalBase",client)
-            console.log(msg)
+            //console.log(msg)
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);

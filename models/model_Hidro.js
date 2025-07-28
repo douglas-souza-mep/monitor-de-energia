@@ -81,19 +81,33 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
 }
 
 
-async function getRelatorio(usuario, startDate, endDate, dispositivos) {
-    try {
-        console.log("Iniciando relatório de forma eficiente...");
+const moment = require('moment'); // Certifique-se de que o 'moment' está importado no topo do seu arquivo
 
+/**
+ * Gera um relatório de consumo de forma eficiente para múltiplos dispositivos.
+ * @param {object} db - A conexão com o banco de dados.
+ * @param {string} usuario - O nome de usuário para identificar a tabela.
+ * @param {string} startDate - A data de início do relatório (ex: '2025-07-01').
+ * @param {string} endDate - A data de término do relatório (ex: '2025-07-31').
+ * @param {Array<object>} dispositivos - Um array de objetos, cada um com { id: '...', local: '...' }.
+ * @returns {Promise<Array<object>>} Uma promessa que resolve para um array com os dados de consumo de cada medidor.
+ */
+async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
+    try {
+        //console.log("Iniciando relatório de forma eficiente...");
+
+        // Retorna um array vazio se não houver dispositivos para consultar
         const idsDispositivos = dispositivos.map(d => d.id);
         if (idsDispositivos.length === 0) {
             return [];
         }
 
+        // Prepara os nomes e datas para a consulta SQL
         const tableName = `tb_${usuario}_hidrometros`;
         const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
         const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
 
+        // Consulta SQL otimizada que busca todas as leituras de uma só vez
         const sql = `
             SELECT
                 t.id,
@@ -103,10 +117,12 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
                 MAX(CASE WHEN t.tipo_leitura = 'final' THEN t.leitura END) AS leitura_final,
                 MAX(CASE WHEN t.tipo_leitura = 'final' THEN t.data END) AS data_final
             FROM (
+                -- Subconsulta para encontrar as leituras de INÍCIO
                 (SELECT id, local, data, leitura, 'inicial' AS tipo_leitura,
                     ROW_NUMBER() OVER(PARTITION BY id ORDER BY CASE WHEN DATE(data) = ? THEN 1 ELSE 2 END, ABS(DATEDIFF(data, ?))) as rn
                     FROM ?? WHERE id IN (?) AND data BETWEEN DATE_SUB(?, INTERVAL 30 DAY) AND DATE_ADD(?, INTERVAL 30 DAY))
                 UNION ALL
+                -- Subconsulta para encontrar as leituras de FIM
                 (SELECT id, local, data, leitura, 'final' AS tipo_leitura,
                     ROW_NUMBER() OVER(PARTITION BY id ORDER BY CASE WHEN DATE(data) = ? THEN 1 ELSE 2 END, ABS(DATEDIFF(data, ?))) as rn
                     FROM ?? WHERE id IN (?) AND data BETWEEN DATE_SUB(?, INTERVAL 30 DAY) AND DATE_ADD(?, INTERVAL 30 DAY))
@@ -115,49 +131,59 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
             GROUP BY t.id;
         `;
 
+        // Parâmetros para a consulta, na ordem correta
         const params = [
-            // Parâmetros para a subconsulta INICIAL
             formattedStartDate, formattedStartDate, tableName, idsDispositivos, formattedStartDate, formattedStartDate,
-            // Parâmetros para a subconsulta FINAL
             formattedEndDate, formattedEndDate, tableName, idsDispositivos, formattedEndDate, formattedEndDate
         ];
 
+        // Executa a consulta no banco de dados
         const [results] = await db.query(sql, params);
 
+        // Mapeia os resultados da consulta para o formato de objeto desejado
         const medidores = results.map(row => {
-            // Se 'local' for nulo na consulta, usa o da lista original
             const nomeLocal = row.local || dispositivos.find(d => d.id == row.id)?.local || 'Desconhecido';
             
-            const consumoFinal = parseFloat(row.leitura_final);
-            const consumoInicial = parseFloat(row.leitura_inicial);
+            const consumoFinalBruto = parseFloat(row.leitura_final);
+            const consumoInicialBruto = parseFloat(row.leitura_inicial);
 
-            // Tratamento para caso não encontre uma das leituras
-            if (isNaN(consumoFinal) || isNaN(consumoInicial)) {
-                console.warn(`Medidor ${row.id} (${nomeLocal}) sem dados suficientes no período.`);
-                return null; // Será filtrado depois
+            // Pula o medidor se não houver dados suficientes para calcular o consumo
+            if (isNaN(consumoFinalBruto) || isNaN(consumoInicialBruto)) {
+                console.warn(`Medidor ${row.id} (${nomeLocal}) não possui dados suficientes no período.`);
+                return null;
             }
 
+            // Converte os valores (divide por 1000)
+            const consumoCalculado = (consumoFinalBruto - consumoInicialBruto) / 1000;
+            const consumoFinalConvertido = consumoFinalBruto / 1000;
+            const consumoInicialConvertido = consumoInicialBruto / 1000;
+
+            // Retorna o objeto final formatado
             return {
                 consumo: {
                     startDate: moment(row.data_inicial).format('DD-MM-YYYY'),
+                    startTime: moment(row.data_inicial).format('HH:mm:ss'),
                     endDate: moment(row.data_final).format('DD-MM-YYYY'),
-                    valor: parseFloat((consumoFinal - consumoInicial).toFixed(2)),
-                    endValor: consumoFinal.toFixed(2),
-                    startValor: consumoInicial.toFixed(2)
+                    endTime: moment(row.data_final).format('HH:mm:ss'),
+                    valor: parseFloat(consumoCalculado.toFixed(3)),
+                    endValor: parseFloat(consumoFinalConvertido.toFixed(3)),
+                    startValor: parseFloat(consumoInicialConvertido.toFixed(3))
                 },
                 id: row.id,
                 nome: nomeLocal
             };
-        }).filter(Boolean); // Remove os medidores que retornaram null
+        }).filter(Boolean); // O .filter(Boolean) remove todos os itens nulos do array
 
-        console.log("Dados do relatório enviados de forma eficiente.");
+        //console.log("Dados do relatório gerados com sucesso.");
         return medidores;
 
     } catch (error) {
-        console.error("Erro ao gerar relatório eficiente:", error);
-        return [{error: error}];
+        console.error("Ocorreu um erro ao gerar o relatório eficiente:", error);
+        // Em caso de erro, retorna um array vazio para não quebrar a aplicação
+        return [];
     }
 }
+
 
 module.exports = {
     addLeituras,

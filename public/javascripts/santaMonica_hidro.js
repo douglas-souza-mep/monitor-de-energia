@@ -164,16 +164,15 @@ function obterRelatorio(event) {
     .then(response => response.json())
     .then(dados =>{
         console.log(dados)
-        /*
         const resultDiv = document.getElementById('result');
         //console.log(dados)
         if (dados.error) {
             resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
         } else {
-            resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixad</p>`;
+            resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixando</p>`;
             //console.log(dados)
             // Definir o cabeçalho do CSV
-            const cabecalho = ['Local', 'id', 'Consumo(m3)', 'Data inicial', 'Leitura Inicial','Data final','Leitura Final'];
+            const cabecalho = ['id', 'local', 'Consumo(m3)', 'Data inicial','Hora inicial', 'Leitura Inicial','Data final','Hora final','Leitura Final'];
 
             // Inicializar a string do CSV com o cabeçalho
             let csvContent = cabecalho.join(';') + '\n';
@@ -181,12 +180,14 @@ function obterRelatorio(event) {
             // Iterar sobre o array de dados e adicionar cada linha ao CSV
             dados.forEach(dados => {
                 const linha = [
-                    dados.nome,
                     dados.id,
+                    dados.nome,
                     dados.consumo.valor,
                     dados.consumo.startDate,
+                    dados.consumo.startTime,
                     dados.consumo.start.valor,
                     dados.consumo.endDate,
+                    dados.consumo.endTime,
                     dados.consumo.end.valor
                 ];
                 csvContent += linha.join(';') + '\n';
@@ -200,7 +201,7 @@ function obterRelatorio(event) {
             
             resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
             link.click(); 
-        }*/
+        }
         loadingPopup.style.display = 'none'; // Esconde o pop-up
     });
 }
