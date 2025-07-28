@@ -91,7 +91,7 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
  */
 async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
     try {
-        //console.log("Iniciando relatório de forma eficiente...");
+        console.log("Iniciando relatório de forma eficiente...");
 
         // Retorna um array vazio se não houver dispositivos para consultar
         const idsDispositivos = dispositivos.map(d => d.id);
@@ -171,7 +171,7 @@ async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
             };
         }).filter(Boolean); // O .filter(Boolean) remove todos os itens nulos do array
 
-        //console.log("Dados do relatório gerados com sucesso.");
+        console.log("Dados do relatório gerados com sucesso.");
         return medidores;
 
     } catch (error) {
