@@ -80,15 +80,6 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     return leituras
 }
 
-/**
- * Gera um relatório de consumo de forma eficiente para múltiplos dispositivos.
- * @param {object} db - A conexão com o banco de dados.
- * @param {string} usuario - O nome de usuário para identificar a tabela.
- * @param {string} startDate - A data de início do relatório (ex: '2025-07-01').
- * @param {string} endDate - A data de término do relatório (ex: '2025-07-31').
- * @param {Array<object>} dispositivos - Um array de objetos, cada um com { id: '...', local: '...' }.
- * @returns {Promise<Array<object>>} Uma promessa que resolve para um array com os dados de consumo de cada medidor.
- */
 async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
     try {
         console.log("Iniciando relatório de forma eficiente...");
