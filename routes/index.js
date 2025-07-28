@@ -14,9 +14,9 @@ router.get('/', function(req, res, next) {
 router.post('/', async(req,res)=>{
   let retorno= await Logar.logar(req, res)
   if (retorno.acesso==1) {
-    res.redirect(retorno.url)
-  } else{
     res.json(retorno)
+  } else{
+    res.status(401).json(retorno)
   }
   
 })

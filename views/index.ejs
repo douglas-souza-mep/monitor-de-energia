@@ -1,24 +1,150 @@
 <!DOCTYPE html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>Mep Tecnologia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <link rel="stylesheet" type="text/css" href='/stylesheets/login.css' />
+  <style>
+    /* CSS reset */
+    *, *:before, *:after { 
+        margin:0;
+        padding:0;
+        font-family: Arial,sans-serif;
+    }
+    
+    body{
+      background-image: url("../images/fudo.jpg");
+     }
+    
+    a{
+      text-decoration: none;
+    }
+     
+    a.links{
+      display: none;
+    }
+    
+    .content{
+      width: 400px;
+      min-height: 460px;    
+      margin: 100px auto; /* Centralizado para melhor visualização */
+      position: relative; 
+    }
+  
+    h1{
+      font-size: 48px;
+      color: #ED3237;
+      padding: 2px 0 10px 0;
+      font-family: Arial,sans-serif;
+      font-weight: bold;
+      text-align: center;
+      padding-bottom: 30px;
+    }
+    
+    h1:after{
+      content: ' ';
+      display: block;
+      width: 100%;
+      height: 2px;
+      margin-top: 10px;
+      background: linear-gradient(to right, rgba(147,184,189,0) 0%,#ED3237 20%,#ED3237 53%,#ED3237 79%,rgba(147,184,189,0) 100%); 
+    }
+  
+    p{
+      margin-bottom:15px;
+    }
+     
+    .content p:first-child{
+      margin: 0px;
+    }
+     
+    label{
+      color: #ED3237;
+      position: relative;
+    }
+  
+    ::-webkit-input-placeholder  {
+      color: #bebcbc; 
+      font-style: italic;
+    }
+     
+    input:-moz-placeholder,
+    textarea:-moz-placeholder{
+      color: #bebcbc;
+      font-style: italic;
+    }
+  
+    input {
+      outline: none;
+    }
+     
+    input:not([type="checkbox"]){
+      width: 95%;
+      margin-top: 4px;
+      padding: 10px;    
+      border: 1px solid #b2b2b2;
+      border-radius: 3px;
+      box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+      transition: all 0.2s linear;
+    }
+     
+    input[type="submit"]{
+      width: 100%!important;
+      cursor: pointer;  
+      background: #ED3237;
+      padding: 8px 5px;
+      color: #fff;
+      font-size: 20px;  
+      border: 1px solid #fff;   
+      margin-bottom: 10px;  
+      text-shadow: 0 1px 1px #333;
+      border-radius: 5px;
+      transition: all 0.2s linear;
+    }
+     
+    input[type="submit"]:hover{
+      background: #db5f63;
+    }
+  
+    #popup {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f44336; /* Vermelho para erro */
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-family: sans-serif;
+      z-index: 1000; /* Garante que fique na frente */
+      text-align: center;
+    }
+  
+    #login{
+      position: absolute;
+      top: 0px;
+      width: 88%;   
+      padding: 18px 6% 20px 6%;
+      margin: 0 0 35px 0;
+      background: #f7f7f7;
+      border: 1px solid #ED3237;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="container" >
-    <!--a class="links" id="paracadastro"></a>
-    <a class="links" id="paralogin"></a-->
-     
+  <div class="container">
     <div class="content">      
       <!--FORMULÁRIO DE LOGIN-->
       <div id="login">
-
-        <form method="post" action=""> 
+        <!-- O formulário agora tem um ID e todos os seus campos estão DENTRO dele -->
+        <form method="post" action="" id="loginForm"> 
           <h1>
-            <figure >
-            <img  src="/images/logo_mep.png" alt="Logo Mep Engenharia">
+            <figure>
+              <img src="/images/logo_mep.png" alt="Logo Mep Engenharia">
             </figure>
           </h1> 
           <p> 
@@ -31,90 +157,70 @@
             <input id="password" name="password" required="required" type="password" placeholder="*******" /> 
           </p>
           
-          <!--p> 
-            <input type="checkbox" name="manterlogado" id="manterlogado" value="" /> 
-            <label for="manterlogado">Manter-me logado</label>
-          </p-->
-          
           <p> 
             <input type="submit" value="Entrar" /> 
           </p>
         </form>
       </div>
-
-      <div id="popup"></div>
-      <script>
-        const form = document.getElementById("loginForm");
-        const popup = document.getElementById("popup");
-      
-        form.addEventListener("submit", async function (event) {
-          event.preventDefault(); // evita o envio padrão
-      
-          const formData = new FormData(form);
-          const data = Object.fromEntries(formData.entries());
-      
-          try {
-            const response = await fetch('/', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(data)
-            });
-      
-            const result = await response.json();
-            console.log(result)
-            if (result.status === 'error') {
-              mostrarPopup(result.msg);
-            } else if (result.status === 'success') {
-              alert("✅ Login bem-sucedido!");
-              // Redirecionar, se quiser:
-              // window.location.href = "/dashboard";
-            }
-      
-          } catch (err) {
-            mostrarPopup("Erro de conexão com o servidor.");
-          }
-        });
-      
-        function mostrarPopup(mensagem) {
-          popup.textContent = mensagem;
-          popup.style.display = "block";
-          setTimeout(() => popup.style.display = "none", 3000);
-        }
-      </script>
-      
-      <!--FORMULÁRIO DE CADASTRO
-      <div id="cadastro">
-        <form method="post" action=""> 
-          <h1>Cadastro</h1> 
-           
-          <p> 
-            <label for="nome_cad">Seu nome</label>
-            <input id="nome_cad" name="nome_cad" required="required" type="text" placeholder="nome" />
-          </p>
-           
-          <p> 
-            <label for="email_cad">Seu e-mail</label>
-            <input id="email_cad" name="email_cad" required="required" type="email" placeholder="contato@htmlecsspro.com"/> 
-          </p>
-           
-          <p> 
-            <label for="password_cad">Sua password</label>
-            <input id="password_cad" name="password_cad" required="required" type="password" placeholder="ex. 1234"/>
-          </p>
-           
-          <p> 
-            <input type="submit" value="Cadastrar"/> 
-          </p>
-           
-          <p class="link">  
-            Já tem conta?
-            <a href="#paralogin"> Ir para Login </a>
-          </p>
-        </form-->
-      </div>
     </div>
   </div>  
+
+  <!-- O popup para exibir mensagens de erro -->
+  <div id="popup"></div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const popup = document.getElementById("popup");
+  
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault(); // Evita o recarregamento da página
+  
+      // Pega os dados do formulário
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+  
+      try {
+        // Envia os dados para o servidor
+        const response = await fetch('/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+  
+        // Converte a resposta do servidor para JSON
+        const resultado = await response.json();
+        
+        // Verifica a resposta do servidor
+        if (resultado.acesso === 1 && resultado.url) {
+          // SUCESSO: Redireciona para a URL fornecida
+          //alert("✅ Login bem-sucedido! Redirecionando...");
+          window.location.href = resultado.url;
+        } else if (resultado.acesso === 0 && resultado.msg) {
+          // ERRO: Mostra a mensagem de erro no popup
+          mostrarPopup(resultado.msg);
+        } else {
+          // Caso a resposta do servidor não siga o padrão esperado
+          mostrarPopup("Resposta inesperada do servidor.");
+        }
+  
+      } catch (err) {
+        // Erro de rede ou conexão
+        mostrarPopup("Erro de conexão. Verifique a rede e tente novamente.");
+      }
+    });
+  
+    // Função para mostrar o popup de erro
+    function mostrarPopup(mensagem) {
+      popup.textContent = mensagem;
+      popup.style.display = "block";
+      
+      // Esconde o popup depois de 3 segundos
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
