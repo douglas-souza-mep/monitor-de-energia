@@ -80,9 +80,6 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     return leituras
 }
 
-
-const moment = require('moment'); // Certifique-se de que o 'moment' está importado no topo do seu arquivo
-
 /**
  * Gera um relatório de consumo de forma eficiente para múltiplos dispositivos.
  * @param {object} db - A conexão com o banco de dados.
