@@ -92,7 +92,7 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
 async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
     try {
         console.log("Iniciando relatório de forma eficiente...");
-
+        console.log(dispositivos)
         // Retorna um array vazio se não houver dispositivos para consultar
         const idsDispositivos = dispositivos.map(d => d.id);
         if (idsDispositivos.length === 0) {
