@@ -29,6 +29,7 @@ function iciniarPagina() {
     })
     .then(response => response.json())
     .then(async dados =>  {
+        console.log(dados)
         let text = dados.hidrometros.split(";")
         await criarSelect(text,select)
         for (let i = 0; i < text.length; i+=2) {
@@ -115,6 +116,8 @@ socket.on('retornoArquivo_santaMonica', (retorno) => {
 })
 
 function obterLeituras(url,hidrometro) {
+    console.log("pedir dados")
+    console.log(hidrometro)
     fetch('/get_leituras/hidro', {
         method: 'POST',
         headers: {
