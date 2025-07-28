@@ -15,7 +15,10 @@ router.post('/', async(req,res)=>{
   let retorno= await Logar.logar(req, res)
   if (retorno.acesso==1) {
     res.redirect(retorno.url)
+  } else{
+    res.json(retorno)
   }
+  
 })
 
 
