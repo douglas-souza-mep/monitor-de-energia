@@ -163,6 +163,8 @@ function obterRelatorio(event) {
     })
     .then(response => response.json())
     .then(dados =>{
+        console.log(dados)
+        /*
         const resultDiv = document.getElementById('result');
         //console.log(dados)
         if (dados.error) {
@@ -198,7 +200,7 @@ function obterRelatorio(event) {
             
             resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
             link.click(); 
-        }
+        }*/
         loadingPopup.style.display = 'none'; // Esconde o pop-up
     });
 }
