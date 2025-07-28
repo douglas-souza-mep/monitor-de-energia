@@ -19,9 +19,11 @@ const logar = require('../controller/logar')
 // Declara variáveis globais
 globalThis.reservatorios = [];
 globalThis.medidoresEnerg = [];
+globalThis.Hidrometros = [];
 
 globalThis.reservatoriosDinamico = [];
 globalThis.medidoresEnergDinamico = [];
+globalThis.hidrometrosDinamico = [];
 
 // Função para inicializar a lista de dispositivos
 async function inicializarListadeDispositivos() {
@@ -66,44 +68,7 @@ app.io.on('connection', socket=>{
     app.io.sockets.emit("atualizar_santaMonica_hidrometros",hidrometros)
   })
 
-  socket.on("getLeituasHidrometro_santaMonica", async (dados)=>{
-    //console.log(dados)
-    if(dados != null){
-      const leituras=await model_Hidro.getLeituras(dados.url,dados.hidrometro)
-      app.io.sockets.emit("atualizar_santaMonica_hidro",leituras)
-    }
-    
-  })
-
-  socket.on("calcular_consumo_santaMonica_hidro", async (dados)=>{
-    //console.log(dados)
-    const { startDate, endDate } = dados.datas;
-    try {
-        const retorno = await model_Hidro.getConsumo("santaMonica",dados.hidrometro,startDate,endDate)
-        //console.log(retorno.length)
-        if(retorno.length >= 2){
-          consumo = retorno[retorno.length-1].leitura - retorno[0].leitura
-          dados={
-            id: retorno[0].id,
-            local:retorno[0].local,
-            consumo:consumo,
-            dataL1:retorno[0].data,
-            dataL2:retorno[retorno.length-1].data,
-            grafico:[]
-          }
-          await retorno.forEach(element => {
-            dados.grafico.push([element.data, element.leitura]);
-          });
-          socket.emit('consumo_santaMonica_hidro', dados);
-        }else{
-          socket.emit('consumo_santaMonica_hidro', { error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.length });
-        }
-        //console.log(retorno)
-    } catch (error) {
-        console.error('Erro ao consultar o banco de dados:', error);
-        socket.emit('consumo_santaMonica_hidro', { error: 'Erro ao buscar leituras.' });
-    }
-  })
+  
 
   socket.on('addLeituraHidrometro_santaMonica', async (leituras) => {
     //console.log(leituras);

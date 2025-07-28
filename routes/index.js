@@ -57,7 +57,15 @@ router.post('/get-dados-do-usuario/res', async (req, res) => {
   }
 });
 //-------------------------- hidrometros -------------------------------------------------------------
-router.post('/get-relatorio/hidro', async (req,res) => {
+router.post('/get_leituras/hidro', async (req,res)=>{
+  const dados = req.body.info
+  if(dados != null){
+    const leituras=await model_Hidro.getLeituras(dados.url,dados.hidrometro)
+    res.json(leituras)
+  }
+})
+
+router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
   const { startDate, endDate } = info.datas;
     try {
@@ -73,6 +81,38 @@ router.post('/get-relatorio/hidro', async (req,res) => {
         console.error('Erro ao consultar o banco de dados:', error);
         res.json({ error: 'Erro ao buscar leituras.' });
     }
+})
+
+router.post('/get_consumo/hidro', async (req,res) => {
+  //console.log(dados)
+  const info = req.body.info
+  const { startDate, endDate } = info.datas;
+
+  try {
+    const retorno = await model_Hidro.getConsumo(info.url,info.hidrometro,startDate,endDate)
+    //console.log(retorno.length)
+    if(retorno.length >= 2){
+      consumo = retorno[retorno.length-1].leitura - retorno[0].leitura
+      dados={
+        id: retorno[0].id,
+        local:retorno[0].local,
+        consumo:consumo,
+        dataL1:retorno[0].data,
+        dataL2:retorno[retorno.length-1].data,
+        grafico:[]
+      }
+      await retorno.forEach(element => {
+        dados.grafico.push([element.data, element.leitura]);
+      });
+      res.json(dados);
+    }else{
+      res.json({ error: 'Não ha leituras sufucientes necesse periodo para se calcular o consumo. Leituras = '+retorno.length });
+    }
+    //console.log(retorno)
+  } catch (error) {
+    console.error('Erro ao consultar o banco de dados:', error);
+    res.json({ error: 'Erro ao buscar leituras.' });
+  }
 })
 
 //------------------------- reservatorios ------------------------------------------------------------
