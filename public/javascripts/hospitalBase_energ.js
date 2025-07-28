@@ -2,6 +2,7 @@
 google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
 google.charts.setOnLoadCallback(iniciarPagina);
+
 function iniciarPagina() {
   fetch('/get_ultimas_leituras/energ', {
     method: 'POST',

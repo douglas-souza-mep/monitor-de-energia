@@ -53,68 +53,69 @@ fetch('/get-dados-do-usuario', {
   //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
 });
 
-
-fetch('/get_ultimas_leituras/energ', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ medidor: medidor, url: url }) // Envia o dado da URL e do medidor como JSON
-})
-.then(response => response.json())
-.then(dados => {
-  console.log()
-  if(dados.id == medidor){
-    atualizar(dados)
-  }else{
-    console.log("dados de inicialização invalidos")
-    console.log(dados)
-  }
-
-  clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
-    username: "douglas",
-    password: "8501",
-    path: '/mqtt'
-});
-
-  clientMQTT.on('connect', () => {
-    console.log('Conectado ao broker MQTT');
-    
-    // Lista de tópicos para subscrever
-    const topics = [
-    `${url}/atualizarTela/energ`
-    ];
-    // Subscrição em múltiplos tópicos
-    clientMQTT.subscribe(topics, (err) => {
-        if (err) {
-            console.error('Erro ao subscrever aos tópicos', err);
-        } else {
-            console.log('Subscrito aos tópicos:', topics.join(', '));
-        }
-    });
-  });
-
-  loadingPopup.style.display = 'none'; // Esconde o pop-up
-
-  clientMQTT.on('message', (topic, message) => {
-    switch (topic) {
-      case `${url}/atualizarTela/energ`:
-        // Desserializar a mensagem JSON para objeto
-        const leitura = JSON.parse(message.toString());
-        console.log('Nova leitura:', leitura);
-        atualizar(leitura)
-      break;
-      default:
-      console.log(`Tópico desconhecido: ${topico} - Mensagem: ${message}`);
+function iniciarPagina() {
+  fetch('/get_ultimas_leituras/energ', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ medidor: medidor, url: url }) // Envia o dado da URL e do medidor como JSON
+  })
+  .then(response => response.json())
+  .then(dados => {
+    console.log()
+    if(dados.id == medidor){
+      atualizar(dados)
+    }else{
+      console.log("dados de inicialização invalidos")
+      console.log(dados)
     }
+  
+    clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
+      username: "douglas",
+      password: "8501",
+      path: '/mqtt'
   });
-
-    clientMQTT.on('error', (err) => {
-        console.error('Erro de conexão MQTT', err);
+  
+    clientMQTT.on('connect', () => {
+      console.log('Conectado ao broker MQTT');
+      
+      // Lista de tópicos para subscrever
+      const topics = [
+      `${url}/atualizarTela/energ`
+      ];
+      // Subscrição em múltiplos tópicos
+      clientMQTT.subscribe(topics, (err) => {
+          if (err) {
+              console.error('Erro ao subscrever aos tópicos', err);
+          } else {
+              console.log('Subscrito aos tópicos:', topics.join(', '));
+          }
+      });
     });
-
-  loadingPopup.style.display = 'none'; // Esconde o pop-up
-})
+  
+    loadingPopup.style.display = 'none'; // Esconde o pop-up
+  
+    clientMQTT.on('message', (topic, message) => {
+      switch (topic) {
+        case `${url}/atualizarTela/energ`:
+          // Desserializar a mensagem JSON para objeto
+          const leitura = JSON.parse(message.toString());
+          console.log('Nova leitura:', leitura);
+          atualizar(leitura)
+        break;
+        default:
+        console.log(`Tópico desconhecido: ${topico} - Mensagem: ${message}`);
+      }
+    });
+  
+      clientMQTT.on('error', (err) => {
+          console.error('Erro de conexão MQTT', err);
+      });
+  
+    loadingPopup.style.display = 'none'; // Esconde o pop-up
+  })
+}
 
 // Adiciona os ouvintes de evento para os botões
 document.getElementById('calcular').addEventListener('click', calcularConsumo);
