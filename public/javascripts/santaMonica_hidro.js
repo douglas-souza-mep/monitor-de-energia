@@ -1,5 +1,6 @@
 //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
+const loadingPopup = document.getElementById('loadingPopup');
 google.charts.setOnLoadCallback(iciniarPagina);
 const url = "santaMonica"
 const socket = io();
@@ -43,7 +44,7 @@ function iciniarPagina() {
     })
     .catch(err => {
         console.error('Erro ao obter dados do usuário:', err);
-      //  loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
+        loadingPopup.style.display = 'none'; // Esconde o pop-up em caso de erro
     });
     
 }
@@ -163,8 +164,6 @@ function obterRelatorio(event) {
     })
     .then(response => response.json())
     .then(dados =>{
-        console.log(dados)
-        /*
         const resultDiv = document.getElementById('result');
         if (dados.error) {
             resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
@@ -202,7 +201,7 @@ function obterRelatorio(event) {
             resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
             link.click(); 
         }
-        loadingPopup.style.display = 'none'; // Esconde o pop-up*/
+        loadingPopup.style.display = 'none'; // Esconde o pop-up
     });
 }
 
