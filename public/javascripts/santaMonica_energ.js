@@ -1,7 +1,7 @@
  //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
-google.charts.setOnLoadCallback(iciniarPagina);
+google.charts.setOnLoadCallback(iniciarPagina);
 
 let medidores = []
 const url = "santaMonica"
