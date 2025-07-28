@@ -80,7 +80,7 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     return leituras
 }
 
-async function getRelatorio(db, usuario, startDate, endDate, dispositivos) {
+async function getRelatorio(usuario, startDate, endDate, dispositivos) {
     try {
         console.log("Iniciando relatório de forma eficiente...");
         console.log(dispositivos)
