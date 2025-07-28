@@ -71,10 +71,11 @@ fetch('/get_ultimas_leituras/energ', {
     console.log(dados)
   }
 
-  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
+  clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
     username: "douglas",
-    password: "8501"
-    });
+    password: "8501",
+    path: '/mqtt'
+});
 
   clientMQTT.on('connect', () => {
     console.log('Conectado ao broker MQTT');
@@ -237,7 +238,7 @@ function atualizar (dados){
   $('#pb').text(dados.leitura.pb + " W" )
   $('#pc').text(dados.leitura.pc + " W" )
   $('#pt').text(dados.leitura.pt + " W" )
-  $('#cd').text(dados.graficos.semanal[7][1] + " KWh") 
+  $('#cd').text(dados.graficos.semanal[dados.graficos.semanal.length-1][1] + " KWh") 
   $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
   $('#cm').text(dados.consumos.consumoMensal + " KWh") 
   $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 

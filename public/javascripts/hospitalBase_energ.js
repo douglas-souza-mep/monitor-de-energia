@@ -71,7 +71,7 @@ fetch('/get_ultimas_leituras/energ', {
     console.log(dados)
   }
 
-  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
+  clientMQTT = mqtt.connect("wss://185.139.1.249:9001", {
     username: "douglas",
     password: "8501"
     });

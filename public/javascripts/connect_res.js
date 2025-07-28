@@ -147,10 +147,12 @@ fetch('/get-dados-do-usuario/res', {
   google.charts.setOnLoadCallback(() => iniciarPagina()); // Chama iniciarPagina quando os dados chegarem
   //console.log (`usuario:${usuario.usuario}`)
   //console.log (`senha:${usuario.senha}`)
-  clientMQTT = mqtt.connect("ws://185.139.1.249:9001", {
-    username: "connect.tower",
-    password: "connect@tower",
-    });
+  clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
+    username: "douglas",
+    password: "8501",
+    path: '/mqtt'
+});
+
 
   clientMQTT.on('connect', () => {
     console.log('Conectado ao broker MQTT');

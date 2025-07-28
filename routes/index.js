@@ -12,8 +12,20 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', async(req,res)=>{
-  Logar.logar(req, res)
+  let retorno= await Logar.logar(req, res)
+  if (retorno.acesso==1) {
+    res.redirect(retorno.url)
+  } else {
+    mostrarPopup(retorno.msg);
+  }
 })
+
+function mostrarPopup(mensagem) {
+  const popup = document.getElementById("popup");
+  popup.textContent = mensagem;
+  popup.style.display = "block";
+  setTimeout(() => popup.style.display = "none", 3000); // some em 3s
+}
 
 router.post('/app/login', async (req, res) => {
   const { username, password } = req.body;

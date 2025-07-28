@@ -9,7 +9,8 @@ async function logar(req,res){
     const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
     //console.log(usuario)
     if(usuario == undefined){
-        return res.status(422).json({ msg:"Usuario não encontrado" })
+
+        return {acesso:0 , msg:"⚠️ Usuário não encontrado!"}//res.status(422).json({ msg:"Usuario não encontrado" })
     }
 
     if(usuario.senha == password){
@@ -19,10 +20,10 @@ async function logar(req,res){
         },process.env.CHAVE_TOKEN,{expiresIn: '2m'})
         console.log('Token: '+token)
         res.cookie('Token',token)*/
-        return res.redirect('/users/'+ usuario.url)
+        return {acesso:1, url: '/users/'+usuario.url}//res.redirect('/users/'+ usuario.url)
     }
     else{
-        return res.status(422).json({ msg:"Senha invalida" })
+        return {acesso:0, msg: "❌ Senha incorreta!"} //res.status(422).json({ msg:"Senha invalida" })
     }
 }
 

@@ -18,13 +18,13 @@ function subscribeToMqttTopics() {
 
         // Lista de tópicos para subscrever
         const topics = [
-            'test/res',
-            'santaMonica/energ',
-            'connect/res',
-            'taguaLife/res',
-            'casa/energ',
+            //'test/res',
+            //'santaMonica/energ',
+            //'connect/res',
+            //'taguaLife/res',
+            //'casa/energ',
             'HospitalBase/energ',
-            'HospitalBase/hidro'
+            //'HospitalBase/hidro'
         ];
 
         // Subscrição em múltiplos tópicos
@@ -93,6 +93,7 @@ async function tratarLeitura(client,topico,msg,data){
         break;
         case 'HospitalBase/hidro':
             leituraHidro(data,msg,"HospitalBase",client)
+            console.log(msg)
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
@@ -151,12 +152,12 @@ async function leituraEnerg(data,msg,url,client) {
     //console.log(leitura)
 }
 
-async function leituraHidro(data,msg,url,client) {
+async function leituraHidro(data,msg,url,client,setPoit) {
     let leitura = JSON.parse(msg);
     let dados ={
         id:leitura.id,
         data: data,
-        leitura:leitura.consumo
+        leitura: leitura.consumo+100
         }
         retorno = await model_Hidro.addLeitura(url,dados)
 }
