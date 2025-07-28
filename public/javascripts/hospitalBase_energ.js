@@ -1,6 +1,70 @@
  //  Carrega a API de visualização e o pacote corechart.
 google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
+google.charts.setOnLoadCallback(iniciarPagina);
+function iniciarPagina() {
+  fetch('/get_ultimas_leituras/energ', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ medidor: medidor, url: url }) // Envia o dado da URL e do medidor como JSON
+  })
+  .then(response => response.json())
+  .then(dados => {
+    console.log(dados)
+    if(dados.id == medidor){
+      atualizar(dados)
+    }else{
+      console.log("dados de inicialização invalidos")
+      console.log(dados)
+    }
+  
+    clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
+      username: "douglas",
+      password: "8501",
+      path: '/mqtt'
+  });
+  
+    clientMQTT.on('connect', () => {
+      console.log('Conectado ao broker MQTT');
+      
+      // Lista de tópicos para subscrever
+      const topics = [
+      `${url}/atualizarTela/energ`
+      ];
+      // Subscrição em múltiplos tópicos
+      clientMQTT.subscribe(topics, (err) => {
+          if (err) {
+              console.error('Erro ao subscrever aos tópicos', err);
+          } else {
+              console.log('Subscrito aos tópicos:', topics.join(', '));
+          }
+      });
+    });
+  
+    loadingPopup.style.display = 'none'; // Esconde o pop-up
+  
+    clientMQTT.on('message', (topic, message) => {
+      switch (topic) {
+        case `${url}/atualizarTela/energ`:
+          // Desserializar a mensagem JSON para objeto
+          const leitura = JSON.parse(message.toString());
+          console.log('Nova leitura:', leitura);
+          atualizar(leitura)
+        break;
+        default:
+        console.log(`Tópico desconhecido: ${topico} - Mensagem: ${message}`);
+      }
+    });
+  
+      clientMQTT.on('error', (err) => {
+          console.error('Erro de conexão MQTT', err);
+      });
+  
+    loadingPopup.style.display = 'none'; // Esconde o pop-up
+  })
+}
 
 let medidores = []
 const url = "HospitalBase"
@@ -8,7 +72,7 @@ var clientMQTT;
 
 let medidor = $('#medidor option:selected').val()
 let local = $('#medidor option:selected').text()
-console.log(medidor+" "+local)
+//console.log(medidor+" "+local)
 $('#medidor').on('change', () => {
   loadingPopup.style.display = 'flex'; // aparece o pop-ap de carregarmento dos dados 
   medidor = $('#medidor option:selected').val()
@@ -54,67 +118,7 @@ fetch('/get-dados-do-usuario', {
 });
 
 
-fetch('/get_ultimas_leituras/energ', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ medidor: medidor, url: url }) // Envia o dado da URL e do medidor como JSON
-})
-.then(response => response.json())
-.then(dados => {
-  console.log(dados)
-  if(dados.id == medidor){
-    atualizar(dados)
-  }else{
-    console.log("dados de inicialização invalidos")
-    console.log(dados)
-  }
 
-  clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
-    username: "douglas",
-    password: "8501",
-    path: '/mqtt'
-});
-
-  clientMQTT.on('connect', () => {
-    console.log('Conectado ao broker MQTT');
-    
-    // Lista de tópicos para subscrever
-    const topics = [
-    `${url}/atualizarTela/energ`
-    ];
-    // Subscrição em múltiplos tópicos
-    clientMQTT.subscribe(topics, (err) => {
-        if (err) {
-            console.error('Erro ao subscrever aos tópicos', err);
-        } else {
-            console.log('Subscrito aos tópicos:', topics.join(', '));
-        }
-    });
-  });
-
-  loadingPopup.style.display = 'none'; // Esconde o pop-up
-
-  clientMQTT.on('message', (topic, message) => {
-    switch (topic) {
-      case `${url}/atualizarTela/energ`:
-        // Desserializar a mensagem JSON para objeto
-        const leitura = JSON.parse(message.toString());
-        console.log('Nova leitura:', leitura);
-        atualizar(leitura)
-      break;
-      default:
-      console.log(`Tópico desconhecido: ${topico} - Mensagem: ${message}`);
-    }
-  });
-
-    clientMQTT.on('error', (err) => {
-        console.error('Erro de conexão MQTT', err);
-    });
-
-  loadingPopup.style.display = 'none'; // Esconde o pop-up
-})
 
 // Adiciona os ouvintes de evento para os botões
 document.getElementById('calcular').addEventListener('click', calcularConsumo);
@@ -242,9 +246,8 @@ function atualizar (dados){
   $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
   $('#cm').text(dados.consumos.consumoMensal + " KWh") 
   $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-  
-   // retorno de chamada para ser executado quando a API de visualização do Google for carregada.
-  google.charts.setOnLoadCallback(drawChart(dados.graficos));
+
+  drawChart(dados.graficos);
 }
 
   // Retorno de chamada que cria e preenche uma tabela de dados,
