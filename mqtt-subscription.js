@@ -18,13 +18,13 @@ function subscribeToMqttTopics() {
 
         // Lista de tópicos para subscrever
         const topics = [
-            //'test/res',
-            //'santaMonica/energ',
-            //'connect/res',
-            //'taguaLife/res',
-            //'casa/energ',
+            'test/res',
+            'santaMonica/energ',
+            'connect/res',
+            'taguaLife/res',
+            'casa/energ',
             'HospitalBase/energ',
-            //'HospitalBase/hidro'
+            'HospitalBase/hidro'
         ];
 
         // Subscrição em múltiplos tópicos
