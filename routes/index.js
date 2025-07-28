@@ -65,7 +65,6 @@ router.post('/get_leituras/hidro', async (req,res)=>{
     res.json(leituras)
   }
 })
-guet
 router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
   const { startDate, endDate } = info.datas;
