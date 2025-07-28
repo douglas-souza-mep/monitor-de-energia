@@ -138,6 +138,7 @@ function obterLeituras(url,hidrometro) {
             console.log(dados)
             console.log(error)
         }
+        loadingPopup.style.display = 'none'; // Esconde o pop-up 
     })
 }
 
