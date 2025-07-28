@@ -71,10 +71,11 @@ fetch('/get_ultimas_leituras/energ', {
     console.log(dados)
   }
 
-  clientMQTT = mqtt.connect("wss://185.139.1.249:9001", {
+  clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
     username: "douglas",
-    password: "8501"
-    });
+    password: "8501",
+    path: '/mqtt'
+});
 
   clientMQTT.on('connect', () => {
     console.log('Conectado ao broker MQTT');
