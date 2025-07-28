@@ -58,7 +58,7 @@ router.post('/get-dados-do-usuario/res', async (req, res) => {
 });
 //-------------------------- hidrometros -------------------------------------------------------------
 router.post('/get_leituras/hidro', async (req,res)=>{
-  const dados = req.body.info
+  const dados = req.body
   console.log(req.body)
   console.log(dados)
   if(dados != null){
@@ -69,6 +69,8 @@ router.post('/get_leituras/hidro', async (req,res)=>{
 
 router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
+  const dados = req.body
+  console.log(req.body)
   const { startDate, endDate } = info.datas;
     try {
         const retorno = await model_Hidro.getRelatorio(info.url,startDate,endDate,info.hidrometros)
