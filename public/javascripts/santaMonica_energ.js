@@ -305,7 +305,7 @@ async function drawChartConsumo(dados,id,local) {
       title: 'data', 
       format: 'dd-MM-yy', // Formato da data no eixo horizontal
       titleTextStyle: {color: '#333'}},
-    vAxis: {title: 'leitura (em m3)'},
+    vAxis: {title: 'leitura (em kWh)'},
     series: {
         0: {lineWidth: 2} // largura da linha
       },
