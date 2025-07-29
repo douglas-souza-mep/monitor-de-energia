@@ -11,12 +11,12 @@ var hidrometros = [];
 
 $('#hidrometros').on('change', () => {
     hidrometro = $('#hidrometros option:selected').val()
-    console.log(hidrometro)
+    //console.log(hidrometro)
     obterLeituras(url,hidrometro)
 })
 
 function iciniarPagina() {
-    console.log("iniciartela" )
+    
     fetch('/get-dados-do-usuario', {
         method: 'POST',
         headers: {
@@ -26,7 +26,7 @@ function iciniarPagina() {
     })
     .then(response => response.json())
     .then(async dados =>  {
-        console.log(dados)
+        //console.log(dados)
         let text = dados.hidrometros.split(";")
         await criarSelect(text,select)
         for (let i = 0; i < text.length; i+=2) {
@@ -52,8 +52,8 @@ document.getElementById('relatorio').addEventListener('click', obterRelatorio);
 
 
 function obterLeituras(url,hidrometro) {
-    console.log("pedir dados")
-    console.log(hidrometro)
+    //console.log("pedir dados")
+    //console.log(hidrometro)
     fetch('/get_leituras/hidro', {
         method: 'POST',
         headers: {
@@ -120,10 +120,10 @@ function obterRelatorio(event) {
                     dados.consumo.valor,
                     dados.consumo.startDate,
                     dados.consumo.startTime,
-                    dados.consumo.start.valor,
+                    dados.consumo.startValor,
                     dados.consumo.endDate,
                     dados.consumo.endTime,
-                    dados.consumo.end.valor
+                    dados.consumo.endValor
                 ];
                 csvContent += linha.join(';') + '\n';
             });
@@ -132,7 +132,7 @@ function obterRelatorio(event) {
             const link = document.createElement('a');
             const blob = new Blob([csvContent], { type: 'text/csv' });
             link.href = URL.createObjectURL(blob);
-            link.download = `Consumo_de_Agua_Santa_Monica.csv`; // Nome do arquivo CSV
+            link.download = `Consumo_de_Agua_${url}.csv`; // Nome do arquivo CSV
             
             resultDiv.innerHTML = `<p style="color: blue;">iniciando dowload</p>`;
             link.click(); 
@@ -163,7 +163,6 @@ function calcularConsumo(event) {
     .then(response => response.json())
     .then(dados =>{
         const resultDiv = document.getElementById('result');
-        console.log(dados)
         if (dados.error) {
             resultDiv.innerHTML = `<p style="color: red;">${dados.error}</p>`;
         } else {
@@ -183,7 +182,6 @@ function calcularConsumo(event) {
 
 async function drawChart(dados) {
     var grafico = []
-    //console.log(dados)
     if (Array.isArray(dados)) {
         dados.forEach(element => {
             grafico.push([new Date(element.data), element.leitura/1000]);
@@ -191,14 +189,12 @@ async function drawChart(dados) {
     } else {
         console.error('Dados fornecidos não são um array.');
     }
-    //console.log(grafico)
 
     // Cria a tabela de dados.
     var data = new google.visualization.DataTable();
     data.addColumn('date', 'Data');
     data.addColumn('number', 'Leitura');
     data.addRows(grafico);
-   // console.log(dados.semestral)
     // Set chart options
     var options = {
         title:'Leituras: ' + dados[0].local+" ("+dados[0].id+")",
@@ -248,7 +244,7 @@ async function drawChart(dados) {
 
 async function drawChartConsumo(dados,id,local) {
     let grafico = []
-    console.log(dados)
+    
     await dados.forEach(element => {
         grafico.push([new Date(element[0]), element[1]/1000]);
       });
@@ -257,7 +253,7 @@ async function drawChartConsumo(dados,id,local) {
     data.addColumn('date', 'Data');
     data.addColumn('number', 'Leitura');
     data.addRows(grafico);
-   // console.log(dados.semestral)
+   
  
     // Set chart options
     var options = {

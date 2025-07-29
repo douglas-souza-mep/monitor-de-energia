@@ -30,7 +30,7 @@ function iciniarPagina() {
     })
     .then(response => response.json())
     .then(async dados =>  {
-        console.log(dados)
+        //console.log(dados)
         let text = dados.hidrometros.split(";")
         await criarSelect(text,select)
         for (let i = 0; i < text.length; i+=2) {
@@ -185,10 +185,10 @@ function obterRelatorio(event) {
                     dados.consumo.valor,
                     dados.consumo.startDate,
                     dados.consumo.startTime,
-                    dados.consumo.start.valor,
+                    dados.consumo.startValor,
                     dados.consumo.endDate,
                     dados.consumo.endTime,
-                    dados.consumo.end.valor
+                    dados.consumo.endValor
                 ];
                 csvContent += linha.join(';') + '\n';
             });
@@ -313,7 +313,7 @@ async function drawChart(dados) {
 
 async function drawChartConsumo(dados,id,local) {
     let grafico = []
-    console.log(dados)
+    //console.log(dados)
     await dados.forEach(element => {
         grafico.push([new Date(element[0]), element[1]/1000]);
       });
