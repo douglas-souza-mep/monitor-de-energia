@@ -158,7 +158,7 @@ async function leituraHidro(data,msg,url,client,setPoit) {
     let dados ={
         id:leitura.id,
         data: data,
-        leitura: leitura.consumo+setPoit
+        leitura: parseInt(parseFloat(leitura.consumo)+setPoit)
         }
     console.log(dados);
         retorno = await model_Hidro.addLeitura(url,dados)
