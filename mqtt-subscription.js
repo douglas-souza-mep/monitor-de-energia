@@ -92,7 +92,7 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"HospitalBase",client)
         break;
         case 'HospitalBase/hidro':
-            leituraHidro(data,msg,"HospitalBase",client)
+            leituraHidro(data,msg,"HospitalBase",client,273700)
             //console.log(msg)
         break;
         default:
@@ -154,11 +154,13 @@ async function leituraEnerg(data,msg,url,client) {
 
 async function leituraHidro(data,msg,url,client,setPoit) {
     let leitura = JSON.parse(msg);
+    console.log(leitura)
     let dados ={
         id:leitura.id,
         data: data,
-        leitura: leitura.consumo+273700
+        leitura: leitura.consumo+setPoit
         }
+    console.log(dados);
         retorno = await model_Hidro.addLeitura(url,dados)
 }
 module.exports = { subscribeToMqttTopics };
