@@ -154,13 +154,20 @@ async function leituraEnerg(data,msg,url,client) {
 
 async function leituraHidro(data,msg,url,client,setPoit) {
     let leitura = JSON.parse(msg);
-    console.log(leitura)
+    //console.log(leitura)
     let dados ={
         id:leitura.id,
         data: data,
         leitura: parseInt(parseFloat(leitura.consumo)+setPoit)
         }
+    retorno = await model_Hidro.addLeitura(url,dados)
+    dados.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss');
     console.log(dados);
-        retorno = await model_Hidro.addLeitura(url,dados)
+    const mensagem = JSON.stringify(dados);
+    client.publish(`${url}/atualizarTela/hidro`, mensagem, (err) => {
+        if (err) {
+            console.error('Erro ao publicar mensagem:', err);
+        }
+    })
 }
 module.exports = { subscribeToMqttTopics };

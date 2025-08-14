@@ -3,7 +3,7 @@ google.charts.load('current', {'packages':['corechart']});
 const loadingPopup = document.getElementById('loadingPopup');
 google.charts.setOnLoadCallback(iciniarPagina);
 const url = "HospitalBase"
-
+var clientMQTT
 
 const select = document.getElementById('hidrometros');
 var hidrometro = $('#hidrometros option:selected').val()
@@ -16,6 +16,45 @@ $('#hidrometros').on('change', () => {
 })
 
 function iciniarPagina() {
+
+    clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
+    username: "douglas",
+    password: "8501",
+    path: '/mqtt'
+});
+
+clientMQTT.on('connect', () => {
+    console.log('Conectado ao broker MQTT');
+    // Lista de tópicos para subscrever
+    const topics = [
+    `${url}/atualizarTela/hidro`
+    ];
+    // Subscrição em múltiplos tópicos
+    clientMQTT.subscribe(topics, (err) => {
+        if (err) {
+            console.error('Erro ao subscrever aos tópicos', err);
+        } else {
+            console.log('Subscrito aos tópicos:', topics.join(', '));
+        }
+    });
+});
+
+clientMQTT.on('message', (topic, message) => {
+    switch (topic) {
+        case `${url}/atualizarTela/hidro`:
+        // Desserializar a mensagem JSON para objeto
+            const leitura = JSON.parse(message.toString());
+            console.log('Nova leitura:', leitura);
+            atualizar_leitura(leitura)
+        break;
+        default:
+        console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
+    }
+});
+
+    clientMQTT.on('error', (err) => {
+        console.error('Erro de conexão MQTT', err);
+    });
     
     fetch('/get-dados-do-usuario', {
         method: 'POST',
@@ -50,6 +89,12 @@ function iciniarPagina() {
 document.getElementById('calcular').addEventListener('click', calcularConsumo);
 document.getElementById('relatorio').addEventListener('click', obterRelatorio); 
 
+
+
+async function atualizar_leitura(dados) {
+    $('#data').text(dados.data)
+    $('#leitura').text(dados.leitura/1000)
+}
 
 function obterLeituras(url,hidrometro) {
     //console.log("pedir dados")

@@ -357,8 +357,6 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
         console.log(error)
         return({error: error})
     }
-    //const consumo = consumosDiario.map(item => item.valor).reduce((total, valor) => total + valor, 0).toFixed(3)
-    
 }
 
 
