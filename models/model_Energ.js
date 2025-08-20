@@ -359,10 +359,80 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
     }
 }
 
+async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) {
+    console.log("Iniciando relatório OTIMIZADO");
+    try {
+        // 1. Mapeia os IDs dos dispositivos para usar na cláusula 'IN' do SQL.
+        const medidorIds = dispositivos.map(d => d.id);
+        if (medidorIds.length === 0) {
+            return []; // Retorna vazio se não houver dispositivos
+        }
+
+        // 2. Constrói uma única consulta para buscar os valores iniciais de TODOS os medidores.
+        // Esta query complexa usa UNION ALL para combinar os resultados das buscas para cada medidor.
+        const subqueriesIniciais = medidorIds.map(id => `
+            (SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)
+        `);
+        const sqlInicial = subqueriesIniciais.join(' UNION ALL ');
+        
+        // 3. Constrói uma única consulta para buscar os valores finais de TODOS os medidores.
+        const subqueriesFinais = medidorIds.map(id => `
+            (SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)
+        `);
+        const sqlFinal = subqueriesFinais.join(' UNION ALL ');
+
+        // 4. Executa as duas consultas principais em paralelo.
+        const [[valoresIniciais], [valoresFinais]] = await Promise.all([
+            db.query(sqlInicial),
+            db.query(sqlFinal)
+        ]);
+
+        // 5. Mapeia os resultados para um acesso mais rápido (lookup table).
+        const mapaValoresIniciais = new Map(valoresIniciais.map(item => [item.medidor_id, item]));
+        const mapaValoresFinais = new Map(valoresFinais.map(item => [item.medidor_id, item]));
+
+        // 6. Processa os resultados em memória para construir o relatório final.
+        const medidores = dispositivos.map(dispositivo => {
+            const consumoInicial = mapaValoresIniciais.get(dispositivo.id);
+            const consumoFinal = mapaValoresFinais.get(dispositivo.id);
+
+            // Lida com casos onde não há dados para um medidor
+            if (!consumoInicial || !consumoFinal) {
+                return {
+                    id: dispositivo.id,
+                    nome: dispositivo.local,
+                    consumo: { error: "Dados insuficientes para calcular o consumo." }
+                };
+            }
+
+            return {
+                consumo: {
+                    startDate: moment(consumoInicial.data).format('DD-MM-YYYY'),
+                    endDate: moment(consumoFinal.data).format('DD-MM-YYYY'),
+                    valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                    endValor: parseFloat(consumoFinal.ept).toFixed(2),
+                    startValor: parseFloat(consumoInicial.ept).toFixed(2)
+                },
+                id: dispositivo.id,
+                nome: dispositivo.local
+            };
+        });
+
+        console.log("Dados do relatório otimizado enviados");
+        return medidores;
+
+    } catch (error) {
+        console.error("Erro ao gerar relatório otimizado:", error);
+        return { error: error.message };
+    }
+}
+
+
 
 module.exports = {
     atualizarDados,
     getDataStart,
     getConsumo,
-    getRelatorio
+    getRelatorio,
+    getRelatorioOtimizado
 }

@@ -200,11 +200,11 @@ router.post('/get_consumo/energ', async (req, res) => {
 
 router.post('/get_relatorio_geral/energ', async (req, res) => {
   const {info} = req.body; 
-  console.log(info)
+  //console.log(info)
   const { startDate, endDate } = info.datas;
     try {
-        const retorno = await model_Energ.getRelatorio(info.url,startDate,endDate,info.medidores)
-        console.log(retorno)
+        const retorno = await model_Energ.getRelatorioOtimizado(info.url,startDate,endDate,info.medidores)
+        //console.log(retorno)
         if(retorno.error){
           res.json({ error: 'Falha ao obter os dados'});
         }else{
