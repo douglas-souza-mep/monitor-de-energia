@@ -153,6 +153,7 @@ try{
   bot.launch()
   console.log('Bot está rodando...');
   f.sendAlerta("Servidor Mep iniciado",[process.env.CHAT_ID_DEV])
+  console.log('menssagem inicial enviada');
 }catch(err){
   console.error('Erro ao iniciar o bot:', err);
 };
