@@ -149,19 +149,33 @@ server.on('listening', onListening);
 const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
 
 // Inicia o bot
+// CÓDIGO RECOMENDADO E MAIS ROBUSTO
+console.log('Iniciando o bot do Telegram...');
+
 bot.launch().then(() => {
-  console.log('Bot está rodando...');
-  // Agora que o bot foi iniciado com sucesso, envie a mensagem.
-  // Usamos a própria instância do bot para ser mais direto.
-  bot.telegram.sendMessage(process.env.CHAT_ID_DEV, 'Servidor Mep iniciado com sucesso!')
-    .then(() => {
-      console.log('Mensagem inicial enviada para o CHAT_ID_DEV.');
-    })
-    .catch(err => {
-      console.error('Erro ao enviar a mensagem inicial:', err);
-    });
+    console.log('Bot do Telegram iniciado com sucesso e está rodando.');
+    
+    // Agora que o bot está online, vamos enviar a mensagem de alerta.
+    // Substituí f.sendAlerta para usar o método nativo do bot, que é mais confiável aqui.
+    const chatId = process.env.CHAT_ID_DEV;
+    if (chatId) {
+        bot.telegram.sendMessage(chatId, 'Servidor Mep reiniciado e online.')
+            .then(() => {
+                console.log(`Mensagem de inicialização enviada para o chat ID: ${chatId}`);
+            })
+            .catch(err => {
+                // Este erro acontece se o bot foi iniciado, mas não conseguiu enviar a mensagem
+                console.error('ERRO AO ENVIAR MENSAGEM INICIAL:', err);
+            });
+    } else {
+        console.warn('A variável de ambiente CHAT_ID_DEV não está definida. Nenhuma mensagem de alerta foi enviada.');
+    }
+
 }).catch(err => {
-  console.error('Erro fatal ao iniciar o bot:', err);
+    // Este erro acontece se o bot.launch() falhar. É o erro mais crítico.
+    console.error('ERRO FATAL AO INICIAR O BOT DO TELEGRAM:', err);
+    // Opcional: encerrar o processo se o bot for essencial
+    // process.exit(1); 
 });
 
 // Mensagem inicial quando o bot é iniciado
