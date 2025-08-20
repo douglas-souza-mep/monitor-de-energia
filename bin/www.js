@@ -149,14 +149,20 @@ server.on('listening', onListening);
 const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
 
 // Inicia o bot
-try{
-  bot.launch()
+bot.launch().then(() => {
   console.log('Bot está rodando...');
-  f.sendAlerta("Servidor Mep iniciado",[process.env.CHAT_ID_DEV])
-  console.log('menssagem inicial enviada');
-}catch(err){
-  console.error('Erro ao iniciar o bot:', err);
-};
+  // Agora que o bot foi iniciado com sucesso, envie a mensagem.
+  // Usamos a própria instância do bot para ser mais direto.
+  bot.telegram.sendMessage(process.env.CHAT_ID_DEV, 'Servidor Mep iniciado com sucesso!')
+    .then(() => {
+      console.log('Mensagem inicial enviada para o CHAT_ID_DEV.');
+    })
+    .catch(err => {
+      console.error('Erro ao enviar a mensagem inicial:', err);
+    });
+}).catch(err => {
+  console.error('Erro fatal ao iniciar o bot:', err);
+});
 
 // Mensagem inicial quando o bot é iniciado
 bot.start((ctx) => {
