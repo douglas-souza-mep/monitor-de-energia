@@ -145,69 +145,58 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 
-// Substitua pelo token real do seu bot
+// 1. Instancia o bot
 const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
 
-// Inicia o bot
-// CÓDIGO RECOMENDADO E MAIS ROBUSTO
-console.log('Iniciando o bot do Telegram...');
+// 2. Envia a mensagem de inicialização imediatamente.
+//    O bot já pode enviar mensagens mesmo antes do 'launch'.
+const chatId = process.env.CHAT_ID_DEV;
+if (chatId) {
+    bot.telegram.sendMessage(chatId, 'Servidor Mep reiniciado e online.')
+        .then(() => {
+            console.log(`Mensagem de inicialização enviada para o chat ID: ${chatId}`);
+        })
+        .catch(err => {
+            console.error('ERRO AO ENVIAR MENSAGEM INICIAL:', err);
+        });
+} else {
+    console.warn('A variável de ambiente CHAT_ID_DEV não está definida. Nenhuma mensagem de alerta foi enviada.');
+}
 
-bot.launch().then(() => {
-    console.log('Bot do Telegram iniciado com sucesso e está rodando.');
-    
-    // Agora que o bot está online, vamos enviar a mensagem de alerta.
-    // Substituí f.sendAlerta para usar o método nativo do bot, que é mais confiável aqui.
-    const chatId = process.env.CHAT_ID_DEV;
-    if (chatId) {
-        bot.telegram.sendMessage(chatId, 'Servidor Mep reiniciado e online.')
-            .then(() => {
-                console.log(`Mensagem de inicialização enviada para o chat ID: ${chatId}`);
-            })
-            .catch(err => {
-                // Este erro acontece se o bot foi iniciado, mas não conseguiu enviar a mensagem
-                console.error('ERRO AO ENVIAR MENSAGEM INICIAL:', err);
-            });
-    } else {
-        console.warn('A variável de ambiente CHAT_ID_DEV não está definida. Nenhuma mensagem de alerta foi enviada.');
-    }
-
-}).catch(err => {
-    // Este erro acontece se o bot.launch() falhar. É o erro mais crítico.
-    console.error('ERRO FATAL AO INICIAR O BOT DO TELEGRAM:', err);
-    // Opcional: encerrar o processo se o bot for essencial
-    // process.exit(1); 
-});
-
-// Mensagem inicial quando o bot é iniciado
+// 3. Define os handlers de mensagens (comandos, texto, etc.)
 bot.start((ctx) => {
   ctx.reply('Olá! Por favor, informe seu nome de usuário.');
 });
 
-// Armazena o estado do usuário
 const userStates = {};
-
-// Recebe o nome de usuário e solicita a senha
 bot.on('text', async (ctx) => {
   const chatId = ctx.chat.id;
   const text = ctx.message.text;
 
+  if (text === '/start') return; // Evita que o /start seja processado aqui
+
   if (!userStates[chatId]) {
-      // Armazena o nome de usuário e solicita a senha
       userStates[chatId] = { username: text };
       ctx.reply('Obrigado! Agora, informe sua senha.');
   } else {
-      // Verifica o usuário e senha no banco de dados
-      const result = await logar.logarTelegran(userStates[chatId].username, text,chatId);
+      const result = await logar.logarTelegran(userStates[chatId].username, text, chatId);
       ctx.reply(result.msg);
-      // Limpa o estado após o login
       delete userStates[chatId];
   }
 });
 
+// 4. Inicia o bot para começar a OUVIR por novas mensagens.
+//    Usamos um catch para o caso de a inicialização falhar.
+bot.launch().then(() => {
+    console.log('Bot do Telegram iniciado e ouvindo por mensagens...');
+}).catch(err => {
+    console.error('ERRO FATAL AO INICIAR O LISTENER DO BOT:', err);
+});
 
-// Trate sinais de término para parar o bot corretamente
+// 5. Define como parar o bot
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
 
 //################################ Alertas ###################################
 
