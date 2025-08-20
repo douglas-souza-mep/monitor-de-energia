@@ -348,7 +348,7 @@ async function getRelatorio(usuario,startDate,endDate,disposisitos) {
                 id: medidor,
                 nome: disposisitos[index].local
             }
-        //console.log(dados)
+        console.log(index)
         medidores.push(dados)
         }
         console.log("dados do relatorio enviados ")
