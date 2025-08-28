@@ -6,8 +6,14 @@ require('dotenv').config()
 async function logar(req,res){
     const {user,password} = req.body
     //validation
-    const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
+    try {
+        const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
     //console.log(usuario)
+    } catch (error) {
+        console.log(error)
+        console.log(req.body)
+    }
+    
     if(usuario == undefined){
 
         return {acesso:0 , msg:"⚠️ Usuário não encontrado!"}//res.status(422).json({ msg:"Usuario não encontrado" })
