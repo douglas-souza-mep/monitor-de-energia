@@ -152,23 +152,27 @@ function obterRelatorio(event) {
             resultDiv.innerHTML = `<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixando</p>`;
             //console.log(dados)
             // Definir o cabeçalho do CSV
-            const cabecalho = ['id', 'local', 'Consumo(m3)', 'Data inicial','Hora inicial', 'Leitura Inicial','Data final','Hora final','Leitura Final'];
+            const cabecalho = ['id', 'local', 'Consumo(l)', 'Data inicial','Hora inicial', 'Leitura Inicial(l)','Data final','Hora final','Leitura Final(l)'];
 
             // Inicializar a string do CSV com o cabeçalho
             let csvContent = cabecalho.join(';') + '\n';
             
+            function formatNumber(num) {
+                if (num === null || num === undefined || isNaN(num)) return num;
+                return Number(num).toFixed(2).replace('.', ','); 
+            }
             // Iterar sobre o array de dados e adicionar cada linha ao CSV
             dados.forEach(dados => {
                 const linha = [
                     dados.id,
                     dados.nome,
-                    dados.consumo.valor,
+                    formatNumber(dados.consumo.valor),
                     dados.consumo.startDate,
                     dados.consumo.startTime,
-                    dados.consumo.startValor,
+                    formatNumber(dados.consumo.startValor),
                     dados.consumo.endDate,
                     dados.consumo.endTime,
-                    dados.consumo.endValor
+                    formatNumber(dados.consumo.endValor)
                 ];
                 csvContent += linha.join(';') + '\n';
             });

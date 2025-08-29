@@ -1,58 +1,64 @@
-CREATE TABLE `medidores_de_energia`.`tb_sia_cm_m38` 
-(`data` DATE NOT NULL , `valor` FLOAT NOT NULL , 
-PRIMARY KEY (`data`));
+CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_consumo_mensal` (
+    `data` DATE NOT NULL,
+    `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
+    `valor` FLOAT NOT NULL,
+    PRIMARY KEY (`data`, `id_medidor`) -- Chave primária composta
+) ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_sia_cd_m38` 
-(`data` DATE NOT NULL , `valor` FLOAT NOT NULL , 
-PRIMARY KEY (`data`)) 
-ENGINE = InnoDB;
+CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_consumo_diario` (
+    `data` DATE NOT NULL,
+    `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
+    `valor` FLOAT NOT NULL,
+    PRIMARY KEY (`data`, `id_medidor`) -- Chave primária composta
+) ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_sia_m38` 
-    (`id` INT NOT NULL AUTO_INCREMENT , 
-    `data` DATETIME NOT NULL , 
-    `pa` FLOAT NOT NULL , 
-    `pb` FLOAT NOT NULL ,
-    `pc` FLOAT NOT NULL ,
-    `pt` FLOAT NOT NULL ,
-    `qa` FLOAT NOT NULL ,
-    `qb` FLOAT NOT NULL ,
-    `qc` FLOAT NOT NULL ,
-    `qt` FLOAT NOT NULL ,
-    `sa` FLOAT NOT NULL ,
-    `sb` FLOAT NOT NULL ,
-    `sc` FLOAT NOT NULL ,
-    `st` FLOAT NOT NULL ,
-    `uarms` FLOAT NOT NULL ,
-    `ubrms` FLOAT NOT NULL ,
-    `ucrms` FLOAT NOT NULL ,
-    `iarms` FLOAT NOT NULL ,
-    `ibrms` FLOAT NOT NULL ,
-    `icrms` FLOAT NOT NULL ,
-    `itrms` FLOAT NOT NULL ,
-    `pfa` FLOAT NOT NULL ,
-    `pfb` FLOAT NOT NULL ,
-    `pfc` FLOAT NOT NULL ,
-    `pft` FLOAT NOT NULL ,
-    `pga` FLOAT NOT NULL ,
-    `pgb` FLOAT NOT NULL ,
-    `pgc` FLOAT NOT NULL ,
-    `freq` FLOAT NOT NULL ,
-    `epa` FLOAT NOT NULL ,
-    `epb` FLOAT NOT NULL ,
-    `epc` FLOAT NOT NULL ,
-    `ept` FLOAT NOT NULL ,
-    `eqa` FLOAT NOT NULL ,
-    `eqb` FLOAT NOT NULL ,
-    `eqc` FLOAT NOT NULL ,
-    `eqt` FLOAT NOT NULL ,
-    `yuaub` FLOAT NOT NULL ,
-    `yuauc` FLOAT NOT NULL ,
-    `yubuc` FLOAT NOT NULL ,
-    `tpsd` FLOAT NOT NULL ,
-    
-    PRIMARY KEY (`id`)) 
-    
-    ENGINE = InnoDB;
+
+CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_medidores` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
+    `data` DATETIME NOT NULL,
+    `pa` FLOAT NOT NULL,
+    `pb` FLOAT NOT NULL,
+    `pc` FLOAT NOT NULL,
+    `pt` FLOAT NOT NULL,
+    `qa` FLOAT NOT NULL,
+    `qb` FLOAT NOT NULL,
+    `qc` FLOAT NOT NULL,
+    `qt` FLOAT NOT NULL,
+    `sa` FLOAT NOT NULL,
+    `sb` FLOAT NOT NULL,
+    `sc` FLOAT NOT NULL,
+    `st` FLOAT NOT NULL,
+    `uarms` FLOAT NOT NULL,
+    `ubrms` FLOAT NOT NULL,
+    `ucrms` FLOAT NOT NULL,
+    `iarms` FLOAT NOT NULL,
+    `ibrms` FLOAT NOT NULL,
+    `icrms` FLOAT NOT NULL,
+    `itrms` FLOAT NOT NULL,
+    `pfa` FLOAT NOT NULL,
+    `pfb` FLOAT NOT NULL,
+    `pfc` FLOAT NOT NULL,
+    `pft` FLOAT NOT NULL,
+    `pga` FLOAT NOT NULL,
+    `pgb` FLOAT NOT NULL,
+    `pgc` FLOAT NOT NULL,
+    `freq` FLOAT NOT NULL,
+    `epa` FLOAT NOT NULL,
+    `epb` FLOAT NOT NULL,
+    `epc` FLOAT NOT NULL,
+    `ept` FLOAT NOT NULL,
+    `eqa` FLOAT NOT NULL,
+    `eqb` FLOAT NOT NULL,
+    `eqc` FLOAT NOT NULL,
+    `eqt` FLOAT NOT NULL,
+    `yuaub` FLOAT NOT NULL,
+    `yuauc` FLOAT NOT NULL,
+    `yubuc` FLOAT NOT NULL,
+    `tpsd` FLOAT NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX (`id_medidor`, `data`) -- Índice para otimizar consultas por medidor e data
+) ENGINE = InnoDB;
 
 
 CREATE TABLE `medidores_de_energia`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `usuario` VARCHAR (16) NOT NULL , `senha` VARCHAR (12) NOT NULL, `nome` VARCHAR (25),`url` VARCHAR (20) NOT NULL , `energia` INT NOT NULL , `med_energia` TEXT NOT NULL, `reservatorio` INT NOT NULL , `reservatorios` TEXT NOT NULL ,`hidrometro` INT NOT NULL , `hidrometros` TEXT NOT NULL, `chatID` TEXT NULL, PRIMARY KEY (`id`, `usuario`)) ENGINE = InnoDB;

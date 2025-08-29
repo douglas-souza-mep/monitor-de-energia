@@ -103,7 +103,9 @@ function iniciarPagina() {
           // Desserializar a mensagem JSON para objeto
           const leitura = JSON.parse(message.toString());
           console.log('Nova leitura:', leitura);
-          atualizar(leitura)
+          if(leitura.id == medidor){
+            atualizar(leitura)
+          }
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${message}`);

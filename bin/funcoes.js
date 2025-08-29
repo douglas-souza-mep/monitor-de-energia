@@ -69,12 +69,17 @@ function traduzMes(str){
 
 
 function sendAlerta(msg, usuarios) {
-  const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
+  try {
+    const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
   if(usuarios!== undefined){
     usuarios.forEach(element => {
       bot.telegram.sendMessage(element,msg)
     });
   }
+  } catch (error) {
+    console.log(error)
+  }
+  
 }
 
 // Função assíncrona para gerar a lista de dispositivos
@@ -144,7 +149,9 @@ async function tarefaPeriodica() {
 
                   // Envia o alerta
                   console.log(msg)
-                  sendAlerta(msg, retorno.chatID);//[process.env.CHAT_ID_DEV]);
+                  console.log(retorno)
+                  await sendAlerta(msg, retorno.chatID);//[process.env.CHAT_ID_DEV]);
+                  console.log("menssagem enviada")
               } catch (alertError) {
                   console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
               }

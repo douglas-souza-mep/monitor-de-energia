@@ -18,7 +18,7 @@ function subscribeToMqttTopics() {
 
         // Lista de tópicos para subscrever
         const topics = [
-            'test/res',
+            //'test/res',
             'santaMonica/energ',
             'connect/res',
             'taguaLife/res',
@@ -92,7 +92,7 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"HospitalBase",client)
         break;
         case 'HospitalBase/hidro':
-            leituraHidro(data,msg,"HospitalBase",client,273700)
+            leituraHidro(data,msg,"HospitalBase",client,223700)
             //console.log(msg)
         break;
         default:

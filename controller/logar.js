@@ -43,7 +43,7 @@ async function logarTelegran(username, password,chatId) {
             //console.log(user[0].chatId)
             if(user[0].chatID!==null){
                 const chatIDS = await user[0].chatID.split(";")
-                //console.log(chatIDS)
+                console.log(chatIDS)
                 await chatIDS.forEach(element => {
                     if(element == chatId){
                         return {msg:'Usuario ja cadastrado.'};

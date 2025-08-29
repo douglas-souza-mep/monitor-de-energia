@@ -142,9 +142,9 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
             }
 
             // Converte os valores (divide por 1000)
-            const consumoCalculado = (consumoFinalBruto - consumoInicialBruto) / 1000;
-            const consumoFinalConvertido = consumoFinalBruto / 1000;
-            const consumoInicialConvertido = consumoInicialBruto / 1000;
+            const consumoCalculado = (consumoFinalBruto - consumoInicialBruto);
+            const consumoFinalConvertido = consumoFinalBruto;
+            const consumoInicialConvertido = consumoInicialBruto;
 
             // Retorna o objeto final formatado
             return {
