@@ -6,13 +6,17 @@ const moment = require('moment');
 // Para este exemplo, vamos simular com uma função simples.
 const isNewStructureCondominium = async (usuario) => {
     //console.log(usuario)
+    /*  
     switch (usuario) {
-        case 'golgi':
-            return true; 
+        case 'santaMonica':
+            return true;
+        case 'HospitalBase':
+            return true;  
     
         default:
             return false;
-    } 
+    }*/ 
+    return false;
 };
 
 function getTableName(condominio, medidorId, tipoTabela, isNewStructure) {

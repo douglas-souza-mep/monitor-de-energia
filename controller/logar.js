@@ -8,29 +8,29 @@ async function logar(req,res){
     //validation
     try {
         const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
-    //console.log(usuario)
+        console.log(usuario)
+        if(usuario == undefined){
+
+            return {acesso:0 , msg:"⚠️ Usuário não encontrado!"}//res.status(422).json({ msg:"Usuario não encontrado" })
+        }
+
+        if(usuario.senha == password){
+            /*
+            const token = await jwt.sign({
+                user: usuario.id,
+            },process.env.CHAVE_TOKEN,{expiresIn: '2m'})
+            console.log('Token: '+token)
+            res.cookie('Token',token)*/
+            return {acesso:1, url: '/users/'+usuario.url}//res.redirect('/users/'+ usuario.url)
+        }
+        else{
+            return {acesso:0, msg: "❌ Senha incorreta!"} //res.status(422).json({ msg:"Senha invalida" })
+        }
     } catch (error) {
         console.log(error)
         console.log(req.body)
     }
     
-    if(usuario == undefined){
-
-        return {acesso:0 , msg:"⚠️ Usuário não encontrado!"}//res.status(422).json({ msg:"Usuario não encontrado" })
-    }
-
-    if(usuario.senha == password){
-        /*
-        const token = await jwt.sign({
-            user: usuario.id,
-        },process.env.CHAVE_TOKEN,{expiresIn: '2m'})
-        console.log('Token: '+token)
-        res.cookie('Token',token)*/
-        return {acesso:1, url: '/users/'+usuario.url}//res.redirect('/users/'+ usuario.url)
-    }
-    else{
-        return {acesso:0, msg: "❌ Senha incorreta!"} //res.status(422).json({ msg:"Senha invalida" })
-    }
 }
 
 async function logarTelegran(username, password,chatId) {
