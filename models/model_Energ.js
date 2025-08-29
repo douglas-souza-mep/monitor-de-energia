@@ -118,7 +118,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
             }
             
         } else {
-            if (leituraAtual.ept_g==NULL||leituraAtual.ept_g==undefined) {
+            if (leituraAtual.ept_g==undefined) {
                 await db.query(sqlInsertDados, [
                     d, leituraAtual.pa, leituraAtual.pb, leituraAtual.pc, leituraAtual.pt, leituraAtual.qa, leituraAtual.qb, leituraAtual.qc, leituraAtual.qt, leituraAtual.sa, leituraAtual.sb, leituraAtual.sc, leituraAtual.st, leituraAtual.uarms, leituraAtual.ubrms, leituraAtual.ucrms, leituraAtual.iarms, leituraAtual.ibrms, leituraAtual.icrms, leituraAtual.itrms,
                     leituraAtual.pfa, leituraAtual.pfb, leituraAtual.pfc, leituraAtual.pft, leituraAtual.pga, leituraAtual.pgb, leituraAtual.pgc, leituraAtual.freq, leituraAtual.epa, leituraAtual.epb, leituraAtual.epc, leituraAtual.ept, leituraAtual.eqa, leituraAtual.eqb, leituraAtual.eqc, leituraAtual.eqt, leituraAtual.yuaub, leituraAtual.yuauc, leituraAtual.yubuc, leituraAtual.tpsd
