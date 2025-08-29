@@ -7,10 +7,8 @@ const moment = require('moment');
 const isNewStructureCondominium = async (usuario) => {
     //console.log(usuario)
     switch (usuario) {
-        case 'santaMonica':
-            return true;
-        case 'HospitalBase':
-            return true;  
+        case 'golgi':
+            return true; 
     
         default:
             return false;
