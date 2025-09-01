@@ -312,7 +312,9 @@ const getDataStart = async (medidor, usuario) => {
     } else {
         [[ultimaLeitura]] = await db.query(sqlSelectUltimaLeitura);
     }
-
+    console.log(sqlSelectUltimaLeitura)
+    console.log(medidor)
+    console.log(ultimaLeitura)
     try {
         var consumo;
         if (useNewStructure) {
@@ -333,6 +335,9 @@ const getDataStart = async (medidor, usuario) => {
     } else {
         [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual]);
     }
+    console.log(sqlSelectConsumoMes)
+    console.log(consumoMensal)
+    
     if (consumoMensal == undefined) { consumoMensal = 0; }
 
     var d = new Date();
@@ -361,6 +366,8 @@ const getDataStart = async (medidor, usuario) => {
         [consumosMensais] = await db.query(sqlSelectCMensais);
         [cd] = await db.query(sqlSelectCDadosDia, [moment(data).format('YYYY-MM-DD')]);
     }
+    console.log(consumoMensal)
+    console.log(consumo)
     console.log(consumoMensal)
     var consumos = {
         consumo: consumo.valor.toFixed(2),
