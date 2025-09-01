@@ -3,7 +3,7 @@ const moment = require('moment')
 
 const getLeituras = async (cliente,medidor)=>{
     let leitura
-    const sql = "SELECT id,local,data,leitura FROM tb_"+cliente+"_hidrometros WHERE id = ? ORDER BY data LIMIT 9000"
+    const sql = "SELECT id,local,data,leitura FROM tb_"+cliente+"_hidrometros WHERE id = ? ORDER BY data DESC LIMIT 9000"
     try {
         [leitura] = await db.query(sql,medidor)
         //console.log(leitura)
