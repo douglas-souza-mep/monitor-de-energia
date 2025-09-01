@@ -330,14 +330,21 @@ const getDataStart = async (medidor, usuario) => {
     const periodo = _.instervaloDoMes(parseInt(moment().format('MM')), parseInt(moment().format('YYYY')));
     const mesAtual = periodo.final;
     var consumoMensal;
-    if (useNewStructure) {
-        [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual, medidor]);
-    } else {
-        [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual]);
+   
+    console.log(mesAtual)
+    try {
+        if (useNewStructure) {
+            [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual, medidor]);
+        } else {
+            [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual]);
+        }
+    } catch (error) {
+        console.log(erro);
     }
+ 
     console.log(sqlSelectConsumoMes)
     console.log(consumoMensal)
-    
+
     if (consumoMensal == undefined) { consumoMensal = 0; }
 
     var d = new Date();
