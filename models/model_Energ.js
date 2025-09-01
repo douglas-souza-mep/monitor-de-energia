@@ -329,7 +329,7 @@ const getDataStart = async (medidor, usuario) => {
     const mesAtual = periodo.final;
     var consumoMensal;
    
-    console.log(mesAtual)
+    console.log(periodo)
     try {
         if (useNewStructure) {
             [[consumoMensal]] = await db.query(sqlSelectConsumoMes, [mesAtual, medidor]);
@@ -375,8 +375,8 @@ const getDataStart = async (medidor, usuario) => {
     console.log(consumo)
     console.log(consumoMensal)
     var consumos = {
-        consumo: consumo.valor.toFixed(2),
-        consumoMensal: consumoMensal.valor.toFixed(2),
+        consumo: parseFloat(consumo.valor).toFixed(2),
+        consumoMensal: parseFloat(consumoMensal.valor).toFixed(2),
         consumoDiaAnterior: cda ? cda.valor.toFixed(2) : 0,
         consumoMesAnterior: cma ? cma.valor.toFixed(2) : 0
     };
