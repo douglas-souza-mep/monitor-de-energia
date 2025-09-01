@@ -361,7 +361,7 @@ const getDataStart = async (medidor, usuario) => {
         [consumosMensais] = await db.query(sqlSelectCMensais);
         [cd] = await db.query(sqlSelectCDadosDia, [moment(data).format('YYYY-MM-DD')]);
     }
-
+    console.log(consumoMensal)
     var consumos = {
         consumo: consumo.valor.toFixed(2),
         consumoMensal: consumoMensal.valor.toFixed(2),
