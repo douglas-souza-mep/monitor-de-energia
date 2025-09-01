@@ -111,6 +111,8 @@ function obterLeituras(url,hidrometro) {
         //console.log(dados)
         try {
             if(dados[0].id == hidrometro){
+                $('#data').text(dados.data)
+                $('#leitura').text(dados.leitura/1000)
                 drawChart(dados)
             }  
         } catch (error) {
@@ -156,7 +158,7 @@ function obterRelatorio(event) {
 
             // Inicializar a string do CSV com o cabeçalho
             let csvContent = cabecalho.join(';') + '\n';
-            
+
             function formatNumber(num) {
                 if (num === null || num === undefined || isNaN(num)) return num;
                 return Number(num).toFixed(2).replace('.', ','); 
