@@ -312,9 +312,7 @@ const getDataStart = async (medidor, usuario) => {
     } else {
         [[ultimaLeitura]] = await db.query(sqlSelectUltimaLeitura);
     }
-    console.log(sqlSelectUltimaLeitura)
-    console.log(medidor)
-    console.log(ultimaLeitura)
+    
     try {
         var consumo;
         if (useNewStructure) {
@@ -327,7 +325,7 @@ const getDataStart = async (medidor, usuario) => {
         var consumo = { data: moment(ultimaLeitura.data).format('YYYY-MM-DD'), valor: 0 };
     }
 
-    const periodo = _.instervaloDoMes(parseInt(moment().format('MM')), parseInt(moment().format('YYYY')));
+    const periodo = _.instervaloDoMes(parseInt(moment(ultimaLeitura.data).format('MM')), parseInt(moment(ultimaLeitura.data).format('YYYY')));
     const mesAtual = periodo.final;
     var consumoMensal;
    
