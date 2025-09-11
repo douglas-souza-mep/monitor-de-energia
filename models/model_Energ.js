@@ -482,9 +482,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             const consumoInicial = mapaValoresIniciais.get(medidor.id);
             const consumoFinal = mapaValoresFinais.get(medidor.id);
             
-            console.log(medidor.id)
-            console.log(consumoInicial)
-            console.log(consumoFinal)
+            
 
             let consumosDiario = [];
             if (useNewStructure) {
@@ -499,14 +497,19 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                     consumo: {
                         startDate: moment(consumoInicial.data).format('DD-MM-YYYY'),
                         endDate: moment(consumoFinal.data).format('DD-MM-YYYY'),
-                        valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).valor(2)),
+                        valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
                         endValor: parseFloat(consumoFinal.ept).toFixed(2),
                         startValor: parseFloat(consumoInicial.ept).toFixed(2)
                     },
                     consumosDiario: consumosDiario,
-                    NovoConsumo: consumosDiario.reduce((acumulador, item) => acumulador + item.preco, 0),
+                    NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
                     id: medidor.id,
                 });
+                console.log(medidor.id)
+                console.log(consumoInicial)
+                console.log(consumoFinal)
+                console.log(parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)))
+                console.log(parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2))
             }
         }
         return resultadosRelatorio;
