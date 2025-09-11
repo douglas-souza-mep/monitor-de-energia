@@ -438,6 +438,8 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
 
 async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) {
     console.log("Iniciando relatório OTIMIZADO");
+    console.log(moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss'))
+    console.log(moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss'))
     const useNewStructure = await isNewStructureCondominium(usuario);
 
     try {
@@ -454,7 +456,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
 
             const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
             sqlInicial = subqueriesIniciais.join(" UNION ALL ");
-
+            
             const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
             sqlFinal = subqueriesFinais.join(" UNION ALL ");
 
