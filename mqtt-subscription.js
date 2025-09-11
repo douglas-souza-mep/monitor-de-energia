@@ -162,7 +162,7 @@ async function leituraHidro(data,msg,url,client,setPoit) {
         }
     retorno = await model_Hidro.addLeitura(url,dados)
     dados.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss');
-    console.log(dados);
+    //console.log(dados);
     const mensagem = JSON.stringify(dados);
     client.publish(`${url}/atualizarTela/hidro`, mensagem, (err) => {
         if (err) {

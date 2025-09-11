@@ -452,16 +452,16 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             const tableNameDados = getTableName(usuario, null, "dados", true);
             const tableNameCD = getTableName(usuario, null, "consumo_diario", true);
 
-            const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data <= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
             sqlInicial = subqueriesIniciais.join(" UNION ALL ");
 
-            const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data <= '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
             sqlFinal = subqueriesFinais.join(" UNION ALL ");
 
             sqlConsumosDiario = `SELECT data, id_medidor, valor FROM ${tableNameCD} WHERE id_medidor IN (?) AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
 
         } else {
-            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
             sqlInicial = subqueriesIniciais.join(" UNION ALL ");
 
             const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
@@ -495,11 +495,12 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                     consumo: {
                         startDate: moment(consumoInicial.data).format('DD-MM-YYYY'),
                         endDate: moment(consumoFinal.data).format('DD-MM-YYYY'),
-                        valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                        valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).valor(2)),
                         endValor: parseFloat(consumoFinal.ept).toFixed(2),
                         startValor: parseFloat(consumoInicial.ept).toFixed(2)
                     },
                     consumosDiario: consumosDiario,
+                    NovoConsumo: consumosDiario.reduce((acumulador, item) => acumulador + item.preco, 0),
                     id: medidor.id,
                 });
             }
