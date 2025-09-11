@@ -74,18 +74,39 @@ function traduzMes(str){
 }
 
 
-function sendAlerta(msg, usuarios) {
-  try {
-    if(usuarios!== undefined){
-      usuarios.forEach(element => {
-        bot.telegram.sendMessage(element,msg)
-      });
+// Função para enviar alertas com retry e captura de erros
+async function sendAlerta(msg, usuarios) {
+  if (!usuarios || usuarios.length === 0) return;
+
+  for (const user of usuarios) {
+    let attempts = 0;
+    while (attempts < 3) {
+      try {
+        await bot.telegram.sendMessage(user, msg);
+        console.log(`Mensagem enviada para ${user}`);
+        break; // sucesso
+      } catch (error) {
+        attempts++;
+        console.error(`Erro ao enviar para ${user}, tentativa ${attempts}:`, error.description || error);
+
+        // Se o erro for 401, reinicia a aplicação via PM2
+        if (error.code === 401) {
+          console.error("Erro 401 detectado. Reiniciando aplicação via PM2...");
+          const { exec } = require('child_process');
+          exec('pm2 restart all', (err, stdout, stderr) => {
+            if (err) console.error("Falha ao reiniciar via PM2:", err);
+            else console.log("Aplicação reiniciada via PM2:", stdout);
+          });
+          return; // sai da função para não continuar enviando
+        }
+
+        // Espera 1 segundo antes de tentar novamente
+        await new Promise(res => setTimeout(res, 1000));
+      }
     }
-  } catch (error) {
-    console.log(error)
   }
-  
 }
+
 
 // Função assíncrona para gerar a lista de dispositivos
 async function gerarListaDeDispositivos() {

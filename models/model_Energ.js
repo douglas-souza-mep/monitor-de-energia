@@ -428,9 +428,10 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
             endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
             valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
             endValor: parseFloat(consumoFinal.ept).toFixed(2),
-            startValor: parseFloat(consumoInicial.ept).toFixed(2)
+            startValor: parseFloat(consumoInicial.ept).toFixed(2),
         },
         consumosDiario: consumosDiario,
+        NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
         id: medidor,
     };
     return dados;
@@ -505,11 +506,6 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                     NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
                     id: medidor.id,
                 });
-                console.log(medidor.id)
-                console.log(consumoInicial)
-                console.log(consumoFinal)
-                console.log(parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)))
-                console.log(parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2))
             }
         }
         return resultadosRelatorio;
