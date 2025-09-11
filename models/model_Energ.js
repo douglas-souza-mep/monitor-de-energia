@@ -1,6 +1,6 @@
 const db = require('./connection');
 const _ = require('../bin/funcoes');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 // Suponha que você tenha uma forma de determinar se um condomínio usa a nova estrutura.
 // Para este exemplo, vamos simular com uma função simples.
@@ -424,8 +424,8 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
 
     const dados = {
         consumo: {
-            startDate: moment.tz(consumoInicial.data,'DD-MM-YYYY',"America/Sao_Paulo"),
-            endDate: moment.tz(consumoFinal.data,'DD-MM-YYYY',"America/Sao_Paulo"),
+            startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+            endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
             valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
             endValor: parseFloat(consumoFinal.ept).toFixed(2),
             startValor: parseFloat(consumoInicial.ept).toFixed(2)
@@ -438,8 +438,6 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
 
 async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) {
     console.log("Iniciando relatório OTIMIZADO");
-    console.log(moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss'))
-    console.log(moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss'))
     const useNewStructure = await isNewStructureCondominium(usuario);
 
     try {
@@ -497,8 +495,8 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             if (consumoInicial && consumoFinal) {
                 resultadosRelatorio.push({
                     consumo: {
-                        startDate: moment.tz(consumoInicial.data,'DD-MM-YYYY',"America/Sao_Paulo"),
-                        endDate: moment.tz(consumoFinal.data,'DD-MM-YYYY',"America/Sao_Paulo"),
+                        startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+                        endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
                         valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
                         endValor: parseFloat(consumoFinal.ept).toFixed(2),
                         startValor: parseFloat(consumoInicial.ept).toFixed(2)
