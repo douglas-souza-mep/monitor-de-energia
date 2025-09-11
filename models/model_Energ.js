@@ -461,10 +461,10 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             sqlConsumosDiario = `SELECT data, id_medidor, valor FROM ${tableNameCD} WHERE id_medidor IN (?) AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
 
         } else {
-            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data >= '${moment(startDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
             sqlInicial = subqueriesIniciais.join(" UNION ALL ");
 
-            const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data <= '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data < '${moment(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
             sqlFinal = subqueriesFinais.join(" UNION ALL ");
         }
 
@@ -481,6 +481,10 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
         for (const medidor of dispositivos) {
             const consumoInicial = mapaValoresIniciais.get(medidor.id);
             const consumoFinal = mapaValoresFinais.get(medidor.id);
+            
+            console.log(medidor.id)
+            console.log(consumoInicial)
+            console.log(consumoFinal)
 
             let consumosDiario = [];
             if (useNewStructure) {
