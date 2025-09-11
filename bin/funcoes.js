@@ -2,6 +2,12 @@ const moment = require('moment')
 const db = require('../models/connection')
 const model_Eneg = require('../models/model_Energ')
 const { Telegraf } = require('telegraf');
+const { exec } = require("child_process");
+
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const CHAT_ID_DEV = process.env.CHAT_ID_DEV;           
+
+const bot = new Telegraf(TELEGRAM_TOKEN);
 
 
 
@@ -70,12 +76,11 @@ function traduzMes(str){
 
 function sendAlerta(msg, usuarios) {
   try {
-    const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
-  if(usuarios!== undefined){
-    usuarios.forEach(element => {
-      bot.telegram.sendMessage(element,msg)
-    });
-  }
+    if(usuarios!== undefined){
+      usuarios.forEach(element => {
+        bot.telegram.sendMessage(element,msg)
+      });
+    }
   } catch (error) {
     console.log(error)
   }
@@ -124,73 +129,100 @@ function adicionarSeNaoExistir(lista, dispositivo) {
   }
 }
 
+
+// helper: aplica timeout
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout ao enviar mensagem")), ms)
+    ),
+  ]);
+}
+
+// watchdog telegram
+async function watchdogTelegram() {
+  try {
+    await withTimeout(
+      bot.telegram.sendMessage(CHAT_ID_DEV, "🔍 Watchdog: teste de conexão"),
+      10000 // 10s
+    );
+    console.log("✅ Telegram OK");
+    return true;
+  } catch (err) {
+    console.error("❌ Falha no Telegram:", err.message);
+    return false;
+  }
+}
+
+function reiniciarApp() {
+  console.log("🔄 Reiniciando aplicação...");
+  exec("pm2 restart app", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Erro ao reiniciar: ${error.message}`);
+      return;
+    }
+    console.log(`STDOUT: ${stdout}`);
+    console.error(`STDERR: ${stderr}`);
+  });
+}
+
 // Verifica se todos os dispositivos estão trasmintindo e emite alertas caso não esteja
 async function tarefaPeriodica() {
   try {
-      // Log das variáveis globais dinamicas
-      //console.log("reseratorios")
-      //console.log(globalThis.reservatoriosDinamico);
-      //console.log("energia")
-      //console.log(globalThis.medidoresEnergDinamico);
+    // ---- PROCESSO DOS RESERVATÓRIOS ----
+    const promisesRes = globalThis.reservatorios.map(async (element) => {
+      if (!globalThis.reservatoriosDinamico.includes(element)) {
+        const aux = element.split("_");
+        const url = aux[1];
+        const id = aux[2];
+        const model_Res = require("../models/model_Res");
+        try {
+          const retorno = await model_Res.dadosAlerta(url, id);
+          const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
+          console.log(msg);
+          await sendAlerta(msg, retorno.chatID);
+          console.log("Mensagem enviada");
+        } catch (alertError) {
+          console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
+        }
+      }
+    });
 
-      // Cria um array de Promises para processar os elementos de reservatorios
-      const promisesRes = globalThis.reservatorios.map(async (element) => {
-        //verifica se houve transmissão 
-        //console.log(element)
-          if (!globalThis.reservatoriosDinamico.includes(element)) {
-              const aux = element.split("_");
-              const url = aux[1];
-              const id = aux[2];
-              const model_Res = require('../models/model_Res')
-              try {
-                  // Obtém os dados de alerta
-                  const retorno = await model_Res.dadosAlerta(url, id);
-                  const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
+    // ---- PROCESSO DOS MEDIDORES ----
+    const promisesEnerg = globalThis.medidoresEnerg.map(async (element) => {
+      if (!globalThis.medidoresEnergDinamico.includes(element)) {
+        const aux = element.split("_");
+        const url = aux[1];
+        const id = aux[2];
+        try {
+          const retorno = await dadosAlertaEnerg(url, id);
+          const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
+          console.log(msg);
+          await sendAlerta(msg, retorno.chatID);
+        } catch (alertError) {
+          console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
+        }
+      }
+    });
 
-                  // Envia o alerta
-                  console.log(msg)
-                  console.log(retorno)
-                  await sendAlerta(msg, retorno.chatID);//[process.env.CHAT_ID_DEV]);
-                  console.log("menssagem enviada")
-              } catch (alertError) {
-                  console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
-              }
-          }
-      });
+    await Promise.all(promisesRes);
+    await Promise.all(promisesEnerg);
 
-      // Cria um array de Promises para processar os elementos de medidores de energia
-      const promisesEnerg = globalThis.medidoresEnerg.map(async (element) => {
-        //verifica se houve transmissão 
-        //console.log(element)
-          if (!globalThis.medidoresEnergDinamico.includes(element)) {
-              const aux = element.split("_");
-              const url = aux[1];
-              const id = aux[2];
-              console.log(element)
-              try {
-                  // Obtém os dados de alerta
-                  const retorno = await dadosAlertaEnerg(url, id);
-                  const msg = `Alerta de dispositivo sem transmissão!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
+    globalThis.reservatoriosDinamico = [];
+    globalThis.medidoresEnergDinamico = [];
 
-                  // Envia o alerta
-                  console.log(msg)
-                  sendAlerta(msg, retorno.chatID);//[process.env.CHAT_ID_DEV]);
-              } catch (alertError) {
-                  console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
-              }
-          }
-      });
-
-      // Aguarda a resolução de todas as Promises
-      await Promise.all(promisesRes);
-      await Promise.all(promisesEnerg);
-
-      // Atualiza a variável global após a conclusão de todas as interações
-      globalThis.reservatoriosDinamico = [];
-      globalThis.medidoresEnergDinamico = [];
+    // ---- WATCHDOG DO TELEGRAM ----
+    let ok = await watchdogTelegram();
+    if (!ok) {
+      ok = await watchdogTelegram(); // tenta mais uma vez
+    }
+    if (!ok) {
+      reiniciarApp();
+    }
 
   } catch (error) {
-      console.error("Erro na tarefa periódica:", error);
+    console.error("Erro na tarefa periódica:", error);
   }
 }
 
