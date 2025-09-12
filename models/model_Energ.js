@@ -2,21 +2,13 @@ const db = require('./connection');
 const _ = require('../bin/funcoes');
 const moment = require('moment-timezone');
 
-// Suponha que você tenha uma forma de determinar se um condomínio usa a nova estrutura.
-// Para este exemplo, vamos simular com uma função simples.
 const isNewStructureCondominium = async (usuario) => {
     //console.log(usuario)
-     /*
-    switch (usuario) {
-        case 'santaMonica':
-            return true;
-        case 'HospitalBase':
-            return true;  
-    
-        default:
-            return false;
-    }*/
-    return false;
+    const usuariosNewStructure = process.env.USUARIOS_NEW_STRUCTUR
+    ? process.env.USUARIOS_PERMITIDOS.split(',').map(u => u.trim())
+    : [];
+    return usuariosNewStructure.includes(usuario);
+    //return false;
 };
 
 function getTableName(condominio, medidorId, tipoTabela, isNewStructure) {

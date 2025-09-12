@@ -17,15 +17,9 @@ function subscribeToMqttTopics() {
         console.log('Conectado ao broker MQTT');
 
         // Lista de tópicos para subscrever
-        const topics = [
-            //'test/res',
-            'santaMonica/energ',
-            'connect/res',
-            'taguaLife/res',
-            'casa/energ',
-            'HospitalBase/energ',
-            'HospitalBase/hidro'
-        ];
+        const topics = process.env.TOPICS
+        ? process.env.TOPICS.split(',').map(t => t.trim())
+        : [];
 
         // Subscrição em múltiplos tópicos
         client.subscribe(topics, (err) => {

@@ -19,7 +19,7 @@ const atualizarDados = async (data,distancia,dimensoes,id,usuario,nome,modoOp) =
     const insert = await inserir(id,d,leituraAtual,sql);
     
     if(insert.error){
-        sendAlerta(`FALHA AO INSERIR DADOS NO BANCO DE DADOS DO ${cliente}\nReservatorio: ${id}\nErro: ${insert.error}`,[process.env.CHAT_ID_DEV])
+        sendAlerta(globalThis.bot,`FALHA AO INSERIR DADOS NO BANCO DE DADOS DO ${cliente}\nReservatorio: ${id}\nErro: ${insert.error}`,[process.env.CHAT_ID_DEV])
         return {erro:insert.error}
     }
     
@@ -115,7 +115,7 @@ const validacao = async (distancia,dimensoes,id,cliente,modoOp) =>{
     }
     else{
         console.log(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`)
-        sendAlerta(`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
+        sendAlerta(globalThis.bot,`FALHA AO OBTER DADOS DO ${cliente}\nReservatorio: ${id}\nDistancia: ${distancia}`,[process.env.CHAT_ID_DEV])
         leituraAtual.erro = 1
     }
     return leituraAtual
@@ -160,7 +160,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
             alertas.urlID.push(url+id+"NB")
             alertas.data.push(data) 
             return
@@ -169,7 +169,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
                 const retorno = await dadosAlerta(url,id)
                 const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`;
                 //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-                sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+                sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
                 alertas.data[index] = data
             }
             return
@@ -182,9 +182,9 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
         // console.log(index)
         if(index==-1){
             const retorno = await dadosAlerta(url,id)
-            const msg = `Alerta de alto!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
+            const msg = `Alerta de nivel alto!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
             alertas.urlID.push(url+id+"NA")
             alertas.data.push(data) 
             return
@@ -193,14 +193,14 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de nivel alto!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
             alertas.data[index] = data
             }
             return
         }
     }
 
-    if(leitura.nivel>dimensoes.NA){
+    if(leitura.nivel>dimensoes.T){
         //console.log(alertas)
         let index = alertas.urlID.indexOf(url+id+"NA");
         // console.log(index)
@@ -208,7 +208,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de transbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
             alertas.urlID.push(url+id+"T")
             alertas.data.push(data) 
             return
@@ -217,7 +217,7 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de transbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
             alertas.data[index] = data
             }
             return
