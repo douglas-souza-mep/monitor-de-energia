@@ -65,6 +65,20 @@ module.exports = function(io){
     res.render('santaMonica_energ', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica"  });
   });
 
+  router.get('/santaMonica2', function(req, res, next) {
+    res.render('energy-monitor', { 
+      title: 'Monitor de Energia - Santa Mônica',
+      nome: 'Santa Mônica - Monitoramento de Energia'
+    });
+  });
+
+  router.get('/santaMonica_energ_v2', function(req, res, next) {
+    res.render('energy-monitor-v2', { 
+      title: 'Monitor de Energia V2',
+      nome: 'Santa Mônica - Monitoramento V2'
+    });
+  });
+
   router.get('/santaMonica_hidro', function(req, res) {
     res.render('santaMonica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });
   });

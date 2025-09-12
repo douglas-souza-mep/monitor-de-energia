@@ -246,7 +246,8 @@ function atualizar (dados){
   $('#cda').text(dados.consumos.consumoDiaAnterior + " KWh") 
   $('#cm').text(dados.consumos.consumoMensal + " KWh") 
   $('#cma').text(dados.consumos.consumoMesAnterior+ " KWh") 
-  
+  console.log(dados.graficos.semanal)
+  console.log(dados.graficos.semestral)
   drawChart(dados.graficos);
 }
 

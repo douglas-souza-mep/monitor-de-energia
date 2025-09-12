@@ -410,6 +410,8 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
     const sqlSelectConsumosDiario = useNewStructure
         ? `SELECT * FROM ${tableNameCD} WHERE id_medidor = ? AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`
         : `SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
+        console.log(consumoInicial)
+        console.log(consumoFinal)
     const paramsConsumosDiario = useNewStructure ? [medidor, consumoInicial.data, consumoFinal.data] : [consumoInicial.data, consumoFinal.data];
     const [consumosDiario] = await db.query(sqlSelectConsumosDiario, paramsConsumosDiario);
 

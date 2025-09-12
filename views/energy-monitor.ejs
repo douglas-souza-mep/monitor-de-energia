@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/styleNew.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <nav class="nav-bar">
+                <div class="logo-section">
+                    <img src="/images/logo_mep.png" alt="Logo MEP Engenharia" class="logo">
+                    <div class="brand-name">MEP Engenharia</div>
+                </div>
+
+                <div class="nav-content">
+                    <div class="nav-info">
+                        <h1 class="site-title"><%= nome %></h1>
+                        <p class="last-update">Última atualização: <span id="data">Carregando...</span></p>
+                    </div>
+
+                    <div class="nav-controls">
+                        <div class="meter-selector">
+                            <label for="medidor">Medidor Selecionado:</label>
+                            <select name="medidor" id="medidor" class="meter-select">
+                                <option value="1">Quadr. Geral</option>
+                                <option value="2">QG Condomínio</option>
+                                <option value="3">QG CAG</option>
+                                
+                                <optgroup label="Térreo">
+                                    <option value="11">Sala 1</option>
+                                    <option value="12">Sala 7</option>
+                                </optgroup>
+                                
+                                <optgroup label="1º Andar">
+                                    <option value="101">Sala 101</option>
+                                    <option value="102">Sala 102</option>
+                                    <option value="103">Sala 103</option>
+                                    <option value="104">Sala 104</option>
+                                    <option value="105">Sala 105</option>
+                                    <option value="106">Sala 106</option>
+                                    <option value="107">Sala 107</option>
+                                    <option value="108">Sala 108</option>
+                                    <option value="109">Sala 109</option>
+                                    <option value="110">Sala 110</option>
+                                    <option value="111">Sala 111</option>
+                                    <option value="112">Sala 112</option>
+                                    <option value="113">Sala 113</option>
+                                    <option value="114">Sala 114</option>
+                                </optgroup>
+                                
+                                <optgroup label="2º Andar">
+                                    <option value="201">Sala 201</option>
+                                    <option value="202">Sala 202</option>
+                                    <option value="203">Sala 203</option>
+                                    <option value="204">Sala 204</option>
+                                    <option value="205">Sala 205</option>
+                                    <option value="206">Sala 206</option>
+                                    <option value="207">Sala 207</option>
+                                    <option value="208">Sala 208</option>
+                                    <option value="209">Sala 209</option>
+                                    <option value="210">Sala 210</option>
+                                    <option value="211">Sala 211</option>
+                                    <option value="212">Sala 212</option>
+                                    <option value="213">Sala 213</option>
+                                    <option value="214">Sala 214</option>
+                                </optgroup>
+                                
+                                <optgroup label="3º Andar">
+                                    <option value="301">Sala 301</option>
+                                    <option value="302">Sala 302</option>
+                                    <option value="303">Sala 303</option>
+                                    <option value="304">Sala 304</option>
+                                    <option value="305">Sala 305</option>
+                                    <option value="306">Sala 306</option>
+                                    <option value="307">Sala 307</option>
+                                    <option value="308">Sala 308</option>
+                                    <option value="309">Sala 309</option>
+                                </optgroup>
+                                
+                                <optgroup label="4º Andar">
+                                    <option value="401">Sala 401</option>
+                                    <option value="402">Sala 402</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <a href="https://monitor.mep.eng.br/users/santaMonica_hidro" class="nav-button">
+                            Hidrômetros
+                        </a>
+                    </div>
+                </div>
+
+                <button class="mobile-menu-toggle" aria-label="Menu">
+                    ☰
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Loading Popup -->
+    <div id="loadingPopup" class="loading-popup" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2 class="loading-title">Carregando...</h2>
+            <p class="loading-text">Por favor, aguarde.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Voltage Section -->
+        <div class="section-title">Tensão (V)</div>
+        <div class="metrics-grid voltage">
+            <div class="metric-card">
+                <p class="metric-label">Fase A</p>
+                <p class="metric-value" id="va">0<span class="metric-unit">V</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase B</p>
+                <p class="metric-value" id="vb">0<span class="metric-unit">V</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase C</p>
+                <p class="metric-value" id="vc">0<span class="metric-unit">V</span></p>
+            </div>
+        </div>
+
+        <!-- Current Section -->
+        <div class="section-title">Corrente (A)</div>
+        <div class="metrics-grid current">
+            <div class="metric-card">
+                <p class="metric-label">Fase A</p>
+                <p class="metric-value" id="ia">0<span class="metric-unit">A</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase B</p>
+                <p class="metric-value" id="ib">0<span class="metric-unit">A</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase C</p>
+                <p class="metric-value" id="ic">0<span class="metric-unit">A</span></p>
+            </div>
+            <div class="metric-card total">
+                <p class="metric-label">Total</p>
+                <p class="metric-value" id="it">0<span class="metric-unit">A</span></p>
+            </div>
+        </div>
+
+        <!-- Power Factor Section -->
+        <div class="section-title">Fator de Potência</div>
+        <div class="metrics-grid power-factor">
+            <div class="metric-card">
+                <p class="metric-label">Fase A</p>
+                <p class="metric-value" id="pfa">0.00</p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase B</p>
+                <p class="metric-value" id="pfb">0.00</p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase C</p>
+                <p class="metric-value" id="pfc">0.00</p>
+            </div>
+            <div class="metric-card total">
+                <p class="metric-label">Total</p>
+                <p class="metric-value" id="pft">0.00</p>
+            </div>
+        </div>
+
+        <!-- Active Power Section -->
+        <div class="section-title">Potência Ativa (W)</div>
+        <div class="metrics-grid active-power">
+            <div class="metric-card">
+                <p class="metric-label">Fase A</p>
+                <p class="metric-value" id="pa">0<span class="metric-unit">W</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase B</p>
+                <p class="metric-value" id="pb">0<span class="metric-unit">W</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Fase C</p>
+                <p class="metric-value" id="pc">0<span class="metric-unit">W</span></p>
+            </div>
+            <div class="metric-card total">
+                <p class="metric-label">Total</p>
+                <p class="metric-value" id="pt">0<span class="metric-unit">W</span></p>
+            </div>
+        </div>
+
+        <!-- Consumption Section -->
+        <div class="section-title">Consumo (kWh)</div>
+        <div class="metrics-grid consumption">
+            <div class="metric-card">
+                <p class="metric-label">Hoje</p>
+                <p class="metric-value" id="cd">0<span class="metric-unit">kWh</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Ontem</p>
+                <p class="metric-value" id="cda">0<span class="metric-unit">kWh</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Consumo Mensal</p>
+                <p class="metric-value" id="cm">0<span class="metric-unit">kWh</span></p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Mês Anterior</p>
+                <p class="metric-value" id="cma">0<span class="metric-unit">kWh</span></p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="charts-grid chart-single">
+                <div class="chart-container">
+                    <div id="chart_div1"></div>
+                </div>
+            </div>
+            
+            <div class="charts-grid chart-double">
+                <div class="chart-container">
+                    <div id="chart_div2"></div>
+                </div>
+                <div class="chart-container">
+                    <div id="chart_div3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consumption Calculator -->
+        <div class="consumption-calculator">
+            <h3 class="calculator-title">Período de Cobrança</h3>
+            <form id="event-form" class="calculator-form">
+                <div class="form-group">
+                    <label for="start-date" class="form-label">Data de Início:</label>
+                    <input type="date" id="start-date" name="start-date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="end-date" class="form-label">Data de Término:</label>
+                    <input type="date" id="end-date" name="end-date" class="form-input" required>
+                </div>
+                
+                <div class="button-group">
+                    <button id="calcular" type="submit" class="btn btn-primary">
+                        📊 Calcular Consumo
+                    </button>
+                    <button id="relatorio" type="button" class="btn btn-secondary">
+                        📋 Relatório Geral
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section results-grid">
+            <div class="chart-container">
+                <div id="chart_consumo"></div>
+            </div>
+            <div class="result-container">
+                <div id="result">
+                    <div class="text-center">
+                        <p class="text-secondary">Selecione um período e clique em "Calcular Consumo" para ver os resultados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script src="/javascripts/energy-monitor.js"></script>
+
+</body>
+</html>
+
