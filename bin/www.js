@@ -147,6 +147,7 @@ server.on('listening', onListening);
 
 // 1. Instancia o bot
 const bot = new Telegraf(process.env.TELEGRAN_TOKEN);
+globalThis.bot = bot;
 
 // 2. Envia a mensagem de inicialização imediatamente.
 //    O bot já pode enviar mensagens mesmo antes do 'launch'.
@@ -197,15 +198,13 @@ bot.launch().then(() => {
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
-
 //################################ Alertas ###################################
 
-// Define o intervalo de tempo em milissegundos 
-const intervalo = 1000*60*15;
+// Define o intervalo de tempo em milissegundos
+const intervalo = 1000 * 60 * 15;
 
-// Inicia a execução periódica da função
-const idIntervalo = setInterval(f.tarefaPeriodica, intervalo);
-
+// Inicia a execução periódica da função, passando o bot como argumento
+const idIntervalo = setInterval(() => f.tarefaPeriodica(bot), intervalo);
 
 //##############################################################################
 

@@ -4,9 +4,6 @@ const model_Eneg = require('../models/model_Energ')
 const { Telegraf } = require('telegraf');
 const { exec } = require("child_process");
 
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const CHAT_ID_DEV = process.env.CHAT_ID_DEV;           
-
 
 function calculoConsumo(t_star,t_end,pt){
     pt=pt/1000 //W -> KW
@@ -71,8 +68,7 @@ function traduzMes(str){
 
 
 // Função para enviar alertas com retry e captura de erros
-async function sendAlerta(msg, usuarios) {
-  const bot = new Telegraf(TELEGRAM_TOKEN);
+async function sendAlerta(bot,msg, usuarios) {
   if (!usuarios || usuarios.length === 0) return;
 
   for (const user of usuarios) {
@@ -159,11 +155,10 @@ function withTimeout(promise, ms) {
 }
 
 // watchdog telegram
-async function watchdogTelegram() {
+async function watchdogTelegram(bot) {
   try {
-    const bot = new Telegraf(TELEGRAM_TOKEN);
     await withTimeout(
-      bot.telegram.sendMessage(CHAT_ID_DEV, "🔍 Watchdog: teste de conexão"),
+      bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "🔍 Watchdog: teste de conexão"), // Use process.env aqui
       10000 // 10s
     );
     console.log("✅ Telegram OK");
@@ -187,7 +182,7 @@ function reiniciarApp() {
 }
 
 // Verifica se todos os dispositivos estão trasmintindo e emite alertas caso não esteja
-async function tarefaPeriodica() {
+async function tarefaPeriodica(bot) {
   try {
     // ---- PROCESSO DOS RESERVATÓRIOS ----
     const promisesRes = globalThis.reservatorios.map(async (element) => {
@@ -200,7 +195,7 @@ async function tarefaPeriodica() {
           const retorno = await model_Res.dadosAlerta(url, id);
           const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
-          await sendAlerta(msg, retorno.chatID);
+          await sendAlerta(bot, msg, retorno.chatID);
           console.log("Mensagem enviada");
         } catch (alertError) {
           console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
@@ -218,7 +213,7 @@ async function tarefaPeriodica() {
           const retorno = await dadosAlertaEnerg(url, id);
           const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
-          await sendAlerta(msg, retorno.chatID);
+          await sendAlerta(bot, msg, retorno.chatID); 
         } catch (alertError) {
           console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
         }
@@ -232,9 +227,9 @@ async function tarefaPeriodica() {
     globalThis.medidoresEnergDinamico = [];
 
     // ---- WATCHDOG DO TELEGRAM ----
-    let ok = await watchdogTelegram();
+    let ok = await watchdogTelegram(bot);
     if (!ok) {
-      ok = await watchdogTelegram(); // tenta mais uma vez
+      ok = await watchdogTelegram(bot); // tenta mais uma vez
     }
     if (!ok) {
       reiniciarApp();
