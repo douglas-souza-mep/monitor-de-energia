@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
 // Para este exemplo, vamos simular com uma função simples.
 const isNewStructureCondominium = async (usuario) => {
     //console.log(usuario)
-    /*  
+     /*
     switch (usuario) {
         case 'santaMonica':
             return true;
@@ -15,7 +15,7 @@ const isNewStructureCondominium = async (usuario) => {
     
         default:
             return false;
-    }*/ 
+    }*/
     return false;
 };
 

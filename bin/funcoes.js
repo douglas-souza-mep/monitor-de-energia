@@ -7,10 +7,6 @@ const { exec } = require("child_process");
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID_DEV = process.env.CHAT_ID_DEV;           
 
-const bot = new Telegraf(TELEGRAM_TOKEN);
-
-
-
 
 function calculoConsumo(t_star,t_end,pt){
     pt=pt/1000 //W -> KW
@@ -76,6 +72,7 @@ function traduzMes(str){
 
 // Função para enviar alertas com retry e captura de erros
 async function sendAlerta(msg, usuarios) {
+  const bot = new Telegraf(TELEGRAM_TOKEN);
   if (!usuarios || usuarios.length === 0) return;
 
   for (const user of usuarios) {
@@ -164,6 +161,7 @@ function withTimeout(promise, ms) {
 // watchdog telegram
 async function watchdogTelegram() {
   try {
+    const bot = new Telegraf(TELEGRAM_TOKEN);
     await withTimeout(
       bot.telegram.sendMessage(CHAT_ID_DEV, "🔍 Watchdog: teste de conexão"),
       10000 // 10s
