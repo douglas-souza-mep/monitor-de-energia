@@ -1,14 +1,13 @@
 const db = require('./connection');
 const _ = require('../bin/funcoes');
 const moment = require('moment-timezone');
+require('dotenv').config()
 
 const isNewStructureCondominium = async (usuario) => {
-    //console.log(usuario)
-    const usuariosNewStructure = process.env.USUARIOS_NEW_STRUCTUR
-    ? process.env.USUARIOS_PERMITIDOS.split(',').map(u => u.trim())
+    const usuariosNewStructure = process.env.USUARIOS_NEW_STRUCTURE
+    ? process.env.USUARIOS_NEW_STRUCTURE.split(',').map(u => u.trim())
     : [];
     return usuariosNewStructure.includes(usuario);
-    //return false;
 };
 
 function getTableName(condominio, medidorId, tipoTabela, isNewStructure) {

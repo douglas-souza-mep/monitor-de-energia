@@ -3,6 +3,7 @@ const db = require('../models/connection')
 const model_Eneg = require('../models/model_Energ')
 const { Telegraf } = require('telegraf');
 const { exec } = require("child_process");
+require('dotenv').config()
 
 
 function calculoConsumo(t_star,t_end,pt){
@@ -193,7 +194,7 @@ async function tarefaPeriodica(bot) {
         const model_Res = require("../models/model_Res");
         try {
           const retorno = await model_Res.dadosAlerta(url, id);
-          const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
+          const msg = `⚠️ Alerta! Dispositivo sem trasmição!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
           await sendAlerta(bot, msg, retorno.chatID);
           console.log("Mensagem enviada");
@@ -211,7 +212,7 @@ async function tarefaPeriodica(bot) {
         const id = aux[2];
         try {
           const retorno = await dadosAlertaEnerg(url, id);
-          const msg = `⚠️ Alerta!\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
+          const msg = `⚠️ Alerta! Dispositivo sem trasmição\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
           await sendAlerta(bot, msg, retorno.chatID); 
         } catch (alertError) {
