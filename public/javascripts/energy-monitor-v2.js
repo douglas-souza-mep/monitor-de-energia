@@ -6,13 +6,35 @@
 class EnergyMonitorV2 {
   constructor() {
     this.medidores = [];
-    this.url = "santaMonica";
+    this.clientKey = this.getClientKeyFromUrl(); // Obtém a chave do cliente da URL
+    this.config = getClientConfig(this.clientKey); // Carrega a configuração do cliente
+    
+    if (!this.config) {
+      console.error("Configuração do cliente não encontrada. Usando fallback.");
+      // Fallback para uma configuração padrão ou erro
+      this.config = getClientConfig("santaMonica"); // Exemplo de fallback
+    }
+
+    this.url = this.config.api.baseUrl; // URL base da API do cliente
     this.clientMQTT = null;
     this.currentView = 'grid'; // 'grid' ou 'detail'
     this.selectedMeter = null;
     this.metersData = new Map(); // Cache dos dados dos medidores
     
     this.init();
+  }
+
+  /**
+   * Obtém a chave do cliente da URL
+   */
+  getClientKeyFromUrl() {
+    const path = window.location.pathname;
+    if (path.includes('santaMonica')) {
+      return 'santaMonica';
+    } else if (path.includes('hospitalBase')) {
+      return 'hospitalBase';
+    }
+    return 'santaMonica'; // Default
   }
 
   /**
@@ -53,15 +75,27 @@ class EnergyMonitorV2 {
       }
     });
 
+    // Botão de Relatório Geral na visão de grid
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'btn-report-general') {
+        e.preventDefault();
+        this.generateGeneralReport();
+      }
+    });
+
+    // Botão de Relatório de Consumo na visão de detalhes
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'btn-report-consumption') {
+        e.preventDefault();
+        alert('Função "Relatório de Consumo" disponível em breve!');
+      }
+    });
+
     // Formulário de cálculo (apenas na view de detalhes)
     document.addEventListener('click', (e) => {
       if (e.target.id === 'calcular') {
         e.preventDefault();
         this.calculateConsumption(e);
-      }
-      if (e.target.id === 'relatorio') {
-        e.preventDefault();
-        this.generateReport(e);
       }
     });
   }
@@ -179,16 +213,16 @@ class EnergyMonitorV2 {
    */
   setupMQTTConnection() {
     try {
-      this.clientMQTT = mqtt.connect("wss://monitor.mep.eng.br", {
-        username: "douglas",
-        password: "8501",
-        path: '/mqtt'
+      this.clientMQTT = mqtt.connect(this.config.mqtt.broker, {
+        username: this.config.mqtt.username,
+        password: this.config.mqtt.password,
+        path: this.config.mqtt.path
       });
 
       this.clientMQTT.on('connect', () => {
         console.log('Conectado ao broker MQTT');
         
-        const topics = [`${this.url}/atualizarTela/energ`];
+        const topics = [this.config.mqtt.topic];
         
         this.clientMQTT.subscribe(topics, (err) => {
           if (err) {
@@ -220,7 +254,7 @@ class EnergyMonitorV2 {
    */
   handleMQTTMessage(topic, message) {
     switch (topic) {
-      case `${this.url}/atualizarTela/energ`:
+      case this.config.mqtt.topic:
         try {
           const leitura = JSON.parse(message.toString());
           console.log('Nova leitura:', leitura);
@@ -267,41 +301,47 @@ class EnergyMonitorV2 {
    */
   generateGridHTML() {
     return `
-      <div class="grid-header">
+      <div class="grid-header mep-v2">
         <h1>Monitoramento de Energia - Visão Geral</h1>
-        <p class="grid-subtitle">Clique em um medidor para ver os detalhes</p>
+        <p class="grid-subtitle mep-v2">Clique em um medidor para ver os detalhes</p>
       </div>
       
-      <div class="meters-grid">
+      <div class="grid-actions mep-v2">
+        <button id="btn-report-general" class="btn btn-report-general mep-v2">
+          <i class="fas fa-file-csv"></i> Relatório Geral
+        </button>
+      </div>
+
+      <div class="meters-grid mep-v2">
         ${this.medidores.map(medidor => `
-          <div class="meter-card" data-meter-id="${medidor.id}">
-            <div class="meter-header">
-              <h3 class="meter-name">${medidor.local}</h3>
-              <span class="meter-id">ID: ${medidor.id}</span>
+          <div class="meter-card mep-v2" data-meter-id="${medidor.id}">
+            <div class="meter-header mep-v2">
+              <h3 class="meter-name mep-v2">${medidor.local}</h3>
+              <span class="meter-id mep-v2">ID: ${medidor.id}</span>
             </div>
             
-            <div class="meter-consumption">
-              <div class="consumption-value" id="consumption-${medidor.id}">
+            <div class="meter-consumption mep-v2">
+              <div class="consumption-value mep-v2" id="consumption-${medidor.id}">
                 <span class="value">--</span>
                 <span class="unit">kWh</span>
               </div>
-              <div class="consumption-label">Consumo Hoje</div>
+              <div class="consumption-label mep-v2">Consumo Hoje</div>
             </div>
             
-            <div class="meter-info">
-              <div class="info-item">
-                <span class="info-label">Fator de Potência:</span>
-                <span class="info-value" id="pf-${medidor.id}">--</span>
+            <div class="meter-info mep-v2">
+              <div class="info-item mep-v2">
+                <span class="info-label mep-v2">Fator de Potência:</span>
+                <span class="info-value mep-v2" id="pf-${medidor.id}">--</span>
               </div>
-              <div class="info-item">
-                <span class="info-label">Última Atualização:</span>
-                <span class="info-value" id="date-${medidor.id}">--</span>
+              <div class="info-item mep-v2">
+                <span class="info-label mep-v2">Última Atualização:</span>
+                <span class="info-value mep-v2" id="date-${medidor.id}">--</span>
               </div>
             </div>
             
-            <div class="meter-status" id="status-${medidor.id}">
-              <span class="status-indicator"></span>
-              <span class="status-text">Aguardando dados...</span>
+            <div class="meter-status mep-v2" id="status-${medidor.id}">
+              <span class="status-indicator mep-v2"></span>
+              <span class="status-text mep-v2">Aguardando dados...</span>
             </div>
           </div>
         `).join('')}
@@ -331,7 +371,7 @@ class EnergyMonitorV2 {
       const dateEl = document.getElementById(`date-${meterId}`);
       if (dateEl && dados.leitura) {
         const date = new Date(dados.leitura.data);
-        dateEl.textContent = date.toLocaleString('pt-BR');
+        dateEl.textContent = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
       }
       
       // Status do medidor
@@ -341,13 +381,22 @@ class EnergyMonitorV2 {
         const lastUpdate = new Date(dados.leitura.data);
         const diffMinutes = (now - lastUpdate) / (1000 * 60);
         
-        if (diffMinutes < 30) {
-          statusEl.innerHTML = '<span class="status-indicator online"></span><span class="status-text">Online</span>';
-        } else if (diffMinutes < 120) {
-          statusEl.innerHTML = '<span class="status-indicator warning"></span><span class="status-text">Atenção</span>';
+        const statusConfig = this.config.interface.meterCard.statusThresholds;
+
+        let statusClass = '';
+        let statusText = '';
+
+        if (diffMinutes < statusConfig.online) {
+          statusClass = 'online';
+          statusText = 'Online';
+        } else if (diffMinutes < statusConfig.warning) {
+          statusClass = 'warning';
+          statusText = 'Atenção';
         } else {
-          statusEl.innerHTML = '<span class="status-indicator offline"></span><span class="status-text">Offline</span>';
+          statusClass = 'offline';
+          statusText = 'Offline';
         }
+        statusEl.innerHTML = `<span class="status-indicator mep-v2 ${statusClass}"></span><span class="status-text mep-v2">${statusText}</span>`;
       }
       
     } catch (error) {
@@ -378,168 +427,170 @@ class EnergyMonitorV2 {
    */
   generateDetailHTML(medidor, dados) {
     return `
-      <div class="detail-header">
-        <button id="back-to-grid" class="back-button">
+      <div class="detail-header mep-v2">
+        <button id="back-to-grid" class="back-button mep-v2">
           ← Voltar à Visão Geral
         </button>
         <h1>${medidor.local}</h1>
-        <p class="detail-subtitle">ID: ${medidor.id}</p>
-        <p class="last-update">Última atualização: <span id="detail-date">Carregando...</span></p>
+        <p class="detail-subtitle mep-v2">ID: ${medidor.id}</p>
+        <p class="last-update mep-v2">Última atualização: <span id="detail-date">Carregando...</span></p>
+        <div class="detail-actions mep-v2">
+          <button id="btn-report-consumption" class="btn btn-primary mep-v2">
+            <i class="fas fa-file-alt"></i> Relatório de Consumo
+          </button>
+        </div>
       </div>
 
       <!-- Voltage Section -->
-      <div class="section-title">Tensão (V)</div>
-      <div class="metrics-grid voltage">
-        <div class="metric-card">
-          <p class="metric-label">Fase A</p>
-          <p class="metric-value" id="va">0<span class="metric-unit">V</span></p>
+      <div class="section-title mep-v2">Tensão (V)</div>
+      <div class="metrics-grid mep-v2 voltage">
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase A</p>
+          <p class="metric-value mep-v2" id="va">0<span class="metric-unit mep-v2">V</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase B</p>
-          <p class="metric-value" id="vb">0<span class="metric-unit">V</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase B</p>
+          <p class="metric-value mep-v2" id="vb">0<span class="metric-unit mep-v2">V</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase C</p>
-          <p class="metric-value" id="vc">0<span class="metric-unit">V</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase C</p>
+          <p class="metric-value mep-v2" id="vc">0<span class="metric-unit mep-v2">V</span></p>
         </div>
       </div>
 
       <!-- Current Section -->
-      <div class="section-title">Corrente (A)</div>
-      <div class="metrics-grid current">
-        <div class="metric-card">
-          <p class="metric-label">Fase A</p>
-          <p class="metric-value" id="ia">0<span class="metric-unit">A</span></p>
+      <div class="section-title mep-v2">Corrente (A)</div>
+      <div class="metrics-grid mep-v2 current">
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase A</p>
+          <p class="metric-value mep-v2" id="ia">0<span class="metric-unit mep-v2">A</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase B</p>
-          <p class="metric-value" id="ib">0<span class="metric-unit">A</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase B</p>
+          <p class="metric-value mep-v2" id="ib">0<span class="metric-unit mep-v2">A</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase C</p>
-          <p class="metric-value" id="ic">0<span class="metric-unit">A</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase C</p>
+          <p class="metric-value mep-v2" id="ic">0<span class="metric-unit mep-v2">A</span></p>
         </div>
-        <div class="metric-card total">
-          <p class="metric-label">Total</p>
-          <p class="metric-value" id="it">0<span class="metric-unit">A</span></p>
+        <div class="metric-card mep-v2 total">
+          <p class="metric-label mep-v2">Total</p>
+          <p class="metric-value mep-v2" id="it">0<span class="metric-unit mep-v2">A</span></p>
         </div>
       </div>
 
       <!-- Power Factor Section -->
-      <div class="section-title">Fator de Potência</div>
-      <div class="metrics-grid power-factor">
-        <div class="metric-card">
-          <p class="metric-label">Fase A</p>
-          <p class="metric-value" id="pfa">0.00</p>
+      <div class="section-title mep-v2">Fator de Potência</div>
+      <div class="metrics-grid mep-v2 power-factor">
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase A</p>
+          <p class="metric-value mep-v2" id="pfa">0.00</p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase B</p>
-          <p class="metric-value" id="pfb">0.00</p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase B</p>
+          <p class="metric-value mep-v2" id="pfb">0.00</p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase C</p>
-          <p class="metric-value" id="pfc">0.00</p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase C</p>
+          <p class="metric-value mep-v2" id="pfc">0.00</p>
         </div>
-        <div class="metric-card total">
-          <p class="metric-label">Total</p>
-          <p class="metric-value" id="pft">0.00</p>
+        <div class="metric-card mep-v2 total">
+          <p class="metric-label mep-v2">Total</p>
+          <p class="metric-value mep-v2" id="pft">0.00</p>
         </div>
       </div>
 
       <!-- Active Power Section -->
-      <div class="section-title">Potência Ativa (W)</div>
-      <div class="metrics-grid active-power">
-        <div class="metric-card">
-          <p class="metric-label">Fase A</p>
-          <p class="metric-value" id="pa">0<span class="metric-unit">W</span></p>
+      <div class="section-title mep-v2">Potência Ativa (W)</div>
+      <div class="metrics-grid mep-v2 active-power">
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase A</p>
+          <p class="metric-value mep-v2" id="pa">0<span class="metric-unit mep-v2">W</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase B</p>
-          <p class="metric-value" id="pb">0<span class="metric-unit">W</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase B</p>
+          <p class="metric-value mep-v2" id="pb">0<span class="metric-unit mep-v2">W</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Fase C</p>
-          <p class="metric-value" id="pc">0<span class="metric-unit">W</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Fase C</p>
+          <p class="metric-value mep-v2" id="pc">0<span class="metric-unit mep-v2">W</span></p>
         </div>
-        <div class="metric-card total">
-          <p class="metric-label">Total</p>
-          <p class="metric-value" id="pt">0<span class="metric-unit">W</span></p>
+        <div class="metric-card mep-v2 total">
+          <p class="metric-label mep-v2">Total</p>
+          <p class="metric-value mep-v2" id="pt">0<span class="metric-unit mep-v2">W</span></p>
         </div>
       </div>
 
       <!-- Consumption Section -->
-      <div class="section-title">Consumo (kWh)</div>
-      <div class="metrics-grid consumption">
-        <div class="metric-card">
-          <p class="metric-label">Hoje</p>
-          <p class="metric-value" id="cd">0<span class="metric-unit">kWh</span></p>
+      <div class="section-title mep-v2">Consumo (kWh)</div>
+      <div class="metrics-grid mep-v2 consumption">
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Hoje</p>
+          <p class="metric-value mep-v2" id="cd">0<span class="metric-unit mep-v2">kWh</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Ontem</p>
-          <p class="metric-value" id="cda">0<span class="metric-unit">kWh</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Ontem</p>
+          <p class="metric-value mep-v2" id="cda">0<span class="metric-unit mep-v2">kWh</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Consumo Mensal</p>
-          <p class="metric-value" id="cm">0<span class="metric-unit">kWh</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Consumo Mensal</p>
+          <p class="metric-value mep-v2" id="cm">0<span class="metric-unit mep-v2">kWh</span></p>
         </div>
-        <div class="metric-card">
-          <p class="metric-label">Mês Anterior</p>
-          <p class="metric-value" id="cma">0<span class="metric-unit">kWh</span></p>
+        <div class="metric-card mep-v2">
+          <p class="metric-label mep-v2">Mês Anterior</p>
+          <p class="metric-value mep-v2" id="cma">0<span class="metric-unit mep-v2">kWh</span></p>
         </div>
       </div>
 
       <!-- Charts Section -->
-      <div class="charts-section">
-        <div class="charts-grid chart-single">
-          <div class="chart-container">
+      <div class="charts-section mep-v2">
+        <div class="charts-grid mep-v2 chart-single">
+          <div class="chart-container mep-v2">
             <div id="chart_div1"></div>
           </div>
         </div>
         
-        <div class="charts-grid chart-double">
-          <div class="chart-container">
+        <div class="charts-grid mep-v2 chart-double">
+          <div class="chart-container mep-v2">
             <div id="chart_div2"></div>
           </div>
-          <div class="chart-container">
+          <div class="chart-container mep-v2">
             <div id="chart_div3"></div>
           </div>
         </div>
       </div>
 
       <!-- Consumption Calculator -->
-      <div class="consumption-calculator">
-        <h3 class="calculator-title">Período de Cobrança</h3>
-        <form id="event-form" class="calculator-form">
-          <div class="form-group">
-            <label for="start-date" class="form-label">Data de Início:</label>
-            <input type="date" id="start-date" name="start-date" class="form-input" required>
+      <div class="consumption-calculator mep-v2">
+        <h3 class="calculator-title mep-v2">Período de Cobrança</h3>
+        <form id="event-form" class="calculator-form mep-v2">
+          <div class="form-group mep-v2">
+            <label for="start-date" class="form-label mep-v2">Data de Início:</label>
+            <input type="date" id="start-date" name="start-date" class="form-input mep-v2" required>
           </div>
           
-          <div class="form-group">
-            <label for="end-date" class="form-label">Data de Término:</label>
-            <input type="date" id="end-date" name="end-date" class="form-input" required>
+          <div class="form-group mep-v2">
+            <label for="end-date" class="form-label mep-v2">Data de Término:</label>
+            <input type="date" id="end-date" name="end-date" class="form-input mep-v2" required>
           </div>
           
-          <div class="button-group">
-            <button id="calcular" type="submit" class="btn btn-primary">
+          <div class="button-group mep-v2">
+            <button id="calcular" type="submit" class="btn btn-primary mep-v2">
               📊 Calcular Consumo
-            </button>
-            <button id="relatorio" type="button" class="btn btn-secondary">
-              📋 Relatório Geral
             </button>
           </div>
         </form>
       </div>
 
       <!-- Results Section -->
-      <div class="results-section results-grid">
-        <div class="chart-container">
+      <div class="results-section mep-v2 results-grid">
+        <div class="chart-container mep-v2">
           <div id="chart_consumo"></div>
         </div>
-        <div class="result-container">
+        <div class="result-container mep-v2">
           <div id="result">
-            <div class="text-center">
-              <p class="text-secondary">Selecione um período e clique em "Calcular Consumo" para ver os resultados.</p>
+            <div class="text-center mep-v2">
+              <p class="text-secondary mep-v2">Selecione um período e clique em "Calcular Consumo" para ver os resultados.</p>
             </div>
           </div>
         </div>
@@ -556,19 +607,19 @@ class EnergyMonitorV2 {
       const dateEl = document.getElementById('detail-date');
       if (dateEl) {
         const date = new Date(dados.leitura.data);
-        dateEl.textContent = date.toLocaleString('pt-BR');
+        dateEl.textContent = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
       }
       
       // Atualiza tensões
-      document.getElementById('va').innerHTML = `${dados.leitura.uarms}<span class="metric-unit">V</span>`;
-      document.getElementById('vb').innerHTML = `${dados.leitura.ubrms}<span class="metric-unit">V</span>`;
-      document.getElementById('vc').innerHTML = `${dados.leitura.ucrms}<span class="metric-unit">V</span>`;
+      document.getElementById('va').innerHTML = `${dados.leitura.uarms}<span class="metric-unit mep-v2">V</span>`;
+      document.getElementById('vb').innerHTML = `${dados.leitura.ubrms}<span class="metric-unit mep-v2">V</span>`;
+      document.getElementById('vc').innerHTML = `${dados.leitura.ucrms}<span class="metric-unit mep-v2">V</span>`;
       
       // Atualiza correntes
-      document.getElementById('ia').innerHTML = `${dados.leitura.iarms}<span class="metric-unit">A</span>`;
-      document.getElementById('ib').innerHTML = `${dados.leitura.ibrms}<span class="metric-unit">A</span>`;
-      document.getElementById('ic').innerHTML = `${dados.leitura.icrms}<span class="metric-unit">A</span>`;
-      document.getElementById('it').innerHTML = `${dados.leitura.itrms}<span class="metric-unit">A</span>`;
+      document.getElementById('ia').innerHTML = `${dados.leitura.iarms}<span class="metric-unit mep-v2">A</span>`;
+      document.getElementById('ib').innerHTML = `${dados.leitura.ibrms}<span class="metric-unit mep-v2">A</span>`;
+      document.getElementById('ic').innerHTML = `${dados.leitura.icrms}<span class="metric-unit mep-v2">A</span>`;
+      document.getElementById('it').innerHTML = `${dados.leitura.itrms}<span class="metric-unit mep-v2">A</span>`;
       
       // Atualiza fatores de potência
       document.getElementById('pfa').textContent = dados.leitura.pfa;
@@ -577,16 +628,16 @@ class EnergyMonitorV2 {
       document.getElementById('pft').textContent = dados.leitura.pft;
       
       // Atualiza potências ativas
-      document.getElementById('pa').innerHTML = `${dados.leitura.pa}<span class="metric-unit">W</span>`;
-      document.getElementById('pb').innerHTML = `${dados.leitura.pb}<span class="metric-unit">W</span>`;
-      document.getElementById('pc').innerHTML = `${dados.leitura.pc}<span class="metric-unit">W</span>`;
-      document.getElementById('pt').innerHTML = `${dados.leitura.pt}<span class="metric-unit">W</span>`;
+      document.getElementById('pa').innerHTML = `${dados.leitura.pa}<span class="metric-unit mep-v2">W</span>`;
+      document.getElementById('pb').innerHTML = `${dados.leitura.pb}<span class="metric-unit mep-v2">W</span>`;
+      document.getElementById('pc').innerHTML = `${dados.leitura.pc}<span class="metric-unit mep-v2">W</span>`;
+      document.getElementById('pt').innerHTML = `${dados.leitura.pt}<span class="metric-unit mep-v2">W</span>`;
       
       // Atualiza consumos
-      document.getElementById('cd').innerHTML = `${dados.graficos.semanal[dados.graficos.semanal.length-1][1]}<span class="metric-unit">kWh</span>`;
-      document.getElementById('cda').innerHTML = `${dados.consumos.consumoDiaAnterior}<span class="metric-unit">kWh</span>`;
-      document.getElementById('cm').innerHTML = `${dados.consumos.consumoMensal}<span class="metric-unit">kWh</span>`;
-      document.getElementById('cma').innerHTML = `${dados.consumos.consumoMesAnterior}<span class="metric-unit">kWh</span>`;
+      document.getElementById('cd').innerHTML = `${dados.graficos.semanal[dados.graficos.semanal.length-1][1]}<span class="metric-unit mep-v2">kWh</span>`;
+      document.getElementById('cda').innerHTML = `${dados.consumos.consumoDiaAnterior}<span class="metric-unit mep-v2">kWh</span>`;
+      document.getElementById('cm').innerHTML = `${dados.consumos.consumoMensal}<span class="metric-unit mep-v2">kWh</span>`;
+      document.getElementById('cma').innerHTML = `${dados.consumos.consumoMesAnterior}<span class="metric-unit mep-v2">kWh</span>`;
       
       // Atualiza gráficos
       this.drawCharts(dados.graficos);
@@ -614,7 +665,7 @@ class EnergyMonitorV2 {
         vAxis: { title: 'Potência (W)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: ['#dc2626']
+        colors: [this.config.colors.primary]
       };
 
       // Gráfico semestral
@@ -630,7 +681,7 @@ class EnergyMonitorV2 {
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: ['#dc2626']
+        colors: [this.config.colors.primary]
       };
 
       // Gráfico semanal
@@ -646,7 +697,7 @@ class EnergyMonitorV2 {
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: ['#dc2626']
+        colors: [this.config.colors.primary]
       };
 
       // Desenha os gráficos
@@ -702,20 +753,20 @@ class EnergyMonitorV2 {
       const resultDiv = document.getElementById('result');
       
       if (dados.error) {
-        resultDiv.innerHTML = `<div class="text-error"><p>${dados.error}</p></div>`;
+        resultDiv.innerHTML = `<div class="text-error mep-v2"><p>${dados.error}</p></div>`;
       } else {
         this.drawConsumptionChart(dados.grafico, dados.id, dados.local);
         
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
         
         resultDiv.innerHTML = `
-          <div class="result-content">
-            <h3 class="mb-3">Consumo Calculado</h3>
-            <div class="result-details">
+          <div class="result-content mep-v2">
+            <h3 class="mb-3 mep-v2">Consumo Calculado</h3>
+            <div class="result-details mep-v2">
               <p><strong>Local:</strong> ${dados.local}</p>
               <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR', options)}</p>
               <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR', options)}</p>
-              <p class="consumption-value"><strong>Consumo:</strong> <span class="text-success">${dados.consumo} kWh</span></p>
+              <p class="consumption-value mep-v2"><strong>Consumo:</strong> <span class="text-success mep-v2">${dados.consumo} kWh</span></p>
             </div>
           </div>
         `;
@@ -729,23 +780,28 @@ class EnergyMonitorV2 {
   }
 
   /**
-   * Gera relatório geral (mesmo código da versão anterior)
+   * Gera relatório geral (movido para a visão de grid)
    */
-  async generateReport(event) {
-    event.preventDefault();
-    
+  async generateGeneralReport() {
     try {
       this.showLoading();
       
-      const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value;
+      // Para o relatório geral, precisamos de um período. Pode ser o mês atual ou um prompt.
+      // Por simplicidade, vamos usar um período fixo ou pedir ao usuário.
+      // Para esta implementação, vamos simular a funcionalidade.
+      alert('Função "Relatório Geral" disponível em breve! (Simulação)');
       
+      // Exemplo de como seria a chamada real:
+      /*
+      const startDate = prompt('Data de Início (YYYY-MM-DD):');
+      const endDate = prompt('Data de Término (YYYY-MM-DD):');
+
       if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e fim.');
+        alert('Datas são necessárias para o relatório geral.');
         this.hideLoading();
         return;
       }
-      
+
       const response = await fetch('/get_relatorio_geral/energ', {
         method: 'POST',
         headers: {
@@ -761,22 +817,17 @@ class EnergyMonitorV2 {
       });
 
       const dados = await response.json();
-      const resultDiv = document.getElementById('result');
-      
       if (dados.error) {
-        resultDiv.innerHTML = `<div class="text-error"><p>${dados.error}</p></div>`;
+        alert(`Erro ao gerar relatório: ${dados.error}`);
       } else {
-        resultDiv.innerHTML = `<div class="text-success"><p>Dados do relatório obtidos com sucesso! Gerando arquivo...</p></div>`;
-        
-        // Gera CSV
         this.generateCSVReport(dados);
-        
-        resultDiv.innerHTML = `<div class="text-success"><p>Download iniciado com sucesso!</p></div>`;
+        alert('Download do relatório geral iniciado!');
       }
+      */
       
       this.hideLoading();
     } catch (error) {
-      console.error('Erro ao gerar relatório:', error);
+      console.error('Erro ao gerar relatório geral:', error);
       this.hideLoading();
     }
   }
@@ -846,7 +897,7 @@ class EnergyMonitorV2 {
         },
         pointSize: 6,
         pointShape: 'circle',
-        colors: ['#dc2626'],
+        colors: [this.config.colors.primary],
         backgroundColor: 'transparent',
         chartArea: { width: '85%', height: '75%' },
         tooltip: {

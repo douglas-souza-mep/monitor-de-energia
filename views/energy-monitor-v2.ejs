@@ -5,387 +5,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <link rel="stylesheet" href="/stylesheets/styleNew.css">
+    <link rel="stylesheet" href="/stylesheets/style-v2.css">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-    <style>
-        /* Estilos específicos para a versão 2 - Grid de medidores */
-        .grid-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 2rem 0;
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
-        }
-
-        .grid-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .grid-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        .meters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .meter-card {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .meter-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #dc2626, #b91c1c);
-        }
-
-        .meter-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 25px rgba(220, 38, 38, 0.15);
-            border-color: #dc2626;
-        }
-
-        .meter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-
-        .meter-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        .meter-id {
-            background: #f3f4f6;
-            color: #6b7280;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .meter-consumption {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-            border-radius: 0.75rem;
-        }
-
-        .consumption-value {
-            display: flex;
-            align-items: baseline;
-            justify-content: center;
-            gap: 0.25rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .consumption-value .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #dc2626;
-            line-height: 1;
-        }
-
-        .consumption-value .unit {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #7f1d1d;
-        }
-
-        .consumption-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #7f1d1d;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .meter-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6b7280;
-        }
-
-        .info-value {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .meter-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            background: #f9fafb;
-            border-radius: 0.5rem;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #9ca3af;
-        }
-
-        .status-indicator.online {
-            background: #10b981;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-        }
-
-        .status-indicator.warning {
-            background: #f59e0b;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-        }
-
-        .status-indicator.offline {
-            background: #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-        }
-
-        .status-text {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6b7280;
-        }
-
-        /* Estilos para a view de detalhes */
-        .detail-header {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
-        }
-
-        .back-button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateX(-2px);
-        }
-
-        .detail-header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .detail-subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-        }
-
-        .last-update {
-            font-size: 0.875rem;
-            opacity: 0.8;
-            margin: 0;
-        }
-
-        /* Responsividade para o grid */
-        @media (max-width: 768px) {
-            .meters-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .grid-header h1 {
-                font-size: 2rem;
-            }
-
-            .meter-card {
-                padding: 1rem;
-            }
-
-            .consumption-value .value {
-                font-size: 2rem;
-            }
-
-            .meter-header {
-                flex-direction: column;
-                gap: 0.5rem;
-                align-items: flex-start;
-            }
-
-            .detail-header {
-                padding: 1.5rem;
-            }
-
-            .detail-header h1 {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .grid-header {
-                padding: 1.5rem 1rem;
-            }
-
-            .grid-header h1 {
-                font-size: 1.75rem;
-            }
-
-            .grid-subtitle {
-                font-size: 1rem;
-            }
-
-            .consumption-value .value {
-                font-size: 1.75rem;
-            }
-
-            .meter-name {
-                font-size: 1.125rem;
-            }
-        }
-
-        /* Animações */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .meter-card {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .meter-card:nth-child(1) { animation-delay: 0.1s; }
-        .meter-card:nth-child(2) { animation-delay: 0.2s; }
-        .meter-card:nth-child(3) { animation-delay: 0.3s; }
-        .meter-card:nth-child(4) { animation-delay: 0.4s; }
-        .meter-card:nth-child(5) { animation-delay: 0.5s; }
-        .meter-card:nth-child(6) { animation-delay: 0.6s; }
-
-        /* Pulso para indicadores online */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        .status-indicator.online {
-            animation: pulse 2s infinite;
-        }
-    </style>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="nav-container">
-            <nav class="nav-bar">
-                <div class="logo-section">
-                    <img src="/images/logo_mep.png" alt="Logo MEP Engenharia" class="logo">
-                    <div class="brand-name">MEP Engenharia</div>
+<body class="mep-v2">
+    <!-- Header MEP V2 -->
+    <header class="header mep-v2">
+        <div class="nav-container mep-v2">
+            <nav class="nav-bar mep-v2">
+                <div class="logo-section mep-v2">
+                    <img src="/images/logo_mep.png" alt="Logo MEP Engenharia" class="logo mep-v2">
+                    <div class="brand-name mep-v2">MEP Engenharia</div>
                 </div>
 
-                <div class="nav-content">
-                    <div class="nav-info">
-                        <h1 class="site-title"><%= nome %></h1>
-                        <p class="last-update">Sistema de Monitoramento V2</p>
+                <div class="nav-content mep-v2">
+                    <div class="nav-info mep-v2">
+                        <h1 class="site-title mep-v2"><%= nome %></h1>
+                        <p class="nav-subtitle mep-v2">Sistema de Monitoramento V2</p>
                     </div>
 
-                    <div class="nav-controls">
-                        <a href="http://monitor.mep.eng.br:5000/users/santaMonica_hidro" class="nav-button">
-                            Hidrômetros
+                    <div class="nav-controls mep-v2">
+                        <% if (typeof clientKey !== 'undefined' && clientKey === 'santaMonica') { %>
+                            <a href="http://monitor.mep.eng.br:5000/users/santaMonica_hidro" class="nav-button mep-v2">
+                                <i class="fas fa-tint"></i> Hidrômetros
+                            </a>
+                        <% } else if (typeof clientKey !== 'undefined' && clientKey === 'hospitalBase') { %>
+                            <a href="http://monitor.mep.eng.br:5000/users/hospitalBase_hidro" class="nav-button mep-v2">
+                                <i class="fas fa-tint"></i> Hidrômetros
+                            </a>
+                        <% } %>
+                        
+                        <a href="#" class="nav-button mep-v2" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
                         </a>
                     </div>
                 </div>
 
-                <button class="mobile-menu-toggle" aria-label="Menu">
-                    ☰
+                <button class="mobile-menu-toggle mep-v2" aria-label="Menu" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
                 </button>
             </nav>
         </div>
     </header>
 
     <!-- Loading Popup -->
-    <div id="loadingPopup" class="loading-popup" style="display: flex;">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h2 class="loading-title">Carregando medidores...</h2>
-            <p class="loading-text">Por favor, aguarde enquanto carregamos os dados.</p>
+    <div id="loadingPopup" class="loading-popup mep-v2" style="display: flex;">
+        <div class="loading-content mep-v2">
+            <div class="loading-spinner mep-v2"></div>
+            <h2 class="loading-title mep-v2">Carregando medidores...</h2>
+            <p class="loading-text mep-v2">Por favor, aguarde enquanto carregamos os dados.</p>
         </div>
     </div>
 
     <!-- Main Content -->
-    <main class="main-container">
+    <main class="main-container mep-v2">
         <div id="main-content">
             <!-- O conteúdo será gerado dinamicamente pelo JavaScript -->
-            <div class="grid-header">
+            <div class="grid-header mep-v2">
                 <h1>Carregando Sistema...</h1>
-                <p class="grid-subtitle">Aguarde enquanto inicializamos o monitoramento</p>
+                <p class="grid-subtitle mep-v2">Aguarde enquanto inicializamos o monitoramento</p>
             </div>
         </div>
     </main>
@@ -395,7 +75,278 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    
+    <!-- Configuração de Clientes -->
+    <script src="/javascripts/client-config-v2.js"></script>
+    
+    <!-- JavaScript Principal V2 -->
     <script src="/javascripts/energy-monitor-v2.js"></script>
+
+    <script>
+        // Função para toggle do menu mobile
+        function toggleMobileMenu() {
+            const navContent = document.querySelector('.nav-content.mep-v2');
+            navContent.classList.toggle('active');
+        }
+
+        // Fecha menu mobile ao clicar fora
+        document.addEventListener('click', function(event) {
+            const navContent = document.querySelector('.nav-content.mep-v2');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle.mep-v2');
+            
+            if (!navContent.contains(event.target) && !mobileToggle.contains(event.target)) {
+                navContent.classList.remove('active');
+            }
+        });
+
+        // Adiciona classes MEP V2 ao body quando carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('mep-theme', 'mep-v2');
+        });
+    </script>
+
+    <style>
+        /* Estilos específicos para o template EJS V2 */
+        
+        /* Ajustes para o menu mobile */
+        @media (max-width: 768px) {
+            .nav-content.mep-v2 {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, var(--mep-primary) 0%, var(--mep-primary-dark) 100%);
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 1rem;
+                z-index: 1000;
+            }
+            
+            .nav-content.mep-v2.active {
+                display: flex;
+            }
+            
+            .nav-info.mep-v2 {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-controls.mep-v2 {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Estilos para os botões de ação */
+        .detail-actions.mep-v2 {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .grid-actions.mep-v2 {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .btn-report-general.mep-v2 {
+            background: var(--mep-primary);
+            color: var(--mep-secondary);
+            border: none;
+            border-radius: var(--mep-radius-sm);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--mep-shadow);
+            text-decoration: none;
+        }
+
+        .btn-report-general.mep-v2:hover {
+            background: var(--mep-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Estilos para seções de gráficos */
+        .charts-section.mep-v2 {
+            margin: 2rem 0;
+        }
+
+        .charts-grid.mep-v2 {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .charts-grid.mep-v2.chart-single {
+            grid-template-columns: 1fr;
+        }
+
+        .charts-grid.mep-v2.chart-double {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .chart-container.mep-v2 {
+            background: var(--mep-surface);
+            border: 1px solid var(--mep-border);
+            border-radius: var(--mep-radius);
+            padding: 1rem;
+            box-shadow: var(--mep-shadow);
+            min-height: 400px;
+        }
+
+        /* Estilos para seção de resultados */
+        .results-section.mep-v2 {
+            margin: 2rem 0;
+        }
+
+        .results-grid.mep-v2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .result-container.mep-v2 {
+            background: var(--mep-surface);
+            border: 1px solid var(--mep-border);
+            border-radius: var(--mep-radius);
+            padding: 2rem;
+            box-shadow: var(--mep-shadow);
+        }
+
+        .result-content.mep-v2 {
+            text-align: center;
+        }
+
+        .result-details.mep-v2 {
+            text-align: left;
+            margin-top: 1rem;
+        }
+
+        .result-details.mep-v2 p {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--mep-background);
+            border-radius: var(--mep-radius-sm);
+        }
+
+        .consumption-value.mep-v2 {
+            font-size: 1.25rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef2f2 0%, var(--mep-primary-light) 100%);
+            border-radius: var(--mep-radius-sm);
+            margin: 1rem 0;
+        }
+
+        /* Responsividade para gráficos */
+        @media (max-width: 768px) {
+            .charts-grid.mep-v2.chart-double {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid.mep-v2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container.mep-v2 {
+                min-height: 300px;
+            }
+        }
+
+        /* Animações adicionais */
+        .nav-button.mep-v2 {
+            transition: all 0.2s ease;
+        }
+
+        .nav-button.mep-v2:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Estilos para ícones */
+        .nav-button.mep-v2 i,
+        .btn.mep-v2 i {
+            margin-right: 0.5rem;
+        }
+
+        /* Ajustes para o header responsivo */
+        @media (max-width: 480px) {
+            .nav-bar.mep-v2 {
+                padding: 0.5rem 0;
+            }
+            
+            .logo.mep-v2 {
+                height: 40px;
+            }
+            
+            .brand-name.mep-v2 {
+                font-size: 1.125rem;
+            }
+            
+            .site-title.mep-v2 {
+                font-size: 1rem;
+            }
+            
+            .nav-subtitle.mep-v2 {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Estilos para estados de loading */
+        .loading-popup.mep-v2 {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .loading-content.mep-v2 {
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Melhorias de acessibilidade */
+        .nav-button.mep-v2:focus,
+        .btn.mep-v2:focus {
+            outline: 2px solid var(--mep-secondary);
+            outline-offset: 2px;
+        }
+
+        /* Estilos para impressão */
+        @media print {
+            .header.mep-v2,
+            .nav-controls.mep-v2,
+            .loading-popup.mep-v2 {
+                display: none !important;
+            }
+            
+            .main-container.mep-v2 {
+                margin: 0;
+                padding: 0;
+                max-width: none;
+            }
+            
+            .meter-card.mep-v2 {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 </body>
 </html>
 

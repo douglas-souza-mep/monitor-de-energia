@@ -1,0 +1,878 @@
+/**
+ * Energy Monitor V2 - Estilos Específicos
+ * Sistema de monitoramento com visualização em grid
+ * Cores baseadas na identidade MEP Engenharia
+ */
+
+/* Variáveis CSS para cores MEP */
+:root {
+  --mep-primary: #dc2626;
+  --mep-primary-dark: #b91c1c;
+  --mep-primary-light: #fecaca;
+  --mep-secondary: #ffffff;
+  --mep-accent: #7f1d1d;
+  --mep-success: #10b981;
+  --mep-warning: #f59e0b;
+  --mep-danger: #ef4444;
+  --mep-background: #f9fafb;
+  --mep-surface: #ffffff;
+  --mep-text: #1f2937;
+  --mep-text-secondary: #6b7280;
+  --mep-border: #e5e7eb;
+  --mep-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --mep-shadow-lg: 0 10px 25px rgba(220, 38, 38, 0.2);
+  --mep-radius: 1rem;
+  --mep-radius-sm: 0.5rem;
+}
+
+/* Reset e base */
+* {
+  box-sizing: border-box;
+}
+
+body.mep-v2 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--mep-background);
+  color: var(--mep-text);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header MEP V2 */
+.header.mep-v2 {
+  background: linear-gradient(135deg, var(--mep-primary) 0%, var(--mep-primary-dark) 100%);
+  box-shadow: var(--mep-shadow-lg);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-container.mep-v2 {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.nav-bar.mep-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  gap: 2rem;
+}
+
+.logo-section.mep-v2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo.mep-v2 {
+  height: 60px;
+  width: auto;
+  border-radius: var(--mep-radius-sm);
+}
+
+.brand-name.mep-v2 {
+  color: var(--mep-secondary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.nav-content.mep-v2 {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.nav-info.mep-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--mep-secondary);
+}
+
+.site-title.mep-v2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-subtitle.mep-v2 {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.nav-controls.mep-v2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-button.mep-v2 {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--mep-radius-sm);
+  color: var(--mep-secondary);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-button.mep-v2:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Mobile menu */
+.mobile-menu-toggle.mep-v2 {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--mep-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* Main container */
+.main-container.mep-v2 {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Grid header */
+.grid-header.mep-v2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--mep-primary) 0%, var(--mep-primary-dark) 100%);
+  color: var(--mep-secondary);
+  border-radius: var(--mep-radius);
+  box-shadow: var(--mep-shadow-lg);
+}
+
+.grid-header.mep-v2 h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.grid-subtitle.mep-v2 {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Botão de relatório geral na grid */
+.grid-actions.mep-v2 {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.btn-report-general.mep-v2 {
+  background: var(--mep-primary);
+  color: var(--mep-secondary);
+  border: none;
+  border-radius: var(--mep-radius-sm);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--mep-shadow);
+}
+
+.btn-report-general.mep-v2:hover {
+  background: var(--mep-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(220, 38, 38, 0.3);
+}
+
+/* Grid de medidores */
+.meters-grid.mep-v2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Cards dos medidores */
+.meter-card.mep-v2 {
+  background: var(--mep-surface);
+  border: 2px solid var(--mep-border);
+  border-radius: var(--mep-radius);
+  padding: 1.5rem;
+  box-shadow: var(--mep-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.meter-card.mep-v2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--mep-primary), var(--mep-primary-dark));
+}
+
+.meter-card.mep-v2:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(220, 38, 38, 0.15);
+  border-color: var(--mep-primary);
+}
+
+.meter-header.mep-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.meter-name.mep-v2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--mep-text);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.meter-id.mep-v2 {
+  background: var(--mep-background);
+  color: var(--mep-text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--mep-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.meter-consumption.mep-v2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fef2f2 0%, var(--mep-primary-light) 100%);
+  border-radius: 0.75rem;
+}
+
+.consumption-value.mep-v2 {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.consumption-value.mep-v2 .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--mep-primary);
+  line-height: 1;
+}
+
+.consumption-value.mep-v2 .unit {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--mep-accent);
+}
+
+.consumption-label.mep-v2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mep-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meter-info.mep-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.info-item.mep-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--mep-background);
+}
+
+.info-item.mep-v2:last-child {
+  border-bottom: none;
+}
+
+.info-label.mep-v2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mep-text-secondary);
+}
+
+.info-value.mep-v2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mep-text);
+}
+
+.meter-status.mep-v2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--mep-background);
+  border-radius: var(--mep-radius-sm);
+}
+
+.status-indicator.mep-v2 {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.status-indicator.mep-v2.online {
+  background: var(--mep-success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.status-indicator.mep-v2.warning {
+  background: var(--mep-warning);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.status-indicator.mep-v2.offline {
+  background: var(--mep-danger);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.status-text.mep-v2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mep-text-secondary);
+}
+
+/* View de detalhes */
+.detail-header.mep-v2 {
+  background: linear-gradient(135deg, var(--mep-primary) 0%, var(--mep-primary-dark) 100%);
+  color: var(--mep-secondary);
+  padding: 2rem;
+  border-radius: var(--mep-radius);
+  margin-bottom: 2rem;
+  box-shadow: var(--mep-shadow-lg);
+}
+
+.back-button.mep-v2 {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--mep-secondary);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--mep-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-button.mep-v2:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-2px);
+}
+
+.detail-header.mep-v2 h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.detail-subtitle.mep-v2 {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.last-update.mep-v2 {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Seções de métricas */
+.section-title.mep-v2 {
+  background: linear-gradient(135deg, var(--mep-surface) 0%, #f1f5f9 100%);
+  border: 1px solid var(--mep-border);
+  border-radius: var(--mep-radius);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0 1rem 0;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--mep-primary);
+  box-shadow: var(--mep-shadow);
+}
+
+.metrics-grid.mep-v2 {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.metrics-grid.mep-v2.voltage {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.metrics-grid.mep-v2.current,
+.metrics-grid.mep-v2.power-factor,
+.metrics-grid.mep-v2.active-power {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.metrics-grid.mep-v2.consumption {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.metric-card.mep-v2 {
+  background: var(--mep-surface);
+  border: 1px solid var(--mep-border);
+  border-radius: var(--mep-radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--mep-shadow);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card.mep-v2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--mep-primary), var(--mep-primary-dark));
+}
+
+.metric-card.mep-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(220, 38, 38, 0.1);
+}
+
+.metric-card.mep-v2.total::before {
+  background: linear-gradient(90deg, var(--mep-accent), var(--mep-danger));
+}
+
+.metric-label.mep-v2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mep-text-secondary);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value.mep-v2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--mep-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.metric-unit.mep-v2 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--mep-text-secondary);
+  margin-left: 0.25rem;
+}
+
+/* Calculadora de consumo */
+.consumption-calculator.mep-v2 {
+  background: var(--mep-surface);
+  border: 1px solid var(--mep-border);
+  border-radius: var(--mep-radius);
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: var(--mep-shadow);
+}
+
+.calculator-title.mep-v2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mep-text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.calculator-form.mep-v2 {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group.mep-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label.mep-v2 {
+  font-weight: 500;
+  color: var(--mep-text);
+  font-size: 0.875rem;
+}
+
+.form-input.mep-v2 {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--mep-border);
+  border-radius: var(--mep-radius-sm);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--mep-surface);
+}
+
+.form-input.mep-v2:focus {
+  outline: none;
+  border-color: var(--mep-primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.button-group.mep-v2 {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn.mep-v2 {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: var(--mep-radius-sm);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary.mep-v2 {
+  background: var(--mep-primary);
+  color: var(--mep-secondary);
+}
+
+.btn-primary.mep-v2:hover {
+  background: var(--mep-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.btn-secondary.mep-v2 {
+  background: var(--mep-text-secondary);
+  color: var(--mep-secondary);
+}
+
+.btn-secondary.mep-v2:hover {
+  background: #475569;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
+}
+
+/* Loading popup */
+.loading-popup.mep-v2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.loading-content.mep-v2 {
+  background: var(--mep-surface);
+  padding: 2rem;
+  border-radius: var(--mep-radius);
+  text-align: center;
+  box-shadow: var(--mep-shadow-lg);
+  max-width: 300px;
+}
+
+.loading-spinner.mep-v2 {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--mep-border);
+  border-top: 4px solid var(--mep-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-title.mep-v2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--mep-text);
+  margin-bottom: 0.5rem;
+}
+
+.loading-text.mep-v2 {
+  color: var(--mep-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .nav-bar.mep-v2 {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .nav-content.mep-v2 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-controls.mep-v2 {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-bar.mep-v2 {
+    padding: 0.75rem 0;
+  }
+  
+  .mobile-menu-toggle.mep-v2 {
+    display: block;
+  }
+  
+  .nav-content.mep-v2 {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .nav-content.mep-v2.active {
+    display: flex;
+  }
+  
+  .main-container.mep-v2 {
+    padding: 1rem;
+  }
+  
+  .meters-grid.mep-v2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .grid-header.mep-v2 h1 {
+    font-size: 2rem;
+  }
+  
+  .meter-card.mep-v2 {
+    padding: 1rem;
+  }
+  
+  .consumption-value.mep-v2 .value {
+    font-size: 2rem;
+  }
+  
+  .meter-header.mep-v2 {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .detail-header.mep-v2 {
+    padding: 1.5rem;
+  }
+  
+  .detail-header.mep-v2 h1 {
+    font-size: 1.5rem;
+  }
+  
+  .button-group.mep-v2 {
+    flex-direction: column;
+  }
+  
+  .consumption-calculator.mep-v2 {
+    padding: 1.5rem;
+  }
+  
+  .metrics-grid.mep-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-grid.mep-v2.voltage,
+  .metrics-grid.mep-v2.current {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-section.mep-v2 {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .brand-name.mep-v2 {
+    font-size: 1.25rem;
+  }
+  
+  .site-title.mep-v2 {
+    font-size: 1.125rem;
+  }
+  
+  .grid-header.mep-v2 {
+    padding: 1.5rem 1rem;
+  }
+  
+  .grid-header.mep-v2 h1 {
+    font-size: 1.75rem;
+  }
+  
+  .grid-subtitle.mep-v2 {
+    font-size: 1rem;
+  }
+  
+  .consumption-value.mep-v2 .value {
+    font-size: 1.75rem;
+  }
+  
+  .meter-name.mep-v2 {
+    font-size: 1.125rem;
+  }
+  
+  .metric-value.mep-v2 {
+    font-size: 1.5rem;
+  }
+  
+  .section-title.mep-v2 {
+    font-size: 1.125rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .consumption-calculator.mep-v2 {
+    padding: 1rem;
+  }
+  
+  .calculator-title.mep-v2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meter-card.mep-v2 {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.meter-card.mep-v2:nth-child(1) { animation-delay: 0.1s; }
+.meter-card.mep-v2:nth-child(2) { animation-delay: 0.2s; }
+.meter-card.mep-v2:nth-child(3) { animation-delay: 0.3s; }
+.meter-card.mep-v2:nth-child(4) { animation-delay: 0.4s; }
+.meter-card.mep-v2:nth-child(5) { animation-delay: 0.5s; }
+.meter-card.mep-v2:nth-child(6) { animation-delay: 0.6s; }
+
+/* Pulso para indicadores online */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.status-indicator.mep-v2.online {
+  animation: pulse 2s infinite;
+}
+
+/* Utilitários */
+.hidden.mep-v2 {
+  display: none !important;
+}
+
+.text-center.mep-v2 {
+  text-align: center;
+}
+
+.text-success.mep-v2 {
+  color: var(--mep-success);
+}
+
+.text-warning.mep-v2 {
+  color: var(--mep-warning);
+}
+
+.text-error.mep-v2 {
+  color: var(--mep-danger);
+}
+
+.mb-0.mep-v2 { margin-bottom: 0; }
+.mb-1.mep-v2 { margin-bottom: 0.5rem; }
+.mb-2.mep-v2 { margin-bottom: 1rem; }
+.mb-3.mep-v2 { margin-bottom: 1.5rem; }
+.mb-4.mep-v2 { margin-bottom: 2rem; }
+
+.mt-0.mep-v2 { margin-top: 0; }
+.mt-1.mep-v2 { margin-top: 0.5rem; }
+.mt-2.mep-v2 { margin-top: 1rem; }
+.mt-3.mep-v2 { margin-top: 1.5rem; }
+.mt-4.mep-v2 { margin-top: 2rem; }
+

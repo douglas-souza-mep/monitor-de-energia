@@ -72,12 +72,24 @@ module.exports = function(io){
     });
   });
 
-  router.get('/santaMonica_energ_v2', function(req, res, next) {
-    res.render('energy-monitor-v2', { 
-      title: 'Monitor de Energia V2',
-      nome: 'Santa Mônica - Monitoramento V2'
-    });
+  // ===== ROTAS PARA ENERGY MONITOR V2 =====
+// Rota para Santa Mônica V2
+router.get('/santaMonica_energ_v2', function(req, res, next) {
+  res.render('energy-monitor-v2', { 
+    title: 'Monitor de Energia V2 - Santa Mônica',
+    nome: 'Santa Mônica - Monitoramento de Energia V2',
+    clientKey: 'santaMonica'
   });
+});
+
+// Rota para Hospital de Base V2
+router.get('/hospitalBase_energ_v2', function(req, res, next) {
+  res.render('energy-monitor-v2', { 
+    title: 'Monitor de Energia V2 - Hospital de Base',
+    nome: 'Hospital de Base - Monitoramento de Energia V2',
+    clientKey: 'hospitalBase'
+  });
+});
 
   router.get('/santaMonica_hidro', function(req, res) {
     res.render('santaMonica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });
