@@ -2,7 +2,7 @@
  * Energy Monitor Dashboard V2
  * Sistema de monitoramento de medidores de energia com visualização em grid
  */
-
+const moment = require('moment-timezone');
 class EnergyMonitorV2 {
   constructor() {
     this.medidores = [];
@@ -185,8 +185,12 @@ class EnergyMonitorV2 {
         })
       });
 
-      const dados = await response.json();
+      let dados = await response.json();
       console.log(dados)
+      const semZ = dados.leitura.data.slice(0, -1); // remove último caractere
+      dados.leitura.data = moment.tz(semZ, 'YYYY-MM-DDTHH:mm:ss.SSS', 'America/Sao_Paulo');
+      console.log(dados)
+
       if (dados.id == meterId) {
         this.metersData.set(meterId, dados);
         
