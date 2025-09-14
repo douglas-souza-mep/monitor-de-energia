@@ -2,7 +2,7 @@ const mqtt = require('mqtt');
 const model_Energ = require('./models/model_Energ')
 const model_Res = require('./models/model_Res')
 const model_Hidro = require('./models/model_Hidro')
-const moment = require('moment')
+const moment = require('moment-timezone');
 
 
 // Função para conectar ao broker MQTT e subscrever vários tópicos
@@ -103,7 +103,7 @@ async function leituraRes(dados,client){
             return
             }
         leitura = retorno.leitura,
-        leitura.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss')
+        leitura.data = moment.tz(dados.data, 'YYYY-MM-DD HH:mm:ss', 'America/Sao_Paulo');
         // Serializar o objeto para JSON
         const mensagem = JSON.stringify(leitura);
         client.publish(`${dados.url}/atualizarTela/res`, mensagem, (err) => {
@@ -120,8 +120,7 @@ async function leituraRes(dados,client){
 async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
-    leitura.data = moment(data).format('DD-MM-YYYY HH:mm:ss')
-
+    leitura.data = moment.tz(data, 'YYYY-MM-DD HH:mm:ss', 'America/Sao_Paulo');
     var dados = {
         id:leitura.id,
         leitura:leitura,
