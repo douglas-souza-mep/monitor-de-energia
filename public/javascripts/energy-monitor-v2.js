@@ -186,7 +186,7 @@ class EnergyMonitorV2 {
       });
 
       const dados = await response.json();
-      
+      console.log(dados)
       if (dados.id == meterId) {
         this.metersData.set(meterId, dados);
         

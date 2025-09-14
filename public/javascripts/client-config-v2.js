@@ -55,7 +55,7 @@ const clientsConfig = {
       topic: "HospitalBase/energ"
     },
     api: {
-      baseUrl: "hospitalBase"
+      baseUrl: "HospitalBase"
     },
     navigation: {
       hydrometers: "https://monitor.mep.eng.br/users/hospitalBase_hidro"
