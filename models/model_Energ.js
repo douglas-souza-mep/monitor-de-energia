@@ -249,6 +249,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
 };
 
 const getGraficoDiario = async (medidor,usuario,data) => {
+    const useNewStructure = await isNewStructureCondominium(usuario);
     let sqlSelectCDadosDia;
 
     if (useNewStructure) {
