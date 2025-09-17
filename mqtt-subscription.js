@@ -145,6 +145,13 @@ async function leituraEnerg(data,msg,url,client) {
                 console.error('Erro ao publicar mensagem:', err);
             }
         })
+        client.publish(`santaMonica/atualizarTela/energv2`, mensagem, (err) => {
+            console.log(`encaminhando mensagem para santaMonica/atualizarTela/energv2`)
+            console.log(err)
+            if (err) {
+                console.error('Erro ao publicar mensagem:', err);
+            }
+        })
     //console.log(leitura)
 }
 

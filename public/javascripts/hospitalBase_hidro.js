@@ -108,11 +108,10 @@ function obterLeituras(url,hidrometro) {
     })
     .then(response => response.json())
     .then(dados=> {
-        console.log(dados)
         try {
             if(dados[0].id == hidrometro){
-                $('#data').text(dados.data)
-                $('#leitura').text(dados.leitura/1000)
+                $('#data').text(dados[0].data)
+                $('#leitura').text(dados[0].leitura/1000)
                 drawChart(dados)
             }  
         } catch (error) {
