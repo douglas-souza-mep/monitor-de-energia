@@ -765,7 +765,7 @@ class EnergyMonitorV2 {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: url, medidor: dados.id, data:dados.leitura.data }) // Envia o dado da URL como JSON
+        body: JSON.stringify({ url: this.url, medidor: dados.id, data:dados.leitura.data }) // Envia o dado da URL como JSON
       })
       .then(response => response.json())
       .then(dadosDiarios => {
