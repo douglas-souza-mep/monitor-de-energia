@@ -169,6 +169,16 @@ router.post('/get_ultimas_leituras/energ', async (req, res) => {
   }
 })
 
+router.post('/get_grafico_diario/energ', async (req, res) => {
+  const { url, medidor, data } = req.body; 
+  try {
+    const dados=await model_Energ.getGraficoDiario(medidor,url,data)
+    res.json(dados); // Envia os dados do medidor de volta como resposta JSON
+  } catch (error) {
+    console.error('Erro ao consultar o banco de dados:', error);
+    res.status(500).json({ error: 'Ainda não ha leituras' });
+  }
+})
 router.post('/get_consumo/energ', async (req, res) => {
   const {info} = req.body; 
   console.log(info)

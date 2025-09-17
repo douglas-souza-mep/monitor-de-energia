@@ -57,7 +57,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
     let sqlSelectCMA;
     let sqlSelectCSemanais;
     let sqlSelectCMensais;
-    let sqlSelectCDadosDia;
+    
 
     if (useNewStructure) {
         const tableNameDados = getTableName(usuario, medidor, 'dados', true);
@@ -76,8 +76,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
         sqlSelectCMA = `SELECT valor FROM ${tableNameCM} WHERE DATE(data) = ? AND id_medidor = ? LIMIT 1`;
         sqlSelectCSemanais = `SELECT data, valor FROM ${tableNameCD} WHERE id_medidor = ? ORDER BY data DESC LIMIT 8`;
         sqlSelectCMensais = `SELECT data, valor FROM ${tableNameCM} WHERE id_medidor = ? ORDER BY data DESC LIMIT 6`;
-        sqlSelectCDadosDia = `SELECT data, pt FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data)=?`;
-
+        
     } else {
         const tableNameDados = getTableName(usuario, medidor, 'dados', false);
         const tableNameCD = getTableName(usuario, medidor, 'consumo_diario', false);
@@ -95,7 +94,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
         sqlSelectCMA = `SELECT valor FROM ${tableNameCM} WHERE DATE(data) = ? LIMIT 1`;
         sqlSelectCSemanais = `SELECT data, valor FROM ${tableNameCD} ORDER BY data DESC LIMIT 8`;
         sqlSelectCMensais = `SELECT data, valor FROM ${tableNameCM} ORDER BY data DESC LIMIT 6`;
-        sqlSelectCDadosDia = `SELECT data, pt FROM ${tableNameDados} WHERE DATE(data)=?`;
+        
     }
 
     try {
@@ -207,17 +206,7 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
 
     let consumosSemanais;
     let consumosMensais;
-    let cd;
-
-    if (useNewStructure) {
-        [consumosSemanais] = await db.query(sqlSelectCSemanais, [medidor]);
-        [consumosMensais] = await db.query(sqlSelectCMensais, [medidor]);
-        [cd] = await db.query(sqlSelectCDadosDia, [medidor, moment(data).format('YYYY-MM-DD')]);
-    } else {
-        [consumosSemanais] = await db.query(sqlSelectCSemanais);
-        [consumosMensais] = await db.query(sqlSelectCMensais);
-        [cd] = await db.query(sqlSelectCDadosDia, [moment(data).format('YYYY-MM-DD')]);
-    }
+    
 
     var consumos = {
         consumo: consumoD.valor.toFixed(2),
@@ -249,14 +238,36 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
         graficos.semestral.unshift([_.traduzMes(moment(dado.data).format('MMMM-YYYY')), dado.valor]);
     });
 
+    return { leitura: leituraAtual, consumos: consumos, graficos: graficos };
+};
+
+const getGraficoDiario = async (medidor,usuario,data) => {
+    let sqlSelectCDadosDia;
+
+    if (useNewStructure) {
+        const tableNameDados = getTableName(usuario, medidor, 'dados', true);
+        sqlSelectCDadosDia = `SELECT data, pt FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data)=?`;
+        
+    } else {
+        const tableNameDados = getTableName(usuario, medidor, 'dados', false);
+        sqlSelectCDadosDia = `SELECT data, pt FROM ${tableNameDados} WHERE DATE(data)=?`;
+    }
+    let cd;
+
+    if (useNewStructure) {
+        [cd] = await db.query(sqlSelectCDadosDia, [medidor, moment(data).format('YYYY-MM-DD')]);
+    } else {
+        [cd] = await db.query(sqlSelectCDadosDia, [moment(data).format('YYYY-MM-DD')]);
+    }
+
+    const graficos = {
+        diario: []
+    }
     cd.forEach((dado) => {
         let hora = moment(dado.data).format('HH:mm:ss');
         graficos.diario.push([hora, dado.pt]);
     });
-
-    return { leitura: leituraAtual, consumos: consumos, graficos: graficos };
-};
-
+}
 const getDataStart = async (medidor, usuario) => {
     const useNewStructure = await isNewStructureCondominium(usuario);
 
@@ -548,6 +559,7 @@ async function validacao(leitura) {
 
 module.exports = {
     atualizarDados,
+    getGraficoDiario,
     getConsumo,
     getDataStart,
     getRelatorioOtimizado

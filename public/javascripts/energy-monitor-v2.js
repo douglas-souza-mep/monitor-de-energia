@@ -254,8 +254,6 @@ class EnergyMonitorV2 {
    * Manipula mensagens MQTT
    */
   handleMQTTMessage(topic, message) {
-    console.log(topic)
-    console.log(this.config.mqtt.topic)
     switch (topic) {
       case this.config.mqtt.topic:
         try {
@@ -762,8 +760,18 @@ class EnergyMonitorV2 {
       document.getElementById('cma').innerHTML = `${dados.consumos.consumoMesAnterior}<span class="metric-unit mep-v2">kWh</span>`;
       
       // Atualiza gráficos
-      this.drawCharts(dados.graficos);
-      
+      fetch('/get_grafico_diario/energ', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url, medidor: dados.id, data:dados.leitura.data }) // Envia o dado da URL como JSON
+      })
+      .then(response => response.json())
+      .then(dadosDiarios => {
+        dados.graficos.diario = dadosDiarios
+        this.drawCharts(dados.graficos);
+      })
     } catch (error) {
       console.error('Erro ao atualizar view de detalhes:', error);
     }
