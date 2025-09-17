@@ -108,7 +108,7 @@ function obterLeituras(url,hidrometro) {
     })
     .then(response => response.json())
     .then(dados=> {
-        //console.log(dados)
+        console.log(dados)
         try {
             if(dados[0].id == hidrometro){
                 $('#data').text(dados.data)
