@@ -207,6 +207,13 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
     let consumosSemanais;
     let consumosMensais;
     
+    if (useNewStructure) {
+        [consumosSemanais] = await db.query(sqlSelectCSemanais, [medidor]);
+        [consumosMensais] = await db.query(sqlSelectCMensais, [medidor]);
+    } else {
+        [consumosSemanais] = await db.query(sqlSelectCSemanais);
+        [consumosMensais] = await db.query(sqlSelectCMensais);
+    }
 
     var consumos = {
         consumo: consumoD.valor.toFixed(2),
