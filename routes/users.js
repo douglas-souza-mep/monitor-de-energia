@@ -73,7 +73,7 @@ module.exports = function(io){
   });
 
   // ===== ROTAS PARA ENERGY MONITOR V2 =====
-// Rota para Santa Mônica V2
+// Santa Mônica V2
 router.get('/santaMonica_energ_v2', function(req, res, next) {
   res.render('energy-monitor-v2', { 
     title: 'Monitor de Energia V2 - Santa Mônica',
@@ -82,7 +82,7 @@ router.get('/santaMonica_energ_v2', function(req, res, next) {
   });
 });
 
-// Rota para Hospital de Base V2
+// Hospital de Base V2
 router.get('/hospitalBase_energ_v2', function(req, res, next) {
   res.render('energy-monitor-v2', { 
     title: 'Monitor de Energia V2 - Hospital de Base',

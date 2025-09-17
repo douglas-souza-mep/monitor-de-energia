@@ -40,7 +40,16 @@ const clientsConfig = {
       baseUrl: "santaMonica"
     },
     navigation: {
-      hydrometers: "https://monitor.mep.eng.br/users/santaMonica_hidro"
+      hydrometers: "http://monitor.mep.eng.br:5000/users/santaMonica_hidro"
+    },
+    interface: {
+      meterCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      }
     }
   },
 
@@ -52,13 +61,22 @@ const clientsConfig = {
       username: "douglas",
       password: "8501",
       path: "/mqtt",
-      topic: "HospitalBase/energ"
+      topic: "HospitalBase/atualizarTela/energ"
     },
     api: {
       baseUrl: "HospitalBase"
     },
     navigation: {
-      hydrometers: "https://monitor.mep.eng.br/users/hospitalBase_hidro"
+      hydrometers: "http://monitor.mep.eng.br:5000/users/hospitalBase_hidro"
+    },
+    interface: {
+      meterCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      }
     }
   }
 };

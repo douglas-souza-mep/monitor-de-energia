@@ -876,3 +876,185 @@ body.mep-v2 {
 .mt-3.mep-v2 { margin-top: 1.5rem; }
 .mt-4.mep-v2 { margin-top: 2rem; }
 
+
+
+/* Estilos para formulário de relatório geral */
+.report-general-form.mep-v2 {
+  background: var(--mep-surface);
+  border: 1px solid var(--mep-border);
+  border-radius: var(--mep-radius);
+  padding: 2rem;
+  box-shadow: var(--mep-shadow);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-title.mep-v2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mep-text);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border-bottom: 2px solid var(--mep-primary);
+  padding-bottom: 0.5rem;
+}
+
+.form-row.mep-v2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+/* Estilos para popup de relatório de consumo */
+.consumption-report-popup.mep-v2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.consumption-report-popup.mep-v2.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-overlay.mep-v2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.popup-content.mep-v2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--mep-surface);
+  border-radius: var(--mep-radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: popupSlideIn 0.3s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.popup-header.mep-v2 {
+  background: linear-gradient(135deg, var(--mep-primary) 0%, var(--mep-primary-dark) 100%);
+  color: var(--mep-secondary);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-header.mep-v2 h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.popup-close.mep-v2 {
+  background: none;
+  border: none;
+  color: var(--mep-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--mep-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.popup-close.mep-v2:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.popup-body.mep-v2 {
+  padding: 2rem;
+  text-align: center;
+}
+
+.popup-icon.mep-v2 {
+  font-size: 3rem;
+  color: var(--mep-primary);
+  margin-bottom: 1rem;
+}
+
+.popup-message.mep-v2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--mep-text);
+  margin-bottom: 1rem;
+}
+
+.popup-description.mep-v2 {
+  color: var(--mep-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.popup-footer.mep-v2 {
+  padding: 1.5rem 2rem;
+  background: var(--mep-background);
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsividade para formulário de relatório geral */
+@media (max-width: 768px) {
+  .form-row.mep-v2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .report-general-form.mep-v2 {
+    padding: 1.5rem;
+  }
+  
+  .form-title.mep-v2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .popup-content.mep-v2 {
+    width: 95%;
+  }
+  
+  .popup-header.mep-v2,
+  .popup-body.mep-v2,
+  .popup-footer.mep-v2 {
+    padding: 1rem 1.5rem;
+  }
+  
+  .popup-icon.mep-v2 {
+    font-size: 2.5rem;
+  }
+  
+  .popup-message.mep-v2 {
+    font-size: 1.125rem;
+  }
+}
+

@@ -120,7 +120,7 @@ async function leituraRes(dados,client){
 async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
-    leitura.data = moment.tz(data, 'YYYY-MM-DD HH:mm:ss', 'America/Sao_Paulo');
+    leitura.data = data
     var dados = {
         id:leitura.id,
         leitura:leitura,

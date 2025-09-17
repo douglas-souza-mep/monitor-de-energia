@@ -386,8 +386,14 @@ const getDataStart = async (medidor, usuario) => {
         let hora = moment(dado.data).format('HH:mm:ss');
         graficos.diario.push([hora, dado.pt]);
     });
+    /*console.log(ultimaLeitura.data);
+    ultimaLeitura.data  = moment.tz(
+        moment(ultimaLeitura.data).format('YYYY-MM-DD HH:mm:ss'),
+        'YYYY-MM-DD HH:mm:ss',
+        'America/Sao_Paulo'
+      );
     
-    ultimaLeitura.data = moment.tz(ultimaLeitura.data, 'YYYY-MM-DD HH:mm:ss', 'America/Sao_Paulo');
+    console.log(ultimaLeitura.data)*/
     return { id:medidor, leitura: ultimaLeitura, consumos: consumos, graficos: graficos };
 };
 

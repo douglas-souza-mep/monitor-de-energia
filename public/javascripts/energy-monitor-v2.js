@@ -2,7 +2,7 @@
  * Energy Monitor Dashboard V2
  * Sistema de monitoramento de medidores de energia com visualização em grid
  */
-const moment = require('moment-timezone');
+
 class EnergyMonitorV2 {
   constructor() {
     this.medidores = [];
@@ -29,9 +29,10 @@ class EnergyMonitorV2 {
    */
   getClientKeyFromUrl() {
     const path = window.location.pathname;
-    if (path.includes('santaMonica')) {
+    
+    if (path.includes('/santaMonica_energ_v2')) {
       return 'santaMonica';
-    } else if (path.includes('hospitalBase')) {
+    } else if (path.includes('/HospitalBase_energ_v2')) {
       return 'hospitalBase';
     }
     return 'santaMonica'; // Default
@@ -87,7 +88,7 @@ class EnergyMonitorV2 {
     document.addEventListener('click', (e) => {
       if (e.target.id === 'btn-report-consumption') {
         e.preventDefault();
-        alert('Função "Relatório de Consumo" disponível em breve!');
+        this.showConsumptionReportPopup();
       }
     });
 
@@ -185,12 +186,8 @@ class EnergyMonitorV2 {
         })
       });
 
-      let dados = await response.json();
-      console.log(dados)
-      const semZ = dados.leitura.data.slice(0, -1); // remove último caractere
-      dados.leitura.data = moment.tz(semZ, 'YYYY-MM-DDTHH:mm:ss.SSS', 'America/Sao_Paulo');
-      console.log(dados)
-
+      const dados = await response.json();
+      
       if (dados.id == meterId) {
         this.metersData.set(meterId, dados);
         
@@ -257,6 +254,8 @@ class EnergyMonitorV2 {
    * Manipula mensagens MQTT
    */
   handleMQTTMessage(topic, message) {
+    console.log(topic)
+    console.log(this.config.mqtt.topic)
     switch (topic) {
       case this.config.mqtt.topic:
         try {
@@ -311,9 +310,24 @@ class EnergyMonitorV2 {
       </div>
       
       <div class="grid-actions mep-v2">
-        <button id="btn-report-general" class="btn btn-report-general mep-v2">
-          <i class="fas fa-file-csv"></i> Relatório Geral
-        </button>
+        <div class="report-general-form mep-v2">
+          <h3 class="form-title mep-v2">Relatório Geral</h3>
+          <div class="form-row mep-v2">
+            <div class="form-group mep-v2">
+              <label for="general-start-date" class="form-label mep-v2">Data de Início:</label>
+              <input type="date" id="general-start-date" class="form-input mep-v2" required>
+            </div>
+            <div class="form-group mep-v2">
+              <label for="general-end-date" class="form-label mep-v2">Data de Término:</label>
+              <input type="date" id="general-end-date" class="form-input mep-v2" required>
+            </div>
+            <div class="form-group mep-v2">
+              <button id="btn-report-general" class="btn btn-report-general mep-v2">
+                <i class="fas fa-file-csv"></i> Gerar Relatório Geral
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="meters-grid mep-v2">
@@ -358,6 +372,9 @@ class EnergyMonitorV2 {
    */
   updateMeterCard(meterId, dados) {
     try {
+      // Log para depuração de data/hora
+      //console.log(`[DEBUG] Medidor ${meterId} - Data recebida:`, dados.leitura?.data);
+      
       // Consumo hoje
       const consumptionEl = document.getElementById(`consumption-${meterId}`);
       if (consumptionEl && dados.graficos && dados.graficos.semanal) {
@@ -371,21 +388,82 @@ class EnergyMonitorV2 {
         pfEl.textContent = dados.leitura.pft || '--';
       }
       
-      // Data da última transmissão
+      // Data da última transmissão (corrigindo fuso horário)
       const dateEl = document.getElementById(`date-${meterId}`);
-      if (dateEl && dados.leitura) {
-        const date = new Date(dados.leitura.data);
-        dateEl.textContent = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+      if (dateEl && dados.leitura && dados.leitura.data) {
+        // Converte a data recebida do servidor e adiciona 3 horas para compensar o fuso horário
+        let date;
+        if (typeof dados.leitura.data === 'string') {
+          // Se a data vier como string no formato DD-MM-YYYY HH:mm:ss
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            // Reconstrói no formato ISO para criar a data corretamente
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            date = new Date(isoString);
+            //console.log(`[DEBUG] Medidor ${meterId} - Data original: ${dados.leitura.data}, ISO: ${isoString}, Objeto Date: ${date}`);
+          } else {
+            date = new Date(dados.leitura.data);
+            //console.log(`[DEBUG] Medidor ${meterId} - Data direta: ${dados.leitura.data}, Objeto Date: ${date}`);
+          }
+        } else {
+          date = new Date(dados.leitura.data);
+          //console.log(`[DEBUG] Medidor ${meterId} - Data como objeto: ${dados.leitura.data}, Objeto Date: ${date}`);
+        }
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        const originalHour = date.getHours();
+        date.setHours(date.getHours() + 3);
+        //console.log(`[DEBUG] Medidor ${meterId} - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
+        
+        const formattedDate = date.toLocaleString('pt-BR', { 
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        //console.log(`[DEBUG] Medidor ${meterId} - Data formatada exibida: ${formattedDate}`);
+        dateEl.textContent = formattedDate;
       }
       
       // Status do medidor
       const statusEl = document.getElementById(`status-${meterId}`);
-      if (statusEl) {
+      if (statusEl && dados.leitura && dados.leitura.data) {
         const now = new Date();
-        const lastUpdate = new Date(dados.leitura.data);
-        const diffMinutes = (now - lastUpdate) / (1000 * 60);
         
-        const statusConfig = this.config.interface.meterCard.statusThresholds;
+        // Processa a data da mesma forma que acima
+        let lastUpdate;
+        if (typeof dados.leitura.data === 'string') {
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            lastUpdate = new Date(isoString);
+          } else {
+            lastUpdate = new Date(dados.leitura.data);
+          }
+        } else {
+          lastUpdate = new Date(dados.leitura.data);
+        }
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        lastUpdate.setHours(lastUpdate.getHours() + 3);
+        
+        const diffMinutes = (now - lastUpdate) / (1000 * 60);
+        //console.log(`[DEBUG] Medidor ${meterId} - Diferença em minutos: ${diffMinutes.toFixed(2)}`);
+        
+        // Verifica se a configuração de interface existe
+        const statusConfig = this.config.interface?.meterCard?.statusThresholds || {
+          online: 5,
+          warning: 15,
+          offline: 30
+        };
 
         let statusClass = '';
         let statusText = '';
@@ -400,6 +478,8 @@ class EnergyMonitorV2 {
           statusClass = 'offline';
           statusText = 'Offline';
         }
+        
+        //console.log(`[DEBUG] Medidor ${meterId} - Status: ${statusText} (${statusClass})`);
         statusEl.innerHTML = `<span class="status-indicator mep-v2 ${statusClass}"></span><span class="status-text mep-v2">${statusText}</span>`;
       }
       
@@ -438,11 +518,7 @@ class EnergyMonitorV2 {
         <h1>${medidor.local}</h1>
         <p class="detail-subtitle mep-v2">ID: ${medidor.id}</p>
         <p class="last-update mep-v2">Última atualização: <span id="detail-date">Carregando...</span></p>
-        <div class="detail-actions mep-v2">
-          <button id="btn-report-consumption" class="btn btn-primary mep-v2">
-            <i class="fas fa-file-alt"></i> Relatório de Consumo
-          </button>
-        </div>
+        
       </div>
 
       <!-- Voltage Section -->
@@ -582,6 +658,9 @@ class EnergyMonitorV2 {
             <button id="calcular" type="submit" class="btn btn-primary mep-v2">
               📊 Calcular Consumo
             </button>
+            <button id="btn-report-consumption" type="button" class="btn btn-secondary mep-v2">
+              📋 Relatório de Consumo
+            </button>
           </div>
         </form>
       </div>
@@ -607,11 +686,50 @@ class EnergyMonitorV2 {
    */
   updateDetailView(dados) {
     try {
-      // Atualiza data
+      // Log para depuração de data/hora na view de detalhes
+      //console.log(`[DEBUG] Detail View - Data recebida:`, dados.leitura?.data);
+      
+      // Atualiza data (corrigindo fuso horário)
       const dateEl = document.getElementById('detail-date');
-      if (dateEl) {
-        const date = new Date(dados.leitura.data);
-        dateEl.textContent = date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+      if (dateEl && dados.leitura && dados.leitura.data) {
+        // Converte a data recebida do servidor e adiciona 3 horas para compensar o fuso horário
+        let date;
+        if (typeof dados.leitura.data === 'string') {
+          // Se a data vier como string no formato DD-MM-YYYY HH:mm:ss
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            // Reconstrói no formato ISO para criar a data corretamente
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            date = new Date(isoString);
+            //console.log(`[DEBUG] Detail View - Data original: ${dados.leitura.data}, ISO: ${isoString}, Objeto Date: ${date}`);
+          } else {
+            date = new Date(dados.leitura.data);
+            //console.log(`[DEBUG] Detail View - Data direta: ${dados.leitura.data}, Objeto Date: ${date}`);
+          }
+        } else {
+          date = new Date(dados.leitura.data);
+          //console.log(`[DEBUG] Detail View - Data como objeto: ${dados.leitura.data}, Objeto Date: ${date}`);
+        }
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        const originalHour = date.getHours();
+        date.setHours(date.getHours() + 3);
+        //console.log(`[DEBUG] Detail View - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
+        
+        const formattedDate = date.toLocaleString('pt-BR', { 
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        //console.log(`[DEBUG] Detail View - Data formatada exibida: ${formattedDate}`);
+        dateEl.textContent = formattedDate;
       }
       
       // Atualiza tensões
@@ -784,28 +902,61 @@ class EnergyMonitorV2 {
   }
 
   /**
+   * Mostra popup para relatório de consumo
+   */
+  showConsumptionReportPopup() {
+    // Cria o popup
+    const popup = document.createElement('div');
+    popup.className = 'consumption-report-popup mep-v2';
+    popup.innerHTML = `
+      <div class="popup-overlay mep-v2" onclick="this.parentElement.remove()"></div>
+      <div class="popup-content mep-v2">
+        <div class="popup-header mep-v2">
+          <h3>Relatório de Consumo</h3>
+          <button class="popup-close mep-v2" onclick="this.closest('.consumption-report-popup').remove()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="popup-body mep-v2">
+          <div class="popup-icon mep-v2">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <p class="popup-message mep-v2">Função "Relatório de Consumo" disponível em breve!</p>
+          <p class="popup-description mep-v2">Esta funcionalidade está sendo desenvolvida e estará disponível em uma próxima atualização.</p>
+        </div>
+        <div class="popup-footer mep-v2">
+          <button class="btn btn-primary mep-v2" onclick="this.closest('.consumption-report-popup').remove()">
+            Entendido
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Adiciona o popup ao body
+    document.body.appendChild(popup);
+    
+    // Adiciona animação de entrada
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 10);
+  }
+
+  /**
    * Gera relatório geral (movido para a visão de grid)
    */
   async generateGeneralReport() {
     try {
       this.showLoading();
       
-      // Para o relatório geral, precisamos de um período. Pode ser o mês atual ou um prompt.
-      // Por simplicidade, vamos usar um período fixo ou pedir ao usuário.
-      // Para esta implementação, vamos simular a funcionalidade.
-      alert('Função "Relatório Geral" disponível em breve! (Simulação)');
+      const startDate = document.getElementById('general-start-date').value;
+      const endDate = document.getElementById('general-end-date').value;
       
-      // Exemplo de como seria a chamada real:
-      /*
-      const startDate = prompt('Data de Início (YYYY-MM-DD):');
-      const endDate = prompt('Data de Término (YYYY-MM-DD):');
-
       if (!startDate || !endDate) {
-        alert('Datas são necessárias para o relatório geral.');
+        alert('Por favor, selecione as datas de início e fim para o relatório geral.');
         this.hideLoading();
         return;
       }
-
+      
       const response = await fetch('/get_relatorio_geral/energ', {
         method: 'POST',
         headers: {
@@ -821,17 +972,18 @@ class EnergyMonitorV2 {
       });
 
       const dados = await response.json();
+      
       if (dados.error) {
-        alert(`Erro ao gerar relatório: ${dados.error}`);
+        alert(`Erro ao gerar relatório geral: ${dados.error}`);
       } else {
         this.generateCSVReport(dados);
-        alert('Download do relatório geral iniciado!');
+        alert('Download do relatório geral iniciado com sucesso!');
       }
-      */
       
       this.hideLoading();
     } catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
+      alert('Erro ao gerar relatório geral. Tente novamente.');
       this.hideLoading();
     }
   }
