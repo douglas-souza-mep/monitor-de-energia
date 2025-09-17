@@ -30,9 +30,9 @@ const clientsConfig = {
   santaMonica: {
     name: "Santa Mônica",
     mqtt: {
-      broker: "wss://monitor.mep.eng.br",
-      username: "douglas",
-      password: "8501",
+      broker: "wss://185.139.1.249",
+      username: "santa.monica",
+      password: "32565996",
       path: "/mqtt",
       topic: "santaMonica/atualizarTela/energ"
     },
@@ -57,9 +57,9 @@ const clientsConfig = {
   hospitalBase: {
     name: "Hospital de Base",
     mqtt: {
-      broker: "wss://monitor.mep.eng.br",
-      username: "douglas",
-      password: "8501",
+      broker: "wss://185.139.1.249",
+      username: "hospital.base",
+      password: "hospital@base",
       path: "/mqtt",
       topic: "HospitalBase/atualizarTela/energ"
     },

@@ -136,8 +136,11 @@ async function leituraEnerg(data,msg,url,client) {
             semestral: retorno.graficos.semestral
         }
     }
+    console.log(dados.leitura.data)
     const mensagem = JSON.stringify(dados);
         client.publish(`${url}/atualizarTela/energ`, mensagem, (err) => {
+            console.log(`encaminhando mensagem para ${url}/atualizarTela/energ`)
+            console.log(err)
             if (err) {
                 console.error('Erro ao publicar mensagem:', err);
             }
