@@ -275,6 +275,7 @@ const getGraficoDiario = async (medidor,usuario,data) => {
         let hora = moment(dado.data).format('HH:mm:ss');
         graficos.diario.push([hora, dado.pt]);
     });
+    return graficos
 }
 const getDataStart = async (medidor, usuario) => {
     const useNewStructure = await isNewStructureCondominium(usuario);
