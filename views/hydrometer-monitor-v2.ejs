@@ -29,16 +29,16 @@
           </div>
           <div class="nav-controls hydro-v2">
               <% if (typeof clientKey !== 'undefined' && clientKey === 'santaMonica') { %>
-                  <a href="https://monitor.mep.eng.br/users/santaMonica_energ_v2" class="nav-button mep-v2">
-                    <i class="fa-solid fa-tint"></i> Hidrômetros
+                  <a href="https://monitor.mep.eng.br/users/santaMonica_energ_v2" class="nav-button hydro-v2">
+                    <i class="fa-solid fa-bolt"></i> Energia
                   </a>
               <% } else if (typeof clientKey !== 'undefined' && clientKey === 'HospitalBase') { %>
-                  <a href="https://monitor.mep.eng.br/users/HospitalBase_energ_v2" class="nav-button mep-v2">
-                    <i class="fa-solid fa-tint"></i> Hidrômetros
+                  <a href="https://monitor.mep.eng.br/users/HospitalBase_energ_v2" class="nav-button hydro-v2">
+                    <i class="fa-solid fa-bolt"></i> Energia
                   </a>
               <% } %>
               
-              <a href="#" class="nav-button mep-v2" onclick="window.location.reload()">
+              <a href="#" class="nav-button hydro-v2" onclick="window.location.reload()">
                   <i class="fas fa-sync-alt"></i> Atualizar
               </a>
           </div>

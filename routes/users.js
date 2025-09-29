@@ -32,7 +32,7 @@ router.get('/hospitalBase_energ_v2', function(req, res, next) {
   res.render('energy-monitor-v2', { 
     title: 'Monitor de Energia V2 - Hospital de Base',
     nome: 'Hospital de Base - Monitoramento de Energia V2',
-    clientKey: 'hospitalBase'
+    clientKey: 'HospitalBase'
   });
 });
 
