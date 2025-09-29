@@ -151,11 +151,11 @@ globalThis.bot = bot;
 
 // 2. Envia a mensagem de inicialização imediatamente.
 //    O bot já pode enviar mensagens mesmo antes do 'launch'.
-const chatId = process.env.CHAT_ID_DEV;
-if (chatId) {
-    bot.telegram.sendMessage(chatId, 'Servidor Mep reiniciado e online.')
+const chatIdDev = process.env.CHAT_ID_DEV;
+if (chatIdDev) {
+    bot.telegram.sendMessage(chatIdDev, 'Servidor Mep reiniciado e online.')
         .then(() => {
-            console.log(`Mensagem de inicialização enviada para o chat ID: ${chatId}`);
+            console.log(`Mensagem de inicialização enviada para o chat ID: ${chatIdDev}`);
         })
         .catch(err => {
             console.error('ERRO AO ENVIAR MENSAGEM INICIAL:', err);
@@ -182,6 +182,9 @@ bot.on('text', async (ctx) => {
   } else {
       const result = await logar.logarTelegran(userStates[chatId].username, text, chatId);
       ctx.reply(result.msg);
+      if (result.msg2) {
+        bot.telegram.sendMessage(chatIdDev, result.msg2)
+      }
       delete userStates[chatId];
   }
 });

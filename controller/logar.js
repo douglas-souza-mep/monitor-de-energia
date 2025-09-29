@@ -8,7 +8,6 @@ async function logar(req,res){
     //validation
     try {
         const [[usuario]] = await db.query("SELECT * FROM usuarios WHERE usuario = ?  LIMIT 1",user)
-        console.log(usuario)
         if(usuario == undefined){
 
             return {acesso:0 , msg:"⚠️ Usuário não encontrado!"}//res.status(422).json({ msg:"Usuario não encontrado" })
@@ -38,17 +37,13 @@ async function logarTelegran(username, password,chatId) {
         const [user] = await db.query(
             'SELECT * FROM usuarios WHERE usuario = ? AND senha = ?',
             [username, password]);
-        //console.log(user[0])
         if (user[0]) {// Salva o chatId no banco de dados
             //console.log(user[0].chatId)
             if(user[0].chatID!==null){
                 const chatIDS = await user[0].chatID.split(";")
-                console.log(chatIDS)
-                await chatIDS.forEach(element => {
-                    if(element == chatId){
-                        return {msg:'Usuario ja cadastrado.'};
-                    }
-                });
+                if(chatIDS.includes(String(chatId))){
+                    return {msg:'Usuario ja cadastrado.'};    
+                }
                 chatIDS.push(chatId)
                 chatId= chatIDS.join(";")
             }
@@ -56,15 +51,18 @@ async function logarTelegran(username, password,chatId) {
                     [chatId.toString(), username, password]);
             if(x[0].affectedRows==1){
                 if(x[0].changedRows==1){
-                    return {msg:'Login bem-sucedido! Seu chatId foi salvo e você está pronto para receber alertas.'};
+                    return {msg:`Login bem-sucedido! Seu chatId foi salvo e você está pronto para receber alertas do Condominio ${user.nome}`,
+                    msg2: `Novo usuario cadastrado no Consominio ${user.nome}. \nUsuarios cadastrados:\n${chatId}`};
                 }
                 if(x[0].changedRows==0){
                     return {msg:'Usuario ja cadastrado.'};
                 }
-                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.'};
+                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.',
+                        msg2:`falha na consulta ao banco de dados\n Usuario:${username} Senha: ${password}\n ${erro}`};
             }
             else{
-                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.'};
+                return {msg:'Falha ao te registrar para receber alertas! Entre em contato com suporte.',
+                        msg2:`falha na consulta ao banco de dados\n Usuario:${username} Senha: ${password}\n ${erro}`};
             }
             
         } else {
@@ -72,7 +70,8 @@ async function logarTelegran(username, password,chatId) {
         }
     } catch(erro) {
         console.log(erro)
-        return {msg:'falha na consulta ao banco de dados'};
+        return {msg:'falha na consulta ao banco de dados',
+                msg2:`falha na consulta ao banco de dados\n Usuario:${username} Senha: ${password}\n ${erro}`};
     }
   }
 
