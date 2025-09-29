@@ -201,11 +201,12 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos
-const intervalo = 1000 * 60 * 15;
+const intervalo1 = 1000 * 60 * 15; //minutos
+const intervalo2 = 1000 * 60 * 60 * 3; //horas
 
 // Inicia a execução periódica da função, passando o bot como argumento
-const idIntervalo = setInterval(() => f.tarefaPeriodica(bot), intervalo);
-
+const idIntervalo = setInterval(() => f.tarefaPeriodica(bot), intervalo1);
+const idIntervalo2 = setInterval(() => f.testeTelegra(bot), intervalo2);
 //##############################################################################
 
 //Normalize a port into a number, string, or false.

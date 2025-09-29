@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style-hidro-v2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script>
+    // Cria uma variável global no navegador
+    window.CLIENT_KEY = "<%= clientKey %>";
+  </script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body class="hydro-v2">
+  <header class="header hydro-v2">
+    <div class="nav-container hydro-v2">
+      <nav class="nav-bar hydro-v2">
+        <div class="logo-section hydro-v2">
+          <img src="/images/logo_mep.png" alt="MEP Engenharia Logo" class="logo hydro-v2">
+          <span class="brand-name hydro-v2">MEP Engenharia</span>
+        </div>
+        <div class="nav-content hydro-v2">
+          <div class="nav-info hydro-v2">
+            <h1 class="site-title hydro-v2"><%= nome %></h1>
+            <p class="nav-subtitle hydro-v2">Monitoramento de Hidrômetros</p>
+          </div>
+          <div class="nav-controls hydro-v2">
+            <!-- Botões de navegação, se houver -->
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container hydro-v2">
+    <div id="main-content">
+      <!-- Conteúdo principal será carregado aqui pelo JavaScript -->
+      <div class="loading hydro-v2" id="loading">
+        <div class="loading-spinner hydro-v2"></div>
+        <span>Carregando dados...</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pop-up de Relatório de Consumo -->
+  <div id="popup-overlay" class="popup-overlay hydro-v2">
+    <div class="popup-content hydro-v2">
+      <div class="popup-header hydro-v2">
+        <h3 class="popup-title hydro-v2">Relatório de Consumo</h3>
+        <button class="popup-close hydro-v2">&times;</button>
+      </div>
+      <div class="popup-body hydro-v2">
+        <p>Esta função estará disponível em breve!</p>
+      </div>
+      <div class="popup-actions hydro-v2">
+        <button class="btn-popup hydro-v2 popup-close">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/javascripts/client-config-v2.js"></script>
+  <script src="/javascripts/hydrometer-monitor-v2.js"></script>
+</body>
+</html>
+</html>
+

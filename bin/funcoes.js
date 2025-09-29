@@ -182,6 +182,19 @@ function reiniciarApp() {
   });
 }
 
+async function testeTelegra(bot) {
+      // ---- WATCHDOG DO TELEGRAM ----
+      let ok = await watchdogTelegram(bot);
+      if (!ok) {
+        ok = await watchdogTelegram(bot); // tenta mais uma vez
+      }
+      if (!ok) {
+        reiniciarApp();
+      }
+  
+}
+
+
 // Verifica se todos os dispositivos estão trasmintindo e emite alertas caso não esteja
 async function tarefaPeriodica(bot) {
   try {
@@ -227,15 +240,6 @@ async function tarefaPeriodica(bot) {
     globalThis.reservatoriosDinamico = [];
     globalThis.medidoresEnergDinamico = [];
 
-    // ---- WATCHDOG DO TELEGRAM ----
-    let ok = await watchdogTelegram(bot);
-    if (!ok) {
-      ok = await watchdogTelegram(bot); // tenta mais uma vez
-    }
-    if (!ok) {
-      reiniciarApp();
-    }
-
   } catch (error) {
     console.error("Erro na tarefa periódica:", error);
   }
@@ -266,5 +270,6 @@ module.exports = {
     sendAlerta,
     gerarListaDeDispositivos,
     adicionarSeNaoExistir,
-    tarefaPeriodica
+    tarefaPeriodica,
+    testeTelegra
 }

@@ -223,7 +223,7 @@ class EnergyMonitorV2 {
       this.clientMQTT.on('connect', () => {
         console.log('Conectado ao broker MQTT');
         
-        const topics = [this.config.mqtt.topic];
+        const topics = [this.config.mqtt.energyTopic];
         
         this.clientMQTT.subscribe(topics, (err) => {
           if (err) {
@@ -769,7 +769,7 @@ class EnergyMonitorV2 {
       })
       .then(response => response.json())
       .then(dadosDiarios => {
-        dados.graficos.diario = dadosDiarios
+        dados.graficos.diario = dadosDiarios.diario
         this.drawCharts(dados.graficos);
       })
     } catch (error) {
@@ -786,6 +786,7 @@ class EnergyMonitorV2 {
       const data1 = new google.visualization.DataTable();
       data1.addColumn('string', 'Horário');
       data1.addColumn('number', 'Potência Ativa Total');
+      console.log(dados.diario)
       data1.addRows(dados.diario);
 
       const options1 = {

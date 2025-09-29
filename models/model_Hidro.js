@@ -3,7 +3,7 @@ const moment = require('moment')
 
 const getLeituras = async (cliente,medidor)=>{
     let leitura
-    const sql = "SELECT id,local,data,leitura FROM tb_"+cliente+"_hidrometros WHERE id = ? ORDER BY data DESC LIMIT 9000"
+    const sql = "SELECT id,local,data,leitura FROM tb_"+cliente+"_hidrometros WHERE id = ? ORDER BY data ASC LIMIT 2000"
     try {
         [leitura] = await db.query(sql,medidor)
         //console.log(leitura)
@@ -13,6 +13,30 @@ const getLeituras = async (cliente,medidor)=>{
     }
     return leitura
 }
+
+const getUltimasLeituras = async (cliente) => {
+    let leituras = []
+    const sql = `
+        SELECT t.id, t.local, t.data, t.leitura
+        FROM tb_${cliente}_hidrometros t
+        INNER JOIN (
+            SELECT id, MAX(data) AS ultima_data
+            FROM tb_${cliente}_hidrometros
+            GROUP BY id
+        ) ultimas
+        ON t.id = ultimas.id AND t.data = ultimas.ultima_data
+    `
+    try {
+        const [rows] = await db.query(sql)
+        leituras = rows
+    } catch (error) {
+        console.log(error)
+        leituras = []
+    }
+    return leituras
+}
+
+
 
 const addLeituras = async (cliente,dados)=>{
     const sql = "INSERT INTO tb_"+cliente+"_hidrometros (id,local,data,leitura) VALUES(?,?,?,?)"
@@ -79,6 +103,18 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     }
     return leituras
 }
+
+const getGrafico = async (url,hidrometro,startDate)=>{
+    let leituras
+    const sql = "SELECT * FROM tb_"+url+"_hidrometros WHERE DATE(data) >= ?  AND id = ? ORDER BY data ASC"
+    try {
+        [leituras] = await db.query(sql,[startDate,hidrometro])
+        return {leituras:leituras}
+    } catch (error) {
+        return {error:error}
+    }
+}
+
 
 async function getRelatorio(usuario, startDate, endDate, dispositivos) {
     try {
@@ -175,8 +211,10 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
 
 module.exports = {
     addLeituras,
+    getUltimasLeituras,
     getLeituras,
     getConsumo,
     addLeitura,
-    getRelatorio
+    getRelatorio,
+    getGrafico
 }

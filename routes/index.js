@@ -65,6 +65,14 @@ router.post('/get_leituras/hidro', async (req,res)=>{
   }
 })
 
+router.post('/get_ultimas_leituras_hidro', async (req,res)=>{
+  const dados = req.body
+  if(dados != null){
+    const leituras=await model_Hidro.getUltimasLeituras(dados.url)
+    res.json(leituras)
+  }
+})
+
 router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
   const { startDate, endDate } = info.datas;
@@ -112,6 +120,37 @@ router.post('/get_consumo/hidro', async (req,res) => {
   } catch (error) {
     console.error('Erro ao consultar o banco de dados:', error);
     res.json({ error: 'Erro ao buscar leituras.' });
+  }
+})
+
+router.post('/get_grafico_hidro', async (req,res) => {
+  //console.log(dados)
+  const info = req.body
+  try {
+    const retorno = await model_Hidro.getGrafico(info.url,info.hidrometro,info.startDate)
+    if (retorno.leituras) {
+      let grafico = []
+      let id
+      if (retorno.leituras.length>2) {
+        await retorno.leituras.forEach(element => {
+          grafico.push([element.data, element.leitura]);
+        });
+        id = retorno.leituras[0].id
+      } else {
+        const leituras = await model_Hidro.getLeituras(info.url,info.hidrometro)
+        await leituras.forEach(element => {
+          grafico.push([element.data, element.leitura]);
+        });
+        id = leituras[0].id
+      }
+      res.json({id:id,grafico:grafico});
+    //console.log(retorno)
+    } else {
+      res.json({ error: `Erro ao buscar leituras. ${retorno.error} ` });
+    }
+    
+  } catch (error) {
+    res.json({ error: `Erro ao buscar leituras. ${error} ` });
   }
 })
 

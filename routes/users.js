@@ -16,6 +16,48 @@ module.exports = function(io){
 
   var router = express.Router();
   /* GET users listing. */
+
+    // ===== ROTAS PARA ENERGY MONITOR V2 =====
+// Santa Mônica V2
+router.get('/santaMonica_energ_v2', function(req, res, next) {
+  res.render('energy-monitor-v2', { 
+    title: 'Monitor de Energia V2 - Santa Mônica',
+    nome: 'Santa Mônica - Monitoramento de Energia V2',
+    clientKey: 'santaMonica'
+  });
+});
+
+// Hospital de Base V2
+router.get('/hospitalBase_energ_v2', function(req, res, next) {
+  res.render('energy-monitor-v2', { 
+    title: 'Monitor de Energia V2 - Hospital de Base',
+    nome: 'Hospital de Base - Monitoramento de Energia V2',
+    clientKey: 'hospitalBase'
+  });
+});
+
+// ========================================
+// ROTAS PARA HIDRÔMETROS V2
+// ========================================
+
+// Santa Mônica - Hidrômetros V2
+router.get('/santaMonica_hidro_v2', function(req, res, next) {
+  res.render('hydrometer-monitor-v2', { 
+    title: 'Monitor de Hidrômetros V2 - Santa Mônica',
+    nome: 'Santa Mônica - Monitoramento de Hidrômetros V2',
+    clientKey: 'santaMonica' // Passa a chave do cliente para o frontend
+  });
+});
+
+// Hospital de Base - Hidrômetros V2
+router.get('/hospitalBase_hidro_v2', function(req, res, next) {
+  res.render('hydrometer-monitor-v2', { 
+    title: 'Monitor de Hidrômetros V2 - Hospital de Base',
+    nome: 'Hospital de Base - Monitoramento de Hidrômetros V2',
+    clientKey: 'hospitalBase' // Passa a chave do cliente para o frontend
+  });
+});
+
   
   router.get('/test', function(req, res) {
     res.redirect('/users/test/res')
@@ -71,25 +113,6 @@ module.exports = function(io){
       nome: 'Santa Mônica - Monitoramento de Energia'
     });
   });
-
-  // ===== ROTAS PARA ENERGY MONITOR V2 =====
-// Santa Mônica V2
-router.get('/santaMonica_energ_v2', function(req, res, next) {
-  res.render('energy-monitor-v2', { 
-    title: 'Monitor de Energia V2 - Santa Mônica',
-    nome: 'Santa Mônica - Monitoramento de Energia V2',
-    clientKey: 'santaMonica'
-  });
-});
-
-// Hospital de Base V2
-router.get('/hospitalBase_energ_v2', function(req, res, next) {
-  res.render('energy-monitor-v2', { 
-    title: 'Monitor de Energia V2 - Hospital de Base',
-    nome: 'Hospital de Base - Monitoramento de Energia V2',
-    clientKey: 'hospitalBase'
-  });
-});
 
   router.get('/santaMonica_hidro', function(req, res) {
     res.render('santaMonica_hidro', { title: 'Mep Tecnologia', nome:"Ed. Santa Monica" });

@@ -34,16 +34,25 @@ const clientsConfig = {
       username: "santa.monica",
       password: "32565996",
       path: "/mqtt",
-      topic: "santaMonica/atualizarTela/energ"
+      energyTopic: "santaMonica/atualizarTela/energ",
+      hydrometerTopic: "santaMonica/atualizarTela/hidro"
     },
     api: {
       baseUrl: "santaMonica"
     },
     navigation: {
-      hydrometers: "http://monitor.mep.eng.br:5000/users/santaMonica_hidro"
+      hydrometers: "http://monitor.mep.eng.br/users/santaMonica_hidro_v2",
+      energy: "http://monitor.mep.eng.br/users/santaMonica_energ_v2"
     },
     interface: {
       meterCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      },
+      hydrometerCard: {
         statusThresholds: {
           online: 5,    // minutos
           warning: 15,  // minutos
@@ -61,16 +70,25 @@ const clientsConfig = {
       username: "hospital.base",
       password: "hospital@base",
       path: "/mqtt",
-      topic: "HospitalBase/atualizarTela/energ"
+      energyTopic: "HospitalBase/atualizarTela/energ",
+      hydrometerTopic: "HospitalBase/atualizarTela/hidro"
     },
     api: {
       baseUrl: "HospitalBase"
     },
     navigation: {
-      hydrometers: "http://monitor.mep.eng.br:5000/users/hospitalBase_hidro"
+      hydrometers: "http://monitor.mep.eng.br/users/hospitalBase_hidro_v2",
+      energy: "http://monitor.mep.eng.br/users/hospitalBase_energ_v2"
     },
     interface: {
       meterCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      },
+      hydrometerCard: {
         statusThresholds: {
           online: 5,    // minutos
           warning: 15,  // minutos
