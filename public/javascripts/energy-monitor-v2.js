@@ -6,13 +6,13 @@
 class EnergyMonitorV2 {
   constructor() {
     this.medidores = [];
-    this.clientKey = this.getClientKeyFromUrl(); // Obtém a chave do cliente da URL
+    this.clientKey = window.CLIENT_KEY; // Obtém a chave do cliente
     this.config = getClientConfig(this.clientKey); // Carrega a configuração do cliente
     
     if (!this.config) {
       console.error("Configuração do cliente não encontrada. Usando fallback.");
       // Fallback para uma configuração padrão ou erro
-      this.config = getClientConfig("santaMonica"); // Exemplo de fallback
+      //this.config = getClientConfig("santaMonica"); // Exemplo de fallback
     }
 
     this.url = this.config.api.baseUrl; // URL base da API do cliente
@@ -22,20 +22,6 @@ class EnergyMonitorV2 {
     this.metersData = new Map(); // Cache dos dados dos medidores
     
     this.init();
-  }
-
-  /**
-   * Obtém a chave do cliente da URL
-   */
-  getClientKeyFromUrl() {
-    const path = window.location.pathname;
-    
-    if (path.includes('/santaMonica_energ_v2')) {
-      return 'santaMonica';
-    } else if (path.includes('/HospitalBase_energ_v2')) {
-      return 'hospitalBase';
-    }
-    return 'santaMonica'; // Default
   }
 
   /**

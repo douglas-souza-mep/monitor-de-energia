@@ -6,7 +6,7 @@
 class HydrometerMonitorV2 {
   constructor() {
     this.hydrometers = [];
-    this.clientKey = window.CLIENT_KEY; // Obtém a chave do cliente da URL
+    this.clientKey = window.CLIENT_KEY; // Obtém a chave do cliente
     this.config = getClientConfig(this.clientKey); // Carrega a configuração do cliente
     if (!this.config) {
       console.error("Configuração do cliente não encontrada. Usando fallback.");
@@ -363,7 +363,38 @@ class HydrometerMonitorV2 {
         <h1>Monitoramento de Hidrômetros - Visão Geral</h1>
         <p class="grid-subtitle hydro-v2">Clique em um hidrômetro para ver os detalhes</p>
       </div>
-      
+
+      <div class="hydrometers-grid hydro-v2">
+        ${this.hydrometers.map(hydrometer => `
+          <div class="hydrometer-card hydro-v2" data-hydrometer-id="${hydrometer.id}">
+            <div class="hydrometer-header hydro-v2">
+              <h3 class="hydrometer-name hydro-v2">${hydrometer.local}</h3>
+              <span class="hydrometer-id hydro-v2">ID: ${hydrometer.id}</span>
+            </div>
+            
+            <div class="hydrometer-reading hydro-v2">
+              <div class="reading-value hydro-v2" id="reading-${hydrometer.id}">
+                <span class="value">--</span>
+                <span class="unit">m³</span>
+              </div>
+              <div class="reading-label hydro-v2">Última Leitura</div>
+            </div>
+            
+            <div class="hydrometer-info hydro-v2">
+              <div class="info-item hydro-v2">
+                <span class="info-label hydro-v2">Última Atualização:</span>
+                <span class="info-value hydro-v2" id="date-${hydrometer.id}">--</span>
+              </div>
+            </div>
+            
+            <div class="hydrometer-status hydro-v2" id="status-${hydrometer.id}">
+              <span class="status-indicator hydro-v2"></span>
+              <span class="status-text hydro-v2">Aguardando dados...</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
       <div class="grid-actions hydro-v2">
         <div class="report-general-form hydro-v2">
           <h3 class="form-title hydro-v2">Relatório Geral</h3>
@@ -399,37 +430,6 @@ class HydrometerMonitorV2 {
           </div>
           <div id="retornoArquivo" class="upload-status hydro-v2">Aguardando arquivo...</div>
         </div>
-      </div>
-
-      <div class="hydrometers-grid hydro-v2">
-        ${this.hydrometers.map(hydrometer => `
-          <div class="hydrometer-card hydro-v2" data-hydrometer-id="${hydrometer.id}">
-            <div class="hydrometer-header hydro-v2">
-              <h3 class="hydrometer-name hydro-v2">${hydrometer.local}</h3>
-              <span class="hydrometer-id hydro-v2">ID: ${hydrometer.id}</span>
-            </div>
-            
-            <div class="hydrometer-reading hydro-v2">
-              <div class="reading-value hydro-v2" id="reading-${hydrometer.id}">
-                <span class="value">--</span>
-                <span class="unit">m³</span>
-              </div>
-              <div class="reading-label hydro-v2">Última Leitura</div>
-            </div>
-            
-            <div class="hydrometer-info hydro-v2">
-              <div class="info-item hydro-v2">
-                <span class="info-label hydro-v2">Última Atualização:</span>
-                <span class="info-value hydro-v2" id="date-${hydrometer.id}">--</span>
-              </div>
-            </div>
-            
-            <div class="hydrometer-status hydro-v2" id="status-${hydrometer.id}">
-              <span class="status-indicator hydro-v2"></span>
-              <span class="status-text hydro-v2">Aguardando dados...</span>
-            </div>
-          </div>
-        `).join('')}
       </div>
     `;
   }
@@ -595,8 +595,6 @@ class HydrometerMonitorV2 {
         </div>
       </div>
 
-      <!-- Última Leitura Section -->
-      <div class="section-title hydro-v2">Última Leitura</div>
       <div class="metrics-grid hydro-v2 readings">
         <div class="metric-card hydro-v2">
           <p class="metric-label hydro-v2">Leitura Atual</p>

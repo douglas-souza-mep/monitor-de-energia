@@ -63,7 +63,7 @@ const clientsConfig = {
   },
 
   // Cliente: Hospital de Base
-  hospitalBase: {
+  HospitalBase: {
     name: "Hospital de Base",
     mqtt: {
       broker: "wss://monitor.mep.eng.br",

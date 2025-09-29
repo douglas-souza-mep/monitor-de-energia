@@ -54,7 +54,7 @@ router.get('/hospitalBase_hidro_v2', function(req, res, next) {
   res.render('hydrometer-monitor-v2', { 
     title: 'Monitor de Hidrômetros V2 - Hospital de Base',
     nome: 'Hospital de Base - Monitoramento de Hidrômetros V2',
-    clientKey: 'hospitalBase' // Passa a chave do cliente para o frontend
+    clientKey: 'HospitalBase' // Passa a chave do cliente para o frontend
   });
 });
 
