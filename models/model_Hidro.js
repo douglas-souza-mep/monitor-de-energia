@@ -105,8 +105,11 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     } catch (error) {
         console.log(error)
     }
-    
+    console.log(leituras[0])
+    console.log(leituras[leituras.length-1])
+    console.log(ultima)
     leituras.push(ultima)
+    console.log(leituras[leituras.length-1])
     return leituras
 }
 
