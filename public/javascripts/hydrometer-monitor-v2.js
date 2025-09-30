@@ -731,8 +731,10 @@ class HydrometerMonitorV2 {
         body: JSON.stringify({
           hidrometro: this.selectedHydrometer,
           url: this.url,
-          startDate: startDate,
-          endDate: endDate
+          datas:{
+            startDate: startDate,
+            endDate: endDate
+          }
         })
       });
 
@@ -769,8 +771,10 @@ class HydrometerMonitorV2 {
         },
         body: JSON.stringify({
           url: this.url,
-          startDate: startDate,
-          endDate: endDate
+          datas:{
+            startDate: startDate,
+            endDate: endDate
+          }
         })
       });
 
