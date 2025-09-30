@@ -100,6 +100,8 @@ router.post('/get_consumo/hidro', async (req,res) => {
     const retorno = await model_Hidro.getConsumo(info.url,info.hidrometro,startDate,endDate)
     //console.log(retorno.length)
     if(retorno.length >= 2){
+      console.log(leituras[0])
+      console.log(leituras[leituras.length-1])
       consumo = retorno[retorno.length-1].leitura - retorno[0].leitura
       dados={
         id: retorno[0].id,
@@ -111,6 +113,7 @@ router.post('/get_consumo/hidro', async (req,res) => {
         dataL2:retorno[retorno.length-1].data,
         grafico:[]
       }
+      console.log(dados)
       await retorno.forEach(element => {
         dados.grafico.push([element.data, element.leitura]);
       });
