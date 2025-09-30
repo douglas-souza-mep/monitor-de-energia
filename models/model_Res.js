@@ -160,7 +160,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
             alertas.urlID.push(url+id+"NB")
             alertas.data.push(data) 
             return
@@ -169,7 +170,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
                 const retorno = await dadosAlerta(url,id)
                 const msg = `Alerta de nivel baixo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`;
                 //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-                sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+                let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
                 alertas.data[index] = data
             }
             return
@@ -184,7 +186,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de nivel alto!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
             alertas.urlID.push(url+id+"NA")
             alertas.data.push(data) 
             return
@@ -193,7 +196,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de nivel alto!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
             alertas.data[index] = data
             }
             return
@@ -208,7 +212,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de transbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}`
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
             alertas.urlID.push(url+id+"T")
             alertas.data.push(data) 
             return
@@ -217,7 +222,8 @@ async function verificarAlarmes(id,dimensoes,leitura,url,data) {
             const retorno = await dadosAlerta(url,id)
             const msg = `Alerta de transbordo!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})\nNivel: ${leitura.nivel} \nHorario: ${moment(data).format('DD-MM-YYYY HH:mm:ss')}` 
             //let chatsID = [...[process.env.CHAT_ID_DEV], ...retorno.chatID];
-            sendAlerta(globalThis.bot,msg,[process.env.CHAT_ID_DEV]);//chatsID);
+            let chatsID = retorno.chatID;
+            sendAlerta(globalThis.bot,msg,chatsID);
             alertas.data[index] = data
             }
             return
