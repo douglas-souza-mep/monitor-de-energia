@@ -723,19 +723,21 @@ class HydrometerMonitorV2 {
     resultDiv.innerHTML = '<h3 style="color: var(--mep-text-secondary);"><i class="fas fa-spinner fa-spin"></i> Calculando...</h3>';
 
     try {
-      const response = await fetch('/get_consumo/hidro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const info = {
           hidrometro: this.selectedHydrometer,
           url: this.url,
           datas:{
             startDate: startDate,
             endDate: endDate
           }
-        })
+        }
+      const response = await fetch('/get_consumo/hidro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        
+        body: JSON.stringify({info: info})
       });
 
       const data = await response.json();
@@ -764,18 +766,19 @@ class HydrometerMonitorV2 {
     }
 
     try {
+      const info = {
+        url: this.url,
+        datas:{
+          startDate: startDate,
+          endDate: endDate
+        }
+      }
       const response = await fetch('/get_relatorio/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          url: this.url,
-          datas:{
-            startDate: startDate,
-            endDate: endDate
-          }
-        })
+        body: JSON.stringify({info: info})
       });
 
       const blob = await response.blob();
