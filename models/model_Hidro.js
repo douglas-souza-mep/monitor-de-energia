@@ -101,15 +101,12 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     
     try {
         [leituras] = await db.query(sql,[startDate,endDate,hidrometro]);
-        [ultima] = await db.query(sql2,[startDate,endDate,hidrometro]);
+        [ultima] = await db.query(sql2,[endDate,hidrometro]);
     } catch (error) {
         console.log(error)
     }
-    console.log(leituras[0])
-    console.log(leituras[leituras.length-1])
-    console.log(ultima)
+
     leituras.push(ultima)
-    console.log(leituras[leituras.length-1])
     return leituras
 }
 
