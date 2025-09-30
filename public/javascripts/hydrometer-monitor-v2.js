@@ -743,7 +743,12 @@ class HydrometerMonitorV2 {
       const data = await response.json();
 
       if (data.consumo !== undefined) {
-        resultDiv.innerHTML = `<h3 style="color: var(--mep-success);">Consumo no período: ${data.consumo} m³</h3>`;
+        resultDiv.innerHTML = `<h3 style="color: var(--mep-success);">
+                    <p><strong>Local:</strong> ${data.local}</p>
+                    <p><strong>Consumo no período:</strong> ${data.consumo/1000} m³</p>
+                    <p><strong>Leitura inicial :</strong> ${data.leitura1} - ${ajusteDateTime(data.dataL1)}</p>
+                    <p><strong>Leitura final :</strong> ${data.leitura2} -${ajusteDateTime(data.dataL2)}</p>
+                    </h3>`;
       } else {
         resultDiv.innerHTML = `<h3 style="color: var(--mep-danger);">Erro ao calcular consumo: ${data.error || 'Dados inválidos'}</h3>`;
       }

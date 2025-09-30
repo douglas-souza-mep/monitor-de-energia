@@ -105,6 +105,8 @@ router.post('/get_consumo/hidro', async (req,res) => {
         id: retorno[0].id,
         local:retorno[0].local,
         consumo:consumo,
+        leitura1: retorno[0].leitura,
+        leitura2:retorno[retorno.length-1].leitura,
         dataL1:retorno[0].data,
         dataL2:retorno[retorno.length-1].data,
         grafico:[]
