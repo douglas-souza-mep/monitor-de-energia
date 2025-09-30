@@ -723,7 +723,7 @@ class HydrometerMonitorV2 {
     resultDiv.innerHTML = '<h3 style="color: var(--mep-text-secondary);"><i class="fas fa-spinner fa-spin"></i> Calculando...</h3>';
 
     try {
-      const response = await fetch('/get_consumo_hidro', {
+      const response = await fetch('/get_consumo/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -762,7 +762,7 @@ class HydrometerMonitorV2 {
     }
 
     try {
-      const response = await fetch('/get_relatorio_geral_hidro', {
+      const response = await fetch('/get_relatorio/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
