@@ -56,7 +56,7 @@ class EnergyMonitorV2 {
     }
 
     // Adiciona 3 horas para compensar o fuso horário (mantendo a lógica original)
-    date.setHours(date.getHours() + 3);
+    //date.setHours(date.getHours() + 3);
     
     return date;
   }
@@ -774,7 +774,7 @@ class EnergyMonitorV2 {
       const data1 = new google.visualization.DataTable();
       data1.addColumn('string', 'Horário');
       data1.addColumn('number', 'Potência Ativa Total');
-      console.log(dados.diario)
+      //console.log(dados.diario)
       data1.addRows(dados.diario);
 
       const options1 = {
