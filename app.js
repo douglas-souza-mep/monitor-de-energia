@@ -6,6 +6,7 @@ var logger = require('morgan');
 
 
 var indexRouter = require('./routes/index');
+var indexRouterV2 = require('./routes/index_v2');
 //var usersRouter = require('./routes/users');
 
 // Importar a função de subscrição MQTT
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/', indexRouterV2);
 app.use('/users', require('./routes/users')(app.io));
 
 // catch 404 and forward to error handler

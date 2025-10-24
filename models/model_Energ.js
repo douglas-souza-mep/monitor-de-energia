@@ -473,35 +473,35 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             const tableNameDados = getTableName(usuario, null, "dados", true);
             const tableNameCD = getTableName(usuario, null, "consumo_diario", true);
 
-            const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
-            sqlInicial = subqueriesIniciais.join(" UNION ALL ");
+            //const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            //sqlInicial = subqueriesIniciais.join(" UNION ALL ");
             
-            const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
-            sqlFinal = subqueriesFinais.join(" UNION ALL ");
+            //const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            //sqlFinal = subqueriesFinais.join(" UNION ALL ");
 
             sqlConsumosDiario = `SELECT data, id_medidor, valor FROM ${tableNameCD} WHERE id_medidor IN (?) AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
 
         } else {
-            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
-            sqlInicial = subqueriesIniciais.join(" UNION ALL ");
+            //const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            //sqlInicial = subqueriesIniciais.join(" UNION ALL ");
 
-            const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
-            sqlFinal = subqueriesFinais.join(" UNION ALL ");
+            //const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            //qlFinal = subqueriesFinais.join(" UNION ALL ");
         }
 
-        const [valoresIniciais, valoresFinais] = await Promise.all([
-            db.query(sqlInicial),
-            db.query(sqlFinal)
-        ]);
+        //const [valoresIniciais, valoresFinais] = await Promise.all([
+            //db.query(sqlInicial),
+            //db.query(sqlFinal)
+        //]);
 
-        const mapaValoresIniciais = new Map(valoresIniciais[0].map(item => [item.medidor_id, item]));
-        const mapaValoresFinais = new Map(valoresFinais[0].map(item => [item.medidor_id, item]));
+        //const mapaValoresIniciais = new Map(valoresIniciais[0].map(item => [item.medidor_id, item]));
+        //const mapaValoresFinais = new Map(valoresFinais[0].map(item => [item.medidor_id, item]));
 
         const resultadosRelatorio = [];
 
         for (const medidor of dispositivos) {
-            const consumoInicial = mapaValoresIniciais.get(medidor.id);
-            const consumoFinal = mapaValoresFinais.get(medidor.id);
+            //const consumoInicial = mapaValoresIniciais.get(medidor.id);
+            //const consumoFinal = mapaValoresFinais.get(medidor.id);
             
             
 
@@ -513,20 +513,23 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                 [consumosDiario] = await db.query(`SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`, [moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
             }
 
-            if (consumoInicial && consumoFinal) {
+            //if (consumoInicial && consumoFinal) {
                 resultadosRelatorio.push({
                     consumo: {
-                        startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
-                        endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
-                        valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
-                        endValor: parseFloat(consumoFinal.ept).toFixed(2),
-                        startValor: parseFloat(consumoInicial.ept).toFixed(2)
+                        //startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+                        startDate: moment(consumosDiario[0].data,'YYYY-MM-DD'),
+                        //endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+                        endDate: moment(consumosDiario[consumosDiario.length-1].data,'YYYY-MM-DD'),
+                        //valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                        //endValor: parseFloat(consumoFinal.ept).toFixed(2),
+                        //startValor: parseFloat(consumoInicial.ept).toFixed(2)
                     },
                     consumosDiario: consumosDiario,
                     NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
                     id: medidor.id,
+                    nome: medidor.local
                 });
-            }
+            //}
         }
         return resultadosRelatorio;
 

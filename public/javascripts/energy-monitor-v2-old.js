@@ -1,9 +1,6 @@
 /**
  * Energy Monitor Dashboard V2
  * Sistema de monitoramento de medidores de energia com visualização em grid
- * 
- * Otimizado para carregar dados iniciais em uma única requisição (v2).
- * Inclui a função de utilidade formatDateForDisplay para parsing robusto de data.
  */
 
 class EnergyMonitorV2 {
@@ -25,63 +22,6 @@ class EnergyMonitorV2 {
     this.metersData = new Map(); // Cache dos dados dos medidores
     
     this.init();
-  }
-
-  /**
-   * UTILIDADE: Cria um objeto Date robusto a partir de uma string YYYY-MM-DD HH:mm:ss
-   * Aplica a correção de fuso horário de +3 horas.
-   * @param {string} dateString - Data no formato YYYY-MM-DD HH:mm:ss
-   * @returns {Date | null} Objeto Date corrigido ou null se inválido.
-   */
-  _createCorrectedDate(dateString) {
-    if (typeof dateString !== 'string') {
-        return null;
-    }
-    
-    // Regex para extrair YYYY, MM, DD, HH, mm, ss
-    const parts = dateString.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-    
-    let date;
-    if (parts) {
-        // Cria a data manualmente: new Date(year, monthIndex, day, hours, minutes, seconds)
-        // monthIndex é 0-based (Mês - 1)
-        date = new Date(parts[1], parts[2] - 1, parts[3], parts[4], parts[5], parts[6]);
-    } else {
-        // Tenta o parsing padrão como fallback
-        date = new Date(dateString);
-    }
-
-    if (isNaN(date.getTime())) {
-        return null;
-    }
-
-    // Adiciona 3 horas para compensar o fuso horário (mantendo a lógica original)
-    date.setHours(date.getHours() + 3);
-    
-    return date;
-  }
-
-  /**
-   * UTILIDADE: Formata um objeto Date para exibição
-   * @param {string} dateString - Data no formato YYYY-MM-DD HH:mm:ss
-   * @returns {string} Data formatada ou 'Data Inválida'.
-   */
-  formatDateForDisplay(dateString) {
-    const date = this._createCorrectedDate(dateString);
-    
-    if (!date) {
-        return 'Data Inválida';
-    }
-    
-    return date.toLocaleString('pt-BR', { 
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
   }
 
   /**
@@ -118,15 +58,7 @@ class EnergyMonitorV2 {
       const meterCard = e.target.closest('.meter-card');
       if (meterCard && this.currentView === 'grid') {
         const meterId = meterCard.dataset.meterId;
-        
-        // **OTIMIZAÇÃO APLICADA AQUI:** Carrega os dados detalhados sob demanda
-        this.loadMeterData(meterId).then(dados => {
-            if (dados) {
-                this.showMeterDetail(meterId);
-            } else {
-                alert('Não foi possível carregar os dados detalhados do medidor.');
-            }
-        });
+        this.showMeterDetail(meterId);
       }
     });
 
@@ -156,13 +88,11 @@ class EnergyMonitorV2 {
   }
 
   /**
-   * Carrega dados iniciais de forma otimizada (v2)
-   * Usa a rota consolidada para obter dados do usuário e de todos os medidores em 1 requisição.
+   * Carrega dados do usuário e medidores
    */
   async loadUserData() {
     try {
-      // **REQUISIÇÃO ÚNICA PARA DADOS INICIAIS**
-      const response = await fetch('/v2/get-dados-iniciais/energ', {
+      const response = await fetch('/get-dados-do-usuario', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,40 +100,21 @@ class EnergyMonitorV2 {
         body: JSON.stringify({ url: this.url })
       });
 
-      const dadosIniciais = await response.json();
+      const dados = await response.json();
+      const medidoresText = dados.med_energia.split(";");
       
-      if (dadosIniciais.error) {
-        throw new Error(dadosIniciais.error);
+      this.medidores = [];
+      for (let i = 0; i < medidoresText.length; i += 2) {
+        this.medidores.push({
+          id: medidoresText[i], 
+          local: medidoresText[i + 1]
+        });
       }
-
-      // 1. Atualiza a lista de medidores (usada para gerar o HTML do grid)
-      this.medidores = dadosIniciais.medidores.map(m => ({
-        id: m.id.toString(), // Garante que o ID é string para consistência
-        local: m.local
-      }));
       
-      // 2. Armazena os dados de resumo no cache metersData
-      dadosIniciais.medidores.forEach(medidor => {
-        // Adapta o objeto de resumo para o formato que updateMeterCard espera (formato v1)
-        const adaptedData = {
-          id: medidor.id.toString(),
-          leitura: {
-            pft: medidor.pft,
-            data: medidor.data // A data já está no formato do banco
-          },
-          // Simula a estrutura de consumo para o updateMeterCard (Consumo Diário)
-          graficos: {
-            // O updateMeterCard espera um array de arrays, com o último elemento sendo o consumo de hoje
-            semanal: [['Hoje', medidor.consumoDiario]] 
-          }
-        };
-        this.metersData.set(medidor.id.toString(), adaptedData);
-      });
-      
-      console.log('Dados iniciais otimizados carregados. Medidores:', this.medidores);
+      console.log('Medidores carregados:', this.medidores);
       return this.medidores;
     } catch (error) {
-      console.error('Erro ao carregar dados iniciais otimizados:', error);
+      console.error('Erro ao carregar dados do usuário:', error);
       return [];
     }
   }
@@ -215,10 +126,11 @@ class EnergyMonitorV2 {
     try {
       this.showLoading();
       
-      // Carrega dados dos medidores (agora otimizado)
+      // Carrega dados dos medidores
       await this.loadUserData();
       
-      // loadAllMetersData() foi removida, pois os dados iniciais já estão no cache.
+      // Carrega dados iniciais de todos os medidores
+      await this.loadAllMetersData();
       
       // Configura conexão MQTT
       this.setupMQTTConnection();
@@ -232,15 +144,24 @@ class EnergyMonitorV2 {
     }
   }
 
-  // loadAllMetersData() foi removida, pois não é mais necessária.
+  /**
+   * Carrega dados de todos os medidores
+   */
+  async loadAllMetersData() {
+    try {
+      const promises = this.medidores.map(medidor => this.loadMeterData(medidor.id));
+      await Promise.all(promises);
+    } catch (error) {
+      console.error('Erro ao carregar dados dos medidores:', error);
+    }
+  }
 
   /**
-   * Carrega dados de um medidor específico (para detalhes - usa rota v2)
+   * Carrega dados de um medidor específico
    */
   async loadMeterData(meterId) {
     try {
-      // Usa a nova rota para obter dados detalhados (que usa a função v1 getDataStart)
-      const response = await fetch('/v2/get-dados-detalhados/energ', {
+      const response = await fetch('/get_ultimas_leituras/energ', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -253,17 +174,23 @@ class EnergyMonitorV2 {
 
       const dados = await response.json();
       
-      if (dados.error) {
-        console.error(`Erro ao carregar dados detalhados do medidor ${meterId}:`, dados.error);
-        return null;
+      if (dados.id == meterId) {
+        this.metersData.set(meterId, dados);
+        
+        // Atualiza o card do medidor se estiver na view de grid
+        if (this.currentView === 'grid') {
+          this.updateMeterCard(meterId, dados);
+        }
+        
+        // Atualiza a view de detalhes se for o medidor selecionado
+        if (this.currentView === 'detail' && this.selectedMeter === meterId) {
+          this.updateDetailView(dados);
+        }
       }
-      
-      // Armazena o dado detalhado (formato v1 completo) no cache
-      this.metersData.set(meterId.toString(), dados);
       
       return dados;
     } catch (error) {
-      console.error(`Erro ao carregar dados detalhados do medidor ${meterId}:`, error);
+      console.error(`Erro ao carregar dados do medidor ${meterId}:`, error);
       return null;
     }
   }
@@ -293,7 +220,6 @@ class EnergyMonitorV2 {
         });
       });
 
-      // **ADAPTAÇÃO MQTT:** A função handleMQTTMessage agora usa a nova utilidade de data.
       this.clientMQTT.on('message', (topic, message) => {
         this.handleMQTTMessage(topic, message);
       });
@@ -314,22 +240,13 @@ class EnergyMonitorV2 {
    * Manipula mensagens MQTT
    */
   handleMQTTMessage(topic, message) {
+    console.log(this.config.mqtt.energyTopic)
     switch (topic) {
       case this.config.mqtt.energyTopic:
         try {
           const leitura = JSON.parse(message.toString());
-          console.log('Nova leitura:', leitura.id);
+          console.log('Nova leitura:', leitura);
           
-          // Se a leitura tiver uma data, garante que ela seja válida para o cache
-          if (leitura.leitura && leitura.leitura.data) {
-              const correctedDate = this._createCorrectedDate(leitura.leitura.data);
-              if (!correctedDate) {
-                  console.warn(`Mensagem MQTT para medidor ${leitura.id} contém data inválida: ${leitura.leitura.data}`);
-                  // Se a data for inválida, é melhor não atualizar o card de data/status
-                  // Mas o restante dos dados (pft, consumo) pode ser atualizado.
-              }
-          }
-
           // Atualiza o cache de dados
           this.metersData.set(leitura.id, leitura);
           
@@ -440,22 +357,14 @@ class EnergyMonitorV2 {
    */
   updateMeterCard(meterId, dados) {
     try {
-      // Consumo hoje (Ajustado para o novo formato de dados de resumo)
-      const consumptionEl = document.getElementById(`consumption-${meterId}`);
-      // Verifica se a estrutura de dados é a nova (resumo) ou a antiga (detalhe)
-      const consumoHoje = dados.graficos && dados.graficos.semanal 
-        ? dados.graficos.semanal[dados.graficos.semanal.length - 1][1] // Novo formato (resumo)
-        : dados.consumos && dados.consumos.consumo // Formato antigo (detalhe) - fallback, mas o ideal é usar o dado de resumo
+      // Log para depuração de data/hora
+      //console.log(`[DEBUG] Medidor ${meterId} - Data recebida:`, dados.leitura?.data);
       
-      if (consumptionEl && consumoHoje !== undefined) {
-        consumptionEl.querySelector('.value').textContent = parseFloat(consumoHoje).toFixed(2);
-      } else if (consumptionEl) {
-        // Se for o formato antigo (detalhe)
-        if (dados.consumos && dados.consumos.consumo) {
-          consumptionEl.querySelector('.value').textContent = parseFloat(dados.consumos.consumo).toFixed(2);
-        } else {
-          consumptionEl.querySelector('.value').textContent = '--';
-        }
+      // Consumo hoje
+      const consumptionEl = document.getElementById(`consumption-${meterId}`);
+      if (consumptionEl && dados.graficos && dados.graficos.semanal) {
+        const consumoHoje = dados.graficos.semanal[dados.graficos.semanal.length - 1][1];
+        consumptionEl.querySelector('.value').textContent = consumoHoje;
       }
       
       // Fator de potência total
@@ -464,10 +373,47 @@ class EnergyMonitorV2 {
         pfEl.textContent = dados.leitura.pft || '--';
       }
       
-      // Data da última transmissão (USANDO A NOVA FUNÇÃO DE UTILIDADE)
+      // Data da última transmissão (corrigindo fuso horário)
       const dateEl = document.getElementById(`date-${meterId}`);
       if (dateEl && dados.leitura && dados.leitura.data) {
-        dateEl.textContent = this.formatDateForDisplay(dados.leitura.data);
+        // Converte a data recebida do servidor e adiciona 3 horas para compensar o fuso horário
+        let date;
+        if (typeof dados.leitura.data === 'string') {
+          // Se a data vier como string no formato DD-MM-YYYY HH:mm:ss
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            // Reconstrói no formato ISO para criar a data corretamente
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            date = new Date(isoString);
+            //console.log(`[DEBUG] Medidor ${meterId} - Data original: ${dados.leitura.data}, ISO: ${isoString}, Objeto Date: ${date}`);
+          } else {
+            date = new Date(dados.leitura.data);
+            //console.log(`[DEBUG] Medidor ${meterId} - Data direta: ${dados.leitura.data}, Objeto Date: ${date}`);
+          }
+        } else {
+          date = new Date(dados.leitura.data);
+          //console.log(`[DEBUG] Medidor ${meterId} - Data como objeto: ${dados.leitura.data}, Objeto Date: ${date}`);
+        }
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        const originalHour = date.getHours();
+        date.setHours(date.getHours() + 3);
+        //console.log(`[DEBUG] Medidor ${meterId} - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
+        
+        const formattedDate = date.toLocaleString('pt-BR', { 
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        //console.log(`[DEBUG] Medidor ${meterId} - Data formatada exibida: ${formattedDate}`);
+        dateEl.textContent = formattedDate;
       }
       
       // Status do medidor
@@ -475,15 +421,27 @@ class EnergyMonitorV2 {
       if (statusEl && dados.leitura && dados.leitura.data) {
         const now = new Date();
         
-        // Processa a data usando a nova utilidade
-        const lastUpdate = this._createCorrectedDate(dados.leitura.data);
-        
-        if (!lastUpdate) {
-          statusEl.innerHTML = `<span class="status-indicator mep-v2 offline"></span><span class="status-text mep-v2">Offline</span>`;
-          return;
+        // Processa a data da mesma forma que acima
+        let lastUpdate;
+        if (typeof dados.leitura.data === 'string') {
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            lastUpdate = new Date(isoString);
+          } else {
+            lastUpdate = new Date(dados.leitura.data);
+          }
+        } else {
+          lastUpdate = new Date(dados.leitura.data);
         }
-
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        lastUpdate.setHours(lastUpdate.getHours() + 3);
+        
         const diffMinutes = (now - lastUpdate) / (1000 * 60);
+        //console.log(`[DEBUG] Medidor ${meterId} - Diferença em minutos: ${diffMinutes.toFixed(2)}`);
         
         // Verifica se a configuração de interface existe
         const statusConfig = this.config.interface?.meterCard?.statusThresholds || {
@@ -506,6 +464,7 @@ class EnergyMonitorV2 {
           statusText = 'Offline';
         }
         
+        //console.log(`[DEBUG] Medidor ${meterId} - Status: ${statusText} (${statusClass})`);
         statusEl.innerHTML = `<span class="status-indicator mep-v2 ${statusClass}"></span><span class="status-text mep-v2">${statusText}</span>`;
       }
       
@@ -522,7 +481,7 @@ class EnergyMonitorV2 {
     this.selectedMeter = meterId;
     
     const medidor = this.medidores.find(m => m.id === meterId);
-    const dados = this.metersData.get(meterId.toString());
+    const dados = this.metersData.get(meterId);
     
     const container = document.getElementById('main-content');
     container.innerHTML = this.generateDetailHTML(medidor, dados);
@@ -672,12 +631,12 @@ class EnergyMonitorV2 {
         <form id="event-form" class="calculator-form mep-v2">
           <div class="form-group mep-v2">
             <label for="start-date" class="form-label mep-v2">Data de Início:</label>
-            <input type="date" id="start-date" class="form-input mep-v2" required>
+            <input type="date" id="start-date" name="start-date" class="form-input mep-v2" required>
           </div>
           
           <div class="form-group mep-v2">
             <label for="end-date" class="form-label mep-v2">Data de Término:</label>
-            <input type="date" id="end-date" class="form-input mep-v2" required>
+            <input type="date" id="end-date" name="end-date" class="form-input mep-v2" required>
           </div>
           
           <div class="button-group mep-v2">
@@ -712,10 +671,50 @@ class EnergyMonitorV2 {
    */
   updateDetailView(dados) {
     try {
-      // Atualiza data (USANDO A NOVA FUNÇÃO DE UTILIDADE)
+      // Log para depuração de data/hora na view de detalhes
+      //console.log(`[DEBUG] Detail View - Data recebida:`, dados.leitura?.data);
+      
+      // Atualiza data (corrigindo fuso horário)
       const dateEl = document.getElementById('detail-date');
       if (dateEl && dados.leitura && dados.leitura.data) {
-        dateEl.textContent = this.formatDateForDisplay(dados.leitura.data);
+        // Converte a data recebida do servidor e adiciona 3 horas para compensar o fuso horário
+        let date;
+        if (typeof dados.leitura.data === 'string') {
+          // Se a data vier como string no formato DD-MM-YYYY HH:mm:ss
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            // Reconstrói no formato ISO para criar a data corretamente
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            date = new Date(isoString);
+            //console.log(`[DEBUG] Detail View - Data original: ${dados.leitura.data}, ISO: ${isoString}, Objeto Date: ${date}`);
+          } else {
+            date = new Date(dados.leitura.data);
+            //console.log(`[DEBUG] Detail View - Data direta: ${dados.leitura.data}, Objeto Date: ${date}`);
+          }
+        } else {
+          date = new Date(dados.leitura.data);
+          //console.log(`[DEBUG] Detail View - Data como objeto: ${dados.leitura.data}, Objeto Date: ${date}`);
+        }
+        
+        // Adiciona 3 horas para compensar o fuso horário
+        const originalHour = date.getHours();
+        date.setHours(date.getHours() + 3);
+        //console.log(`[DEBUG] Detail View - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
+        
+        const formattedDate = date.toLocaleString('pt-BR', { 
+          timeZone: 'America/Sao_Paulo',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        //console.log(`[DEBUG] Detail View - Data formatada exibida: ${formattedDate}`);
+        dateEl.textContent = formattedDate;
       }
       
       // Atualiza tensões
@@ -800,7 +799,7 @@ class EnergyMonitorV2 {
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: [this.config.colors.secondary]
+        colors: [this.config.colors.primary]
       };
 
       // Gráfico semanal
@@ -1088,8 +1087,7 @@ class EnergyMonitorV2 {
   formatTooltip(date, value) {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     const formattedDate = date.toLocaleDateString('pt-BR', options);
-    return `<div style="padding: 8px;"><strong>Data:</strong> ${formattedDate}  
-<strong>Leitura:</strong> ${value} kWh</div>`;
+    return `<div style="padding: 8px;"><strong>Data:</strong> ${formattedDate}<br><strong>Leitura:</strong> ${value} kWh</div>`;
   }
 
   /**
@@ -1117,3 +1115,4 @@ class EnergyMonitorV2 {
 document.addEventListener('DOMContentLoaded', () => {
   window.energyMonitorV2 = new EnergyMonitorV2();
 });
+
