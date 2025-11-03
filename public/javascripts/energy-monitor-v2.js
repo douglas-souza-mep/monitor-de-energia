@@ -800,7 +800,7 @@ class EnergyMonitorV2 {
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: [this.config.colors.secondary]
+        colors: [this.config.colors.primary]
       };
 
       // Gráfico semanal

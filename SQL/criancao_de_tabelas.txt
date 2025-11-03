@@ -1,11 +1,11 @@
-CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_consumo_mensal` (
+CREATE TABLE `medidores_de_energia`.`tb_santaMonica_consumo_mensal` (
     `data` DATE NOT NULL,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `valor` FLOAT NOT NULL,
     PRIMARY KEY (`data`, `id_medidor`) -- Chave primária composta
 ) ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_consumo_diario` (
+CREATE TABLE `medidores_de_energia`.`tb_santaMonica_consumo_diario` (
     `data` DATE NOT NULL,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `valor` FLOAT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_consumo_diario` (
 ) ENGINE = InnoDB;
 
 
-CREATE TABLE `medidores_de_energia`.`tb_hospitalbase_medidores` (
+CREATE TABLE `medidores_de_energia`.`tb_santaMonica_medidores` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `data` DATETIME NOT NULL,
