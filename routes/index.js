@@ -75,6 +75,7 @@ router.post('/get_ultimas_leituras_hidro', async (req,res)=>{
 
 router.post('/get_relatorio/hidro', async (req,res) => {
   const info = req.body.info
+  console.log(info)
   console.log(info.hidrometros)
   const { startDate, endDate } = info.datas;
     try {
