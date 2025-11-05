@@ -126,7 +126,7 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
         //console.log("Iniciando relatório de forma eficiente...");
         //console.log(dispositivos)
         // Retorna um array vazio se não houver dispositivos para consultar
-        console.log(dispositivos)
+        
         const idsDispositivos = dispositivos.map(d => d.id);
         if (idsDispositivos.length === 0) {
             return {error:"nenhum dispositivo passado para obter relatorio"};
