@@ -80,7 +80,7 @@ router.post('/get_relatorio/hidro', async (req,res) => {
         const retorno = await model_Hidro.getRelatorio(info.url,startDate,endDate,info.hidrometros)
         //console.log(retorno)
         if(retorno.error){
-          res.json({ error: 'Falha ao obter os dados'});
+          res.json({ error: 'Falha ao obter os dados',log:retorno.error});
         }else{
           res.json(retorno);
         }

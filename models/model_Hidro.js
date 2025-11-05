@@ -126,9 +126,10 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
         //console.log("Iniciando relatório de forma eficiente...");
         //console.log(dispositivos)
         // Retorna um array vazio se não houver dispositivos para consultar
+        console.log(dispositivos)
         const idsDispositivos = dispositivos.map(d => d.id);
         if (idsDispositivos.length === 0) {
-            return [];
+            return {error:"nenhum dispositivo passado para obter relatorio"};
         }
 
         // Prepara os nomes e datas para a consulta SQL
@@ -209,7 +210,7 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
     } catch (error) {
         console.error("Ocorreu um erro ao gerar o relatório eficiente:", error);
         // Em caso de erro, retorna um array vazio para não quebrar a aplicação
-        return [];
+        return {error:error};
     }
 }
 

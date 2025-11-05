@@ -775,7 +775,8 @@ class HydrometerMonitorV2 {
         url: this.url,
         datas:{
           startDate: startDate,
-          endDate: endDate
+          endDate: endDate,
+          hidrometros:this.hydrometers 
         }
       }
       const response = await fetch('/get_relatorio/hidro', {
@@ -783,21 +784,33 @@ class HydrometerMonitorV2 {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({info: info})
+        body: JSON.stringify({ info })
       });
-
+      
+      // Primeiro, tenta interpretar como JSON para verificar se há erro
+      const data = await response.clone().json().catch(() => null);
+      
+      // Verifica se o backend retornou erro
+      if (data && data.error) {
+        console.error('Erro do servidor:', data.error);
+        alert('Erro ao gerar relatório geral de hidrômetros:\n' + (data.log || data.error));
+        return;
+      }
+      
+      // Se não houver erro, baixa o arquivo
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `relatorio_hidrometros_${this.url}_${startDate}_${endDate}.csv`;
+      a.download = `relatorio_hidrometros_${this.url}_${info.datas.startDate}_${info.datas.endDate}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+      
       alert('Relatório geral de hidrômetros gerado com sucesso!');
-
-    } catch (error) {
+      
+    }catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
       alert('Erro ao gerar relatório geral de hidrômetros.');
     }
