@@ -826,8 +826,10 @@ class HydrometerMonitorV2 {
   /**
    * Manipula o upload de arquivo de leituras
    */
-  handleFileUpload() {
+  async handleFileUpload() {
     const fileInput = document.getElementById('file-input');
+    const retornoArquivoDiv = document.getElementById('retornoArquivo');
+
     if (fileInput.files.length === 0) {
         alert('Por favor, selecione um arquivo.');
         return;
@@ -835,15 +837,14 @@ class HydrometerMonitorV2 {
 
     const file = fileInput.files[0];
     const reader = new FileReader();
-    const retornoArquivoDiv = document.getElementById('retornoArquivo');
 
-    reader.onload = () => {
+    reader.onload = async () => {
         const content = reader.result;
         const lines = content.split('\n');
 
         const leituras = lines.map(line => {
             const l = line.split('\t');
-            if(l[21] === undefined || l[9] === undefined || l[15] === undefined || l[23] === undefined) {
+            if (l[21] === undefined || l[9] === undefined || l[15] === undefined || l[23] === undefined) {
                 return null; // Ignora linhas incompletas
             }
             const data = l[21].split('/');
@@ -853,16 +854,44 @@ class HydrometerMonitorV2 {
                 data: `${data[2]}/${data[1]}/${data[0]} ${l[22]}`, // Formato YYYY/MM/DD HH:mm
                 leitura: l[23]
             };
-        }).filter(item => item !== null); // Remove itens nulos
+        }).filter(item => item !== null);
 
-        // Envia o conteúdo do arquivo para o servidor via socket.io
-        // Assumindo que 'socket' é uma variável global ou acessível aqui
-        if (typeof socket !== 'undefined') {
-          socket.emit(`addLeituraHidrometro_${this.clientKey}`, leituras);
-          retornoArquivoDiv.innerText = 'Enviando arquivo ...';
-        } else {
-          console.error('Socket.io não está disponível.');
-          retornoArquivoDiv.innerText = 'Erro: Socket.io não conectado.';
+        retornoArquivoDiv.innerText = 'Enviando arquivo ...';
+
+        try {
+            const response = await fetch('/set_leituras_hidro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url: this.clientKey,  // equivalente ao que era usado no socket
+                    leituras: leituras
+                })
+            });
+
+            const retorno = await response.json();
+
+            if (retorno.error) {
+                retornoArquivoDiv.innerHTML = `<h3 style="color:red;">${retorno.error}</h3>`;
+                return;
+            }
+
+            if (retorno.negados > 0) {
+                retornoArquivoDiv.innerHTML = `
+                    <h3>Leituras carregadas: ${retorno.inseridos}</h3>
+                    <h3>Leituras não carregadas: ${retorno.negados}</h3>
+                    ${retorno.log.map(e => `
+                        <div class="scrollbox" style="color: var(--mep-danger);">
+                            <p><strong>Erro:</strong> ${e.erro}</p>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                retornoArquivoDiv.innerHTML = `<h3>Leituras carregadas: ${retorno.inseridos}</h3>`;
+            }
+
+        } catch (error) {
+            console.error('Erro ao enviar arquivo:', error);
+            retornoArquivoDiv.innerText = 'Erro ao enviar o arquivo para o servidor.';
         }
     };
 
@@ -871,25 +900,7 @@ class HydrometerMonitorV2 {
     };
 
     reader.readAsText(file);
-
-    // Listener para o retorno do socket
-    if (typeof socket !== 'undefined') {
-      socket.on(`retornoArquivo_${this.clientKey}`, (retorno) => {
-          if (retorno.negados > 0) {
-              console.log(retorno);
-              retornoArquivoDiv.innerHTML = `<h3>Leituras carregadas: ${retorno.inseridos}</h3>` +
-                                            `<h3>Leituras não carregadas: ${retorno.negados}</h3>` +
-                                            retorno.log.map(e => `
-                  <div class="scrollbox" style="color: var(--mep-danger);">
-                      <p><strong>Erro:</strong> ${e.erro}</p>
-                  </div>
-              `).join('');
-          } else {
-            retornoArquivoDiv.innerHTML = `<h3>Leituras carregadas: ${retorno.inseridos}</h3>`;
-          }
-      });
-    }
-  }
+}
 
   /**
    * Mostra o spinner de carregamento

@@ -61,38 +61,6 @@ app.io.on('connection', socket=>{
     app.io.sockets.emit("return_dados_do_usuario_"+user,usuario)
   })
 
-  socket.on("iniciarTelasantaMonica_hidro", async ()=>{
-    const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","santaMonica")
-    //console.log('santa Monica hidro')
-    //console.log(hidrometros)
-    app.io.sockets.emit("atualizar_santaMonica_hidrometros",hidrometros)
-  })
-
-  
-
-  socket.on('addLeituraHidrometro_santaMonica', async (leituras) => {
-    //console.log(leituras);
-    retorno = await model_Hidro.addLeituras("santaMonica",leituras)
-    //console.log(retorno);
-    socket.emit('retornoArquivo_santaMonica', retorno);
-  })
-
-  socket.on("iniciarTelahospitalBase_hidro", async ()=>{
-    const [[hidrometros]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","HospitalBase")
-    //console.log('santa Monica hidro')
-    //console.log(hidrometros)
-    app.io.sockets.emit("atualizar_hospitalBase_hidrometros",hidrometros)
-  })
-  
-  socket.on("getLeituasHidrometro_hospitalBase", async (dados)=>{
-    //console.log(dados)
-    if(dados != null){
-      const leituras=await model_Hidro.getLeituras(dados.url,dados.hidrometro)
-      app.io.sockets.emit("atualizar_hospitalBase_hidro",leituras)
-    }
-    
-  })
-  
   socket.on("calcular_consumo_hospitalBase_hidro", async (dados)=>{
     //console.log(dados)
     const { startDate, endDate } = dados.datas;
@@ -122,13 +90,6 @@ app.io.on('connection', socket=>{
         socket.emit('consumo_hospitalBase_hidro', { error: 'Erro ao buscar leituras.' });
     }
   })
-  
-  socket.on('addLeituraHidrometro_hospitalBase', async (leituras) => {
-    //console.log(leituras);
-    retorno = await model_Hidro.addLeituras("HospitalBase",leituras)
-    //console.log(retorno);
-    socket.emit('retornoArquivo_hospitalBase', retorno);
-  })  
 })
 
 

@@ -156,6 +156,17 @@ router.post('/get_grafico_hidro', async (req,res) => {
   }
 })
 
+router.post('/set_leituras_hidro', async (req,res) => {
+  //console.log(dados)
+  const info = req.body
+  try {
+    const retorno = await model_Hidro.addLeituras(info.url,info.leituras)
+      res.json(retorno);    
+  } catch (error) {
+    res.json({ error: `Erro ao inserir leituras. ${error} ` });
+  }
+})
+
 //------------------------- reservatorios ------------------------------------------------------------
 
 // Definindo a rota para receber a requisição de das ultimas leituras dos reservarotios
