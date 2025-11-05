@@ -795,8 +795,8 @@ class HydrometerMonitorV2 {
           alert('Erro ao gerar relatório geral de hidrômetros:\n' + data.error);
           return;
         } else {
-          alert(`<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixando</p>`)
-          //console.log(dados)
+          alert(`Dados do relatorio obtido com sucesso!\n Gerando e baixando arquivo...`)
+          
           // Definir o cabeçalho do CSV
           const cabecalho = ['id', 'local', 'Consumo(l)', 'Data inicial','Hora inicial', 'Leitura Inicial(l)','Data final','Hora final','Leitura Final(l)'];
           
@@ -830,7 +830,7 @@ class HydrometerMonitorV2 {
           document.body.appendChild(link);
           link.click(); 
           link.remove();
-          alert('Relatório geral de hidrômetros gerado com sucesso!');
+          alert('Relatório geral de hidrômetros gerado e baixado com sucesso!');
         }
         }catch (error) {
           console.error('Erro ao gerar relatório geral:', error);
