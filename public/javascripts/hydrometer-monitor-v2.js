@@ -779,43 +779,70 @@ class HydrometerMonitorV2 {
           hidrometros:this.hydrometers 
         }
       }
-      const response = await fetch('/get_relatorio/hidro', {
+
+      fetch('/get_relatorio/hidro', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ info })
-      });
-      
-      // Primeiro, tenta interpretar como JSON para verificar se há erro
-      const data = await response.clone().json().catch(() => null);
-      
-      // Verifica se o backend retornou erro
-      if (data && data.error) {
-        console.error('Erro do servidor:', data.error);
-        alert('Erro ao gerar relatório geral de hidrômetros:\n' + (data.log || data.error));
-        return;
-      }
-      
-      // Se não houver erro, baixa o arquivo
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio_hidrometros_${this.url}_${info.datas.startDate}_${info.datas.endDate}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      
-      alert('Relatório geral de hidrômetros gerado com sucesso!');
-      
+        body: JSON.stringify({ info: info }) // Envia o dado da URL como JSON
+      })
+      .then(response => response.json())
+      .then(dados =>{
+        try {
+        if (dados.error) {
+          console.error('Erro do servidor:', dados.log);
+          alert('Erro ao gerar relatório geral de hidrômetros:\n' + data.error);
+          return;
+        } else {
+          alert(`<p style="color: blue;">Dados do relatorio obtido com sucesso! Baixando</p>`)
+          //console.log(dados)
+          // Definir o cabeçalho do CSV
+          const cabecalho = ['id', 'local', 'Consumo(l)', 'Data inicial','Hora inicial', 'Leitura Inicial(l)','Data final','Hora final','Leitura Final(l)'];
+          
+          // Inicializar a string do CSV com o cabeçalho
+          let csvContent = cabecalho.join(';') + '\n';
+          
+          function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return num;                return Number(num).toFixed(2).replace('.', ','); 
+          }
+          // Iterar sobre o array de dados e adicionar cada linha ao CSV
+          dados.forEach(dados => {
+            const linha = [
+                  dados.id,
+                  dados.nome,
+                  formatNumber(dados.consumo.valor),
+                  dados.consumo.startDate,
+                  dados.consumo.startTime,
+                  formatNumber(dados.consumo.startValor),
+                  dados.consumo.endDate,
+                  dados.consumo.endTime,
+                  formatNumber(dados.consumo.endValor)
+                ];
+            csvContent += linha.join(';') + '\n';
+          });
+          
+          // Criar o arquivo CSV e disparar o download
+          const link = document.createElement('a');
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          link.href = URL.createObjectURL(blob);
+          link.download = `relatorio_hidrometros_${this.url}_${info.datas.startDate}_${info.datas.endDate}.csv` // Nome do arquivo CSV
+          document.body.appendChild(link);
+          link.click(); 
+          link.remove();
+          alert('Relatório geral de hidrômetros gerado com sucesso!');
+        }
+        }catch (error) {
+          console.error('Erro ao gerar relatório geral:', error);
+          alert('Erro ao gerar relatório geral de hidrômetros.');
+        }
+      })
     }catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
       alert('Erro ao gerar relatório geral de hidrômetros.');
-    }
+    }  
   }
-
+  
   /**
    * Mostra o pop-up de relatório de consumo (disponível em breve)
    */
