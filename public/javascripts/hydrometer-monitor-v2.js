@@ -775,9 +775,9 @@ class HydrometerMonitorV2 {
         url: this.url,
         datas:{
           startDate: startDate,
-          endDate: endDate,
-          hidrometros:this.hydrometers 
-        }
+          endDate: endDate
+        },
+        hidrometros:this.hydrometers 
       }
 
       fetch('/get_relatorio/hidro', {
@@ -842,7 +842,7 @@ class HydrometerMonitorV2 {
       alert('Erro ao gerar relatório geral de hidrômetros.');
     }  
   }
-  
+
   /**
    * Mostra o pop-up de relatório de consumo (disponível em breve)
    */
