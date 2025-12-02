@@ -421,7 +421,7 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
     const useNewStructure = await isNewStructureCondominium(usuario);
     const tableNameDados = getTableName(usuario, medidor, 'dados', useNewStructure);
     const tableNameCD = getTableName(usuario, medidor, 'consumo_diario', useNewStructure);
-
+/*
     const sqlSelectConsumoInicial = useNewStructure
         ? `SELECT data, ept FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data) = ? ORDER BY data ASC LIMIT 1`
         : `SELECT data, ept FROM ${tableNameDados} WHERE DATE(data) = ? ORDER BY data ASC LIMIT 1`;
@@ -442,18 +442,19 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
 
     const sqlSelectConsumosDiario = useNewStructure
         ? `SELECT * FROM ${tableNameCD} WHERE id_medidor = ? AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`
-        : `SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
-
+        : `SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;  
+*/
     const paramsConsumosDiario = useNewStructure ? [medidor, consumoInicial.data, consumoFinal.data] : [consumoInicial.data, consumoFinal.data];
     const [consumosDiario] = await db.query(sqlSelectConsumosDiario, paramsConsumosDiario);
-
     const dados = {
         consumo: {
-            startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
-            endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+            //startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+            //endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+            startDate: moment(consumosDiario[0].data,'YYYY-MM-DD'),
+            endDate: moment(consumosDiario[consumosDiario.length-1].data,'YYYY-MM-DD'),
             valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
-            endValor: parseFloat(consumoFinal.ept).toFixed(2),
-            startValor: parseFloat(consumoInicial.ept).toFixed(2),
+            //endValor: parseFloat(consumoFinal.ept).toFixed(2),
+            //startValor: parseFloat(consumoInicial.ept).toFixed(2),
         },
         consumosDiario: consumosDiario,
         NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
