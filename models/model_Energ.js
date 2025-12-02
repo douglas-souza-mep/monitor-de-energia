@@ -444,7 +444,7 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
         ? `SELECT * FROM ${tableNameCD} WHERE id_medidor = ? AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`
         : `SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;  
 */
-    const paramsConsumosDiario = useNewStructure ? [medidor, consumoInicial.data, consumoFinal.data] : [consumoInicial.data, consumoFinal.data];
+    const paramsConsumosDiario = useNewStructure ? [medidor, moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')] : [consumoInicial.data, consumoFinal.data];
     const [consumosDiario] = await db.query(sqlSelectConsumosDiario, paramsConsumosDiario);
     const dados = {
         consumo: {
@@ -452,7 +452,7 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
             //endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
             startDate: moment(consumosDiario[0].data,'YYYY-MM-DD'),
             endDate: moment(consumosDiario[consumosDiario.length-1].data,'YYYY-MM-DD'),
-            valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+            //valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
             //endValor: parseFloat(consumoFinal.ept).toFixed(2),
             //startValor: parseFloat(consumoInicial.ept).toFixed(2),
         },
