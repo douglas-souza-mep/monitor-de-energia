@@ -884,7 +884,7 @@ class EnergyMonitorV2 {
               <p><strong>Local:</strong> ${dados.local}</p>
               <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR', options)}</p>
               <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR', options)}</p>
-              <p class="consumption-value mep-v2"><strong>Consumo:</strong> <span class="text-success mep-v2">${dados.consumo} kWh</span></p>
+              <p class="consumption-value mep-v2"><strong>Consumo:</strong> <span class="text-success mep-v2">${dados.NovoConsumo} kWh</span></p>
             </div>
           </div>
         `;
