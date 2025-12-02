@@ -522,21 +522,27 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             }
 
             //if (consumoInicial && consumoFinal) {
-                resultadosRelatorio.push({
-                    consumo: {
-                        //startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
-                        startDate: moment(consumosDiario[0].data,'YYYY-MM-DD'),
-                        //endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
-                        endDate: moment(consumosDiario[consumosDiario.length-1].data,'YYYY-MM-DD'),
-                        //valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
-                        //endValor: parseFloat(consumoFinal.ept).toFixed(2),
-                        //startValor: parseFloat(consumoInicial.ept).toFixed(2)
-                    },
-                    consumosDiario: consumosDiario,
-                    NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
-                    id: medidor.id,
-                    nome: medidor.local
-                });
+                try {
+                    resultadosRelatorio.push({
+                        consumo: {
+                            //startDate: moment.tz(consumoInicial.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+                            startDate: moment(consumosDiario[0].data,'YYYY-MM-DD'),
+                            //endDate: moment.tz(consumoFinal.data,'YYYY-MM-DD HH:mm:ss',"America/Sao_Paulo"),
+                            endDate: moment(consumosDiario[consumosDiario.length-1].data,'YYYY-MM-DD'),
+                            //valor: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)),
+                            //endValor: parseFloat(consumoFinal.ept).toFixed(2),
+                            //startValor: parseFloat(consumoInicial.ept).toFixed(2)
+                        },
+                        consumosDiario: consumosDiario,
+                        NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
+                        id: medidor.id,
+                        nome: medidor.local
+                    });  
+                } catch (error) {
+                    console.error(`Erro no medidor:${medidor.id} - Local: ${medidor.local}` );
+                    console.error("Erro:", error);
+                    console.error(consumosDiario);
+                }
             //}
         }
         return resultadosRelatorio;
