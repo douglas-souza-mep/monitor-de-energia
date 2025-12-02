@@ -423,10 +423,13 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
     const tableNameCD = getTableName(usuario, medidor, 'consumo_diario', useNewStructure);
 
     const sqlSelectConsumoInicial = useNewStructure
-        ? `SELECT data, ept FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data)=? ORDER BY data ASC LIMIT 1`
-        : `SELECT data, ept FROM ${tableNameDados} WHERE DATE(data)=? ORDER BY data ASC LIMIT 1`;
+        ? `SELECT data, ept FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data) = ? ORDER BY data ASC LIMIT 1`
+        : `SELECT data, ept FROM ${tableNameDados} WHERE DATE(data) = ? ORDER BY data ASC LIMIT 1`;
     const paramsConsumoInicial = useNewStructure ? [medidor, moment(startDate).format('YYYY-MM-DD')] : [moment(startDate).format('YYYY-MM-DD')];
     const [[consumoInicial]] = await db.query(sqlSelectConsumoInicial, paramsConsumoInicial);
+    console.log(sqlSelectConsumoInicial)
+    console.log(paramsConsumoInicial)
+    console.log(consumoInicial)
 
     const sqlSelectConsumoFinal = useNewStructure
         ? `SELECT data, ept FROM ${tableNameDados} WHERE id_medidor = ? AND DATE(data) = ? ORDER BY data ASC LIMIT 1`
@@ -437,7 +440,7 @@ const getConsumo = async (usuario, medidor, startDate, endDate) => {
     const sqlSelectConsumosDiario = useNewStructure
         ? `SELECT * FROM ${tableNameCD} WHERE id_medidor = ? AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`
         : `SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
-        console.log(consumoInicial)
+        
         console.log(consumoFinal)
     const paramsConsumosDiario = useNewStructure ? [medidor, consumoInicial.data, consumoFinal.data] : [consumoInicial.data, consumoFinal.data];
     const [consumosDiario] = await db.query(sqlSelectConsumosDiario, paramsConsumosDiario);
