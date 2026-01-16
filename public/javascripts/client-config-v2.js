@@ -26,6 +26,41 @@ const clientsConfig = {
     }
   },
 
+ // Cliente: Golgi Brasilia
+  golgidf: {
+    name: "Golgi Brasilia",
+    mqtt: {
+      broker: "wss://monitor.mep.eng.br",
+      username: "golgidf",
+      password: "golgi@df",
+      path: "/mqtt",
+      energyTopic: "golgidf/atualizarTela/energ",
+      hydrometerTopic: "golgidf/atualizarTela/hidro"
+    },
+    api: {
+      baseUrl: "golgidf"
+    },
+    navigation: {
+      hydrometers: "http://monitor.mep.eng.br/users/golgidf_hidro_v2",
+      energy: "http://monitor.mep.eng.br/users/golgidf_energ_v2"
+    },
+    interface: {
+      meterCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      },
+      hydrometerCard: {
+        statusThresholds: {
+          online: 5,    // minutos
+          warning: 15,  // minutos
+          offline: 30   // minutos
+        }
+      }
+    }
+  },
   // Cliente: Santa Mônica
   santaMonica: {
     name: "Santa Mônica",

@@ -36,6 +36,14 @@ router.get('/hospitalBase_energ_v2', function(req, res, next) {
   });
 });
 
+router.get('/golgidf_energ_v2', function(req, res, next) {
+  res.render('energy-monitor-v2', { 
+    title: 'Monitor de Energia V2 - Golgi Brasilia',
+    nome: 'Golgi Brasilia - Monitoramento de Energia',
+    clientKey: 'golgidf'
+  });
+});
+
 // ========================================
 // ROTAS PARA HIDRÔMETROS V2
 // ========================================
@@ -46,6 +54,14 @@ router.get('/santaMonica_hidro_v2', function(req, res, next) {
     title: 'Monitor de Hidrômetros V2 - Santa Mônica',
     nome: 'Santa Mônica - Monitoramento de Hidrômetros V2',
     clientKey: 'santaMonica' // Passa a chave do cliente para o frontend
+  });
+});
+
+router.get('/golgidf_hidro_v2', function(req, res, next) {
+  res.render('hydrometer-monitor-v2', { 
+    title: 'Monitor de Hidrômetros V2 - Golgi Brasilia',
+    nome: 'Golgi Brasilia - Monitoramento de Hidrômetros V2',
+    clientKey: 'golgidf' // Passa a chave do cliente para o frontend
   });
 });
 
