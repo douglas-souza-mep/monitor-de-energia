@@ -102,15 +102,15 @@ async function tratarLeitura(client,topico,msg,data){
             });
             url = "golgidf"
             setPoit = 0
-            let dados ={
+            let dados2 ={
                 id:leitura.id,
                 data: data,
                 leitura: parseInt(parseFloat(leitura.consumo)+setPoit)
                 }
-            retorno = await model_Hidro.addLeitura(url,dados)
-            dados.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss');
+            retorno = await model_Hidro.addLeitura(url,dados2)
+            dados2.data = moment(dados2.data).format('DD-MM-YYYY HH:mm:ss');
             //console.log(dados);
-            const mensagem = JSON.stringify(dados);
+            const mensagem = JSON.stringify(dados2);
             client.publish(`${url}/atualizarTela/hidro`, mensagem, (err) => {
                 if (err) {
                     console.error('Erro ao publicar mensagem:', err);
