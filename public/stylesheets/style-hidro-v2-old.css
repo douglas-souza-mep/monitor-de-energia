@@ -799,86 +799,77 @@ body.hydro-v2 {
   color: var(--mep-text-secondary);
 }
 
-/* ==========================================================================
-   ESTILOS PARA O CHECKBOX DE ALERTAS (HIDRÔMETROS)
-   ========================================================================== */
-
-.hydrometer-header.hydro-v2 {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.loading-spinner.hydro-v2 {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--mep-border);
+  border-top: 3px solid var(--hydro-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 1rem;
 }
 
-.meter-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.alert-toggle-container.hydro-v2 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #f1f5f9;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-  min-width: 70px;
+/* Responsividade */
+@media (max-width: 768px) {
+  .nav-bar.hydro-v2 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-content.hydro-v2 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .grid-actions.hydro-v2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-row.hydro-v2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-grid.hydro-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .hydrometers-grid.hydro-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-grid.hydro-v2.readings {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-actions.hydro-v2 {
+    flex-direction: column;
+  }
 }
 
-.alert-toggle-container.hydro-v2:hover {
-  border-color: #3498db;
-  background: #ebf8ff;
+@media (max-width: 480px) {
+  .main-container.hydro-v2 {
+    padding: 1rem 0.5rem;
+  }
+  
+  .grid-header.hydro-v2 h1 {
+    font-size: 2rem;
+  }
+  
+  .hydrometer-card.hydro-v2,
+  .report-general-form.hydro-v2,
+  .upload-section.hydro-v2 {
+    padding: 1rem;
+  }
+  
+  .reading-value.hydro-v2 .value {
+    font-size: 2rem;
+  }
 }
 
-.switch-label.hydro-v2 {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-  color: #64748b;
-  letter-spacing: 0.025em;
-}
-
-.alert-checkbox.hydro-v2 {
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-  accent-color: #3498db;
-}
-
-/* Estilo para a linha de título nos detalhes */
-.detail-title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.detail-alert.hydro-v2 {
-  flex-direction: row;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-}
-
-.detail-alert.hydro-v2:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.detail-alert.hydro-v2 .switch-label.hydro-v2 {
-  margin-bottom: 0;
-  font-size: 0.875rem;
-  color: white;
-}
-
-.detail-alert.hydro-v2 .alert-checkbox.hydro-v2 {
-  accent-color: white;
-}

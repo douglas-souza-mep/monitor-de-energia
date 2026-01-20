@@ -28,20 +28,21 @@
             <p class="nav-subtitle hydro-v2">Monitoramento de Hidrômetros</p>
           </div>
           <div class="nav-controls hydro-v2">
-              <% if (typeof clientKey !== 'undefined' && clientKey === 'santaMonica') { %>
-                  <a href="https://monitor.mep.eng.br/users/santaMonica_energ_v2" class="nav-button hydro-v2">
+            <% 
+            // Lista de clientes que possuem acesso a hidrômetros
+            const clientesComEnerg = ['santaMonica', 'HospitalBase', 'golgidf']; 
+            
+            if (typeof clientKey !== 'undefined' && clientesComEnerg.includes(clientKey)) { 
+            %>
+                <a href="/users/<%= clientKey %>_energ_v2" class="nav-button hydro-v2">
                     <i class="fa-solid fa-bolt"></i> Energia
-                  </a>
-              <% } else if (typeof clientKey !== 'undefined' && clientKey === 'HospitalBase') { %>
-                  <a href="https://monitor.mep.eng.br/users/HospitalBase_energ_v2" class="nav-button hydro-v2">
-                    <i class="fa-solid fa-bolt"></i> Energia
-                  </a>
-              <% } %>
-              
-              <a href="#" class="nav-button hydro-v2" onclick="window.location.reload()">
-                  <i class="fas fa-sync-alt"></i> Atualizar
-              </a>
-          </div>
+                </a>
+            <% } %>
+        
+            <a href="#" class="nav-button hydro-v2" onclick="window.location.reload(); return false;">
+                <i class="fas fa-sync-alt"></i> Atualizar
+            </a>
+        </div>
         </div>
       </nav>
     </div>

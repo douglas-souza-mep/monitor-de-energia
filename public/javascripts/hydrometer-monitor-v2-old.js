@@ -54,24 +54,10 @@ class HydrometerMonitorV2 {
 
     // Clique nos cards dos hidrômetros
     document.addEventListener('click', (e) => {
-      // Evita disparar o detalhe se clicar no checkbox de alertas
-      if (e.target.closest('.alert-toggle-container')) {
-        return;
-      }
-
       const hydrometerCard = e.target.closest('.hydrometer-card');
       if (hydrometerCard && this.currentView === 'grid') {
         const hydrometerId = hydrometerCard.dataset.hydrometerId;
         this.showHydrometerDetail(hydrometerId);
-      }
-    });
-
-    // Listener para o checkbox de alertas
-    document.addEventListener('change', (e) => {
-      if (e.target.classList.contains('alert-checkbox')) {
-        const hydrometerId = e.target.dataset.hydrometerId;
-        const enabled = e.target.checked;
-        this.toggleAlerts(hydrometerId, enabled);
       }
     });
 
@@ -116,89 +102,9 @@ class HydrometerMonitorV2 {
   }
 
   /**
-   * Envia comando para habilitar/desabilitar alertas
-   */
-  async toggleAlerts(hydrometerId, enabled) {
-    try {
-      const response = await fetch('/v2/editarAlertas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          tipo: 'hidro',
-          id: hydrometerId,
-          habilitado: enabled
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.status === 'ok') {
-        const status = enabled ? 'ativados' : 'desativados';
-        alert(`Alertas para o hidrômetro ${hydrometerId} foram ${status} com sucesso!`);
-        
-        // Atualiza o estado no cache local
-        const hydrometer = this.hydrometers.find(h => h.id === hydrometerId);
-        if (hydrometer) {
-          hydrometer.alertasHabilitados = enabled;
-        }
-      } else {
-        throw new Error(result.message || 'Erro ao processar solicitação');
-      }
-    } catch (error) {
-      console.error('Erro ao alternar alertas:', error);
-      alert(`Erro: ${error.message}`);
-      
-      // Reverte o checkbox em caso de erro
-      const checkbox = document.querySelector(`.alert-checkbox[data-hydrometer-id="${hydrometerId}"]`);
-      if (checkbox) {
-        checkbox.checked = !enabled;
-      }
-    }
-  }
-
-  /**
    * Carrega dados do usuário e hidrômetros
    */
   async loadUserData() {
-    try {
-      const response = await fetch('/v2/get-dados-iniciais/hidro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: this.url })
-      });
-
-      const dadosIniciais = await response.json();
-      
-      if (dadosIniciais.error) {
-        throw new Error(dadosIniciais.error);
-      }
-
-      // Atualiza a lista de hidrômetros com o estado dos alertas
-      this.hydrometers = dadosIniciais.medidores.map(m => ({
-        id: m.id.toString(),
-        local: m.local,
-        // Se a informação de alertas não vier, o padrão é habilitado (true)
-        alertasHabilitados: m.alertasHabilitados !== undefined ? m.alertasHabilitados : true
-      }));
-      
-      console.log('Hidrômetros carregados com alertas:', this.hydrometers);
-      return this.hydrometers;
-    } catch (error) {
-      console.error('Erro ao carregar dados iniciais otimizados:', error);
-      // Fallback para o método antigo se a rota v2 falhar
-      return this.loadUserDataLegacy();
-    }
-  }
-
-  /**
-   * Método legado para carregar dados do usuário (fallback)
-   */
-  async loadUserDataLegacy() {
     try {
       const response = await fetch('/get-dados-do-usuario', {
         method: 'POST',
@@ -216,14 +122,15 @@ class HydrometerMonitorV2 {
         if (hydrometersText[i] && hydrometersText[i+1]) {
           this.hydrometers.push({
             id: hydrometersText[i], 
-            local: hydrometersText[i + 1],
-            alertasHabilitados: true // Padrão habilitado
+            local: hydrometersText[i + 1]
           });
         }
       }
+      
+      console.log('Hidrômetros carregados:', this.hydrometers);
       return this.hydrometers;
     } catch (error) {
-      console.error('Erro no fallback de carregamento:', error);
+      console.error('Erro ao carregar dados do usuário:', error);
       return [];
     }
   }
@@ -428,18 +335,18 @@ class HydrometerMonitorV2 {
           
           // Atualiza o cache de dados
           this.hydrometersData.set(leitura.id, leitura);
-          
-          // Se estiver na view de grid, atualiza o card
+          // Atualiza a interface baseado na view atual
           if (this.currentView === 'grid') {
             this.updateHydrometerCard(leitura.id, leitura);
+          } else if (this.currentView === 'detail' && this.selectedHydrometer === leitura.id) {
+            let dados = this.hydrometersData.get(Number(leitura.id));
+            dados.grafico.push([leitura.data, leitura.leitura])
+            this.hydrometersData.set(leitura.id, dados);
+            this.updateDetailView(dados);
           }
           
-          // Se estiver na view de detalhes do hidrômetro atual, atualiza a tela
-          if (this.currentView === 'detail' && this.selectedHydrometer === leitura.id) {
-            this.updateDetailView(leitura);
-          }
-        } catch (e) {
-          console.error('Erro ao processar mensagem MQTT:', e);
+        } catch (error) {
+          console.error('Erro ao processar mensagem MQTT:', error);
         }
         break;
       default:
@@ -480,16 +387,8 @@ class HydrometerMonitorV2 {
         ${this.hydrometers.map(hydrometer => `
           <div class="hydrometer-card hydro-v2" data-hydrometer-id="${hydrometer.id}">
             <div class="hydrometer-header hydro-v2">
-              <div class="meter-title-group">
-                <h3 class="hydrometer-name hydro-v2">${hydrometer.local}</h3>
-                <span class="hydrometer-id hydro-v2">ID: ${hydrometer.id}</span>
-              </div>
-              <div class="alert-toggle-container hydro-v2" title="Habilitar/Desabilitar Alertas">
-                <label class="switch-label hydro-v2">Alertas</label>
-                <input type="checkbox" class="alert-checkbox hydro-v2" 
-                  data-hydrometer-id="${hydrometer.id}" 
-                  ${hydrometer.alertasHabilitados ? 'checked' : ''}>
-              </div>
+              <h3 class="hydrometer-name hydro-v2">${hydrometer.local}</h3>
+              <span class="hydrometer-id hydro-v2">ID: ${hydrometer.id}</span>
             </div>
             
             <div class="hydrometer-reading hydro-v2">
@@ -559,16 +458,19 @@ class HydrometerMonitorV2 {
    */
   updateHydrometerCard(hydrometerId, dados) {
     try {
+      // Log para depuração de data/hora
+      ////console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Data recebida:`, dados.leitura?.data);
+      
       // Última leitura
       const readingEl = document.getElementById(`reading-${hydrometerId}`);
       
-      if (readingEl && dados && dados.leitura) {
-        readingEl.querySelector('.value').textContent = dados.leitura.leitura || (dados.leitura/1000).toFixed(3) || '--';
+      if (readingEl && dados.leitura) {
+        readingEl.querySelector('.value').textContent = dados.leitura.leitura || dados.leitura/1000 || '--';
       }
       
       // Data da última transmissão (corrigindo fuso horário)
       const dateEl = document.getElementById(`date-${hydrometerId}`);
-      if (dateEl && dados && dados.leitura && dados.leitura.data) {
+      if (dateEl && dados.leitura && dados.leitura.data) {
         let date;
         if (typeof dados.leitura.data === 'string') {
           const parts = dados.leitura.data.split(' ');
@@ -577,14 +479,19 @@ class HydrometerMonitorV2 {
             const timePart = parts[1];
             const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
             date = new Date(isoString);
+            //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Data original: ${dados.leitura.data}, ISO: ${isoString}, Objeto Date: ${date}`);
           } else {
             date = new Date(dados.leitura.data);
+            //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Data direta: ${dados.leitura.data}, Objeto Date: ${date}`);
           }
         } else {
           date = new Date(dados.leitura.data);
+          //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Data como objeto: ${dados.leitura.data}, Objeto Date: ${date}`);
         }
         
+        const originalHour = date.getHours();
         date.setHours(date.getHours() + 3);
+        //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
         
         const formattedDate = date.toLocaleString('pt-BR', { 
           timeZone: 'America/Sao_Paulo',
@@ -596,30 +503,55 @@ class HydrometerMonitorV2 {
           second: '2-digit'
         });
         
+        //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Data formatada exibida: ${formattedDate}`);
         dateEl.textContent = formattedDate;
-        
-        // Status do hidrômetro
-        const statusEl = document.getElementById(`status-${hydrometerId}`);
-        if (statusEl) {
-          const now = new Date();
-          const diffMinutes = (now - date) / (1000 * 60);
-          
-          let statusClass = '';
-          let statusText = '';
-
-          if (diffMinutes < 1440) { // Menos de 24 horas
-            statusClass = 'online';
-            statusText = 'Online';
-          } else if (diffMinutes < 2880) { // Menos de 48 horas
-            statusClass = 'warning';
-            statusText = 'Atenção';
+      }
+      
+      // Status do hidrômetro
+      const statusEl = document.getElementById(`status-${hydrometerId}`);
+      if (statusEl && dados.leitura && dados.leitura.data) {
+        const now = new Date();
+        let lastUpdate;
+        if (typeof dados.leitura.data === 'string') {
+          const parts = dados.leitura.data.split(' ');
+          if (parts.length === 2) {
+            const datePart = parts[0].split('-');
+            const timePart = parts[1];
+            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+            lastUpdate = new Date(isoString);
           } else {
-            statusClass = 'offline';
-            statusText = 'Offline';
+            lastUpdate = new Date(dados.leitura.data);
           }
-          
-          statusEl.innerHTML = `<span class="status-indicator hydro-v2 ${statusClass}"></span><span class="status-text hydro-v2">${statusText}</span>`;
+        } else {
+          lastUpdate = new Date(dados.leitura.data);
         }
+        lastUpdate.setHours(lastUpdate.getHours() + 3);
+        
+        const diffMinutes = (now - lastUpdate) / (1000 * 60);
+        //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Diferença em minutos: ${diffMinutes.toFixed(2)}`);
+        
+        const statusConfig = this.config.interface?.hydrometerCard?.statusThresholds || {
+          online: 5,
+          warning: 15,
+          offline: 30
+        };
+
+        let statusClass = '';
+        let statusText = '';
+
+        if (diffMinutes < statusConfig.online) {
+          statusClass = 'online';
+          statusText = 'Online';
+        } else if (diffMinutes < statusConfig.warning) {
+          statusClass = 'warning';
+          statusText = 'Atenção';
+        } else {
+          statusClass = 'offline';
+          statusText = 'Offline';
+        }
+        
+        //console.log(`[DEBUG] Hidrômetro ${hydrometerId} - Status: ${statusText} (${statusClass})`);
+        statusEl.innerHTML = `<span class="status-indicator hydro-v2 ${statusClass}"></span><span class="status-text hydro-v2">${statusText}</span>`;
       }
       
     } catch (error) {
@@ -630,20 +562,37 @@ class HydrometerMonitorV2 {
   /**
    * Mostra a view de detalhes de um hidrômetro específico
    */
-  showHydrometerDetail(hydrometerId) {
+  async showHydrometerDetail(hydrometerId) {
     this.currentView = 'detail';
     this.selectedHydrometer = hydrometerId;
-    
-    const hydrometer = this.hydrometers.find(h => h.id === hydrometerId);
+    const ontem = new Date();   // cria uma cópia para não alterar 'hoje'
+    ontem.setDate(ontem.getDate() - 1);
+    const hydrometer = this.hydrometers.find(m => m.id === hydrometerId);
     const dados = this.hydrometersData.get(Number(hydrometerId));
-    
-    const container = document.getElementById('main-content');
-    container.innerHTML = this.generateDetailHTML(hydrometer, dados);
-    
+    const response = await fetch('/get_grafico_hidro', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        hidrometro: this.selectedHydrometer,
+        url: this.url,
+        startDate: ontem.toISOString().split('T')[0]  
+      })
+    });
+
+    const grafico = await response.json();
+    if (dados.id == grafico.id) {
+      dados.grafico = grafico.grafico
+      const container = document.getElementById('main-content');
+      container.innerHTML = this.generateDetailHTML(hydrometer, dados);
+    } else {
+      console.log("falha ao obter dados")
+      console.log(grafico)
+      console.log(dados)
+    }
     if (dados) {
       this.updateDetailView(dados);
-    } else {
-      this.loadHydrometerData(hydrometerId);
     }
   }
 
@@ -656,67 +605,51 @@ class HydrometerMonitorV2 {
         <button id="back-to-grid" class="back-button hydro-v2">
           ← Voltar à Visão Geral
         </button>
-        <div class="detail-title-row">
-          <h1>${hydrometer.local}</h1>
-          <div class="alert-toggle-container detail-alert hydro-v2">
-            <label class="switch-label hydro-v2">Alertas</label>
-            <input type="checkbox" class="alert-checkbox hydro-v2" 
-              data-hydrometer-id="${hydrometer.id}" 
-              ${hydrometer.alertasHabilitados ? 'checked' : ''}>
-          </div>
-        </div>
+        <h1>${hydrometer.local}</h1>
         <p class="detail-subtitle hydro-v2">ID: ${hydrometer.id}</p>
         <p class="last-update hydro-v2">Última atualização: <span id="detail-date">Carregando...</span></p>
-      </div>
-
-      <div class="metrics-grid hydro-v2 reading-main">
-        <div class="metric-card hydro-v2">
-          <p class="metric-label hydro-v2">Última Leitura</p>
-          <p class="metric-value hydro-v2" id="detail-reading">0.000<span class="metric-unit hydro-v2">m³</span></p>
+        <div class="detail-actions hydro-v2">
+          <button id="btn-report-consumption" class="btn btn-primary hydro-v2">
+            <i class="fas fa-file-alt"></i> Relatório de Consumo
+          </button>
         </div>
       </div>
 
+      <div class="metrics-grid hydro-v2 readings">
+        <div class="metric-card hydro-v2">
+          <p class="metric-label hydro-v2">Leitura Atual</p>
+          <p class="metric-value hydro-v2" id="current-reading">0<span class="metric-unit hydro-v2">m³</span></p>
+        </div>
+      </div>
+
+      <!-- Gráfico de Leituras -->
       <div class="charts-section hydro-v2">
         <div class="chart-container hydro-v2">
-          <div id="chart_div"></div>
+          <h3 class="chart-title hydro-v2">Leituras Diárias</h3>
+          <div id="daily-readings-chart" style="height: 300px;"></div>
         </div>
       </div>
 
-      <div class="consumption-calculator hydro-v2">
-        <h3 class="calculator-title hydro-v2">Cálculo de Consumo por Período</h3>
-        <form id="event-form" class="calculator-form hydro-v2">
+      <!-- Período de Cobrança Section -->
+      <div class="section-title hydro-v2">Período de Cobrança</div>
+      <div class="consumption-form hydro-v2">
+        <h3>Calcular Consumo por Período</h3>
+        <div class="form-grid hydro-v2">
           <div class="form-group hydro-v2">
-            <label for="start-date" class="form-label hydro-v2">Data de Início:</label>
-            <input type="date" id="start-date" class="form-input hydro-v2" required>
+            <label for="start-date" class="form-label hydro-v2">Data Início:</label>
+            <input type="date" id="start-date" class="form-input hydro-v2">
           </div>
-          
           <div class="form-group hydro-v2">
-            <label for="end-date" class="form-label hydro-v2">Data de Término:</label>
-            <input type="date" id="end-date" class="form-input hydro-v2" required>
+            <label for="end-date" class="form-label hydro-v2">Data Fim:</label>
+            <input type="date" id="end-date" class="form-input hydro-v2">
           </div>
-          
-          <div class="button-group hydro-v2">
-            <button id="calcular" type="submit" class="btn btn-primary hydro-v2">
-              📊 Calcular Consumo
-            </button>
-            <button id="btn-report-consumption" type="button" class="btn btn-secondary hydro-v2">
-              📋 Relatório de Consumo
+          <div class="form-group hydro-v2">
+            <button id="calcular" class="btn btn-calculate hydro-v2">
+              <i class="fas fa-calculator"></i> Calcular Consumo
             </button>
           </div>
-        </form>
-      </div>
-
-      <div class="results-section hydro-v2 results-grid">
-        <div class="chart-container hydro-v2">
-          <div id="chart_consumo"></div>
         </div>
-        <div class="result-container hydro-v2">
-          <div id="result">
-            <div class="text-center hydro-v2">
-              <p class="text-secondary hydro-v2">Selecione um período e clique em "Calcular Consumo" para ver os resultados.</p>
-            </div>
-          </div>
-        </div>
+        <div id="consumption-result" class="upload-status hydro-v2"></div>
       </div>
     `;
   }
@@ -726,356 +659,367 @@ class HydrometerMonitorV2 {
    */
   updateDetailView(dados) {
     try {
-      // Atualiza data
+      // Log para depuração de data/hora na view de detalhes
+      //console.log(`[DEBUG] Detail View - Data recebida:`, dados.leitura?.data);
+      //console.log(dados)
+      // Atualiza data (corrigindo fuso horário)
       const dateEl = document.getElementById('detail-date');
       if (dateEl && dados.leitura && dados.leitura.data) {
-        let date;
-        if (typeof dados.leitura.data === 'string') {
-          const parts = dados.leitura.data.split(' ');
-          if (parts.length === 2) {
-            const datePart = parts[0].split('-');
-            const timePart = parts[1];
-            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
-            date = new Date(isoString);
-          } else {
-            date = new Date(dados.leitura.data);
-          }
-        } else {
-          date = new Date(dados.leitura.data);
-        }
-        date.setHours(date.getHours() + 3);
-        dateEl.textContent = date.toLocaleString('pt-BR');
+        const formattedDate = ajusteDateTime(dados.leitura.data)
+        //console.log(`[DEBUG] Detail View - Data formatada exibida: ${formattedDate}`);
+        dateEl.textContent = formattedDate;
       }
       
-      // Atualiza leitura
-      const readingEl = document.getElementById('detail-reading');
-      if (readingEl && dados.leitura) {
-        readingEl.innerHTML = `${dados.leitura.leitura || (dados.leitura/1000).toFixed(3)}<span class="metric-unit hydro-v2">m³</span>`;
-      }
+      // Atualiza última leitura
+      document.getElementById('current-reading').innerHTML = `${dados.leitura.leitura}<span class="metric-unit hydro-v2">m³</span>`;
       
-      // Desenha gráfico se houver dados históricos
-      if (dados.grafico) {
-        this.drawChart(dados.grafico);
-      }
+      // Atualiza gráficos
+      this.drawCharts(dados.grafico);
+      
     } catch (error) {
       console.error('Erro ao atualizar view de detalhes:', error);
     }
   }
 
   /**
-   * Desenha o gráfico de histórico
+   * Desenha os gráficos
    */
-  drawChart(dadosGrafico) {
-    try {
-      const data = new google.visualization.DataTable();
-      data.addColumn('date', 'Data');
-      data.addColumn('number', 'Leitura (m³)');
-      
-      const rows = dadosGrafico.map(item => [new Date(item[0]), item[1]]);
-      data.addRows(rows);
-
-      const options = {
-        title: 'Histórico de Leituras',
-        titleTextStyle: { fontSize: 16, bold: true },
-        hAxis: { title: 'Data', format: 'dd/MM' },
-        vAxis: { title: 'm³' },
-        backgroundColor: 'transparent',
-        chartArea: { width: '85%', height: '70%' },
-        colors: ['#3498db'],
-        legend: { position: 'none' }
-      };
-
-      const chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    } catch (error) {
-      console.error('Erro ao desenhar gráfico:', error);
-    }
-  }
-
-  /**
-   * Calcula consumo para um período específico
-   */
-  async calculateConsumption(e) {
-    try {
-      const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value;
-      
-      if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e término.');
-        return;
-      }
-      
-      this.showLoading();
-      
-      const response = await fetch('/get_consumo_periodo/hidro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          hidrometro: this.selectedHydrometer,
-          startDate,
-          endDate
-        })
-      });
-      
-      const dados = await response.json();
-      this.hideLoading();
-      
-      if (dados.error) {
-        alert('Erro ao calcular consumo: ' + dados.error);
-        return;
-      }
-      
-      this.displayCalculationResults(dados);
-      this.drawConsumptionChart(dados.grafico, this.selectedHydrometer);
-      
-    } catch (error) {
-      console.error('Erro ao calcular consumo:', error);
-      this.hideLoading();
-      alert('Erro ao calcular consumo. Tente novamente.');
-    }
-  }
-
-  /**
-   * Exibe resultados do cálculo de consumo
-   */
-  displayCalculationResults(dados) {
-    const resultContainer = document.getElementById('result');
-    resultContainer.innerHTML = `
-      <div class="calculation-results hydro-v2">
-        <h4 class="results-title hydro-v2">Resultado do Período</h4>
-        <div class="result-item hydro-v2">
-          <span class="result-label hydro-v2">Consumo Total:</span>
-          <span class="result-value hydro-v2">${parseFloat(dados.consumo).toFixed(3)} m³</span>
-        </div>
-        <div class="result-item hydro-v2">
-          <span class="result-label hydro-v2">Início:</span>
-          <span class="result-value hydro-v2">${new Date(dados.startDate).toLocaleString('pt-BR')}</span>
-        </div>
-        <div class="result-item hydro-v2">
-          <span class="result-label hydro-v2">Término:</span>
-          <span class="result-value hydro-v2">${new Date(dados.endDate).toLocaleString('pt-BR')}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Desenha gráfico de consumo do período
-   */
-  drawConsumptionChart(dadosGrafico, id) {
-    try {
-      const data = new google.visualization.DataTable();
-      data.addColumn('date', 'Data');
-      data.addColumn('number', 'Consumo (m³)');
-      
-      const rows = dadosGrafico.map(item => [new Date(item[0]), item[1]]);
-      data.addRows(rows);
-
-      const options = {
-        title: 'Consumo no Período',
-        hAxis: { title: 'Data', format: 'dd/MM' },
-        vAxis: { title: 'm³' },
-        backgroundColor: 'transparent',
-        chartArea: { width: '85%', height: '70%' },
-        colors: ['#2ecc71']
-      };
-
-      const chart = new google.visualization.ColumnChart(document.getElementById('chart_consumo'));
-      chart.draw(data, options);
-    } catch (error) {
-      console.error('Erro ao desenhar gráfico de consumo:', error);
-    }
-  }
-
-  /**
-   * Gera relatório geral para todos os hidrômetros
-   */
-  async generateGeneralReport() {
-    try {
-      const startDate = document.getElementById('general-start-date').value;
-      const endDate = document.getElementById('general-end-date').value;
-      
-      if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e término.');
-        return;
-      }
-      
-      this.showLoading();
-      
-      const response = await fetch('/get_relatorio_geral/hidro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          startDate,
-          endDate
-        })
-      });
-      
-      const dados = await response.json();
-      this.hideLoading();
-      
-      if (dados.error) {
-        alert('Erro ao gerar relatório: ' + dados.error);
-        return;
-      }
-      
-      this.downloadCSV(dados.relatorio, `Relatorio_Geral_Hidro_${this.url}`);
-      
-    } catch (error) {
-      console.error('Erro ao gerar relatório geral:', error);
-      this.hideLoading();
-    }
-  }
-
-  /**
-   * Mostra popup para relatório de consumo detalhado
-   */
-  async showConsumptionReportPopup() {
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
-    
-    if (!startDate || !endDate) {
-      alert('Por favor, selecione as datas de início e término.');
+  drawCharts(grafico) {
+    if (!grafico) {
+      console.warn('Dados de gráficos diários não disponíveis.');
       return;
     }
-    
-    this.showLoading();
-    
+
+    const dataTable = new google.visualization.DataTable();
+    dataTable.addColumn('string', 'Data-Hora');
+    dataTable.addColumn('number', 'Leitura');
+
+    // Adiciona 3 horas aos dados do gráfico para exibição correta no fuso horário do Brasil
+    const chartData = grafico.map(item => {
+      const [hour, value] = item;
+      const formattedDate = ajusteDateTime(hour)
+      return [formattedDate, value/1000]
+    });
+
+    dataTable.addRows(chartData);
+
+    const options = {
+      title: 'Leituras Diárias (m³)',
+      //curveType: 'function',
+      legend: { position: 'bottom' },
+      colors: [this.config.colors.primary],
+      backgroundColor: this.config.colors.surface,
+      hAxis: {
+        title: 'Data-Hora',
+        textStyle: { color: this.config.colors.textSecondary },
+        titleTextStyle: { color: this.config.colors.text }
+      },
+      vAxis: {
+        title: 'Leitura (m³)',
+        textStyle: { color: this.config.colors.textSecondary },
+        titleTextStyle: { color: this.config.colors.text }
+      },
+      titleTextStyle: { color: this.config.colors.text },
+      chartArea: { width: '80%', height: '70%' }
+    };
+
+    const chart = new google.visualization.LineChart(document.getElementById('daily-readings-chart'));
+    chart.draw(dataTable, options);
+  }
+
+  /**
+   * Calcula o consumo por período
+   */
+  async calculateConsumption() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const resultDiv = document.getElementById('consumption-result');
+
+    if (!startDate || !endDate) {
+      resultDiv.innerHTML = '<h3 style="color: var(--mep-danger);">Por favor, selecione as datas de início e fim.</h3>';
+      return;
+    }
+
+    resultDiv.innerHTML = '<h3 style="color: var(--mep-text-secondary);"><i class="fas fa-spinner fa-spin"></i> Calculando...</h3>';
+
     try {
-      const response = await fetch('/get_relatorio_detalhado/hidro', {
+      const info = {
+          hidrometro: this.selectedHydrometer,
+          url: this.url,
+          datas:{
+            startDate: startDate,
+            endDate: endDate
+          }
+        }
+      const response = await fetch('/get_consumo/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          url: this.url,
-          hidrometro: this.selectedHydrometer,
-          startDate,
-          endDate
-        })
+        
+        body: JSON.stringify({info: info})
       });
-      
-      const dados = await response.json();
-      this.hideLoading();
-      
-      if (dados.error) {
-        alert('Erro ao gerar relatório: ' + dados.error);
-        return;
+
+      const data = await response.json();
+
+      if (data.consumo !== undefined) {
+        resultDiv.innerHTML = `<h3 style="color: var(--mep-success);">
+                    <p><strong>Local:</strong> ${data.local}</p>
+                    <p><strong>Consumo no período:</strong> ${data.consumo/1000} m³</p>
+                    <p><strong>Leitura inicial :</strong> ${data.leitura1/1000} m³ - ${ajusteDateTime(data.dataL1)}</p>
+                    <p><strong>Leitura final :</strong> ${data.leitura2/1000} m³ -${ajusteDateTime(data.dataL2)}</p>
+                    </h3>`;
+      } else {
+        resultDiv.innerHTML = `<h3 style="color: var(--mep-danger);">Erro ao calcular consumo: ${data.error || 'Dados inválidos'}</h3>`;
       }
-      
-      this.downloadCSV(dados.relatorio, `Relatorio_Hidro_${this.selectedHydrometer}_${this.url}`);
-      
     } catch (error) {
-      console.error('Erro ao gerar relatório detalhado:', error);
-      this.hideLoading();
+      console.error('Erro ao calcular consumo:', error);
+      resultDiv.innerHTML = '<h3 style="color: var(--mep-danger);">Erro ao calcular consumo.</h3>';
     }
   }
 
   /**
-   * Faz download de dados em formato CSV
+   * Gera o relatório geral de hidrômetros
    */
-  downloadCSV(dados, filename) {
-    if (!dados || dados.length === 0) return;
-    
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID;Local;Data;Leitura (m3)\n";
-    
-    dados.forEach(row => {
-      csvContent += `${row.id};${row.local};${row.data};${row.leitura}\n`;
-    });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${filename}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  async generateGeneralReport() {
+    const startDate = document.getElementById('general-start-date').value;
+    const endDate = document.getElementById('general-end-date').value;
+
+    if (!startDate || !endDate) {
+      alert('Por favor, selecione as datas de início e fim para gerar o relatório geral.');
+      return;
+    }
+
+    try {
+      const info = {
+        url: this.url,
+        datas:{
+          startDate: startDate,
+          endDate: endDate
+        },
+        hidrometros:this.hydrometers 
+      }
+
+      fetch('/get_relatorio/hidro', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ info: info }) // Envia o dado da URL como JSON
+      })
+      .then(response => response.json())
+      .then(dados =>{
+        try {
+        if (dados.error) {
+          console.error('Erro do servidor:', dados.log);
+          alert('Erro ao gerar relatório geral de hidrômetros:\n' + data.error);
+          return;
+        } else {
+          alert(`Dados do relatorio obtido com sucesso!\n Gerando e baixando arquivo...`)
+          
+          // Definir o cabeçalho do CSV
+          const cabecalho = ['id', 'local', 'Consumo(l)', 'Data inicial','Hora inicial', 'Leitura Inicial(l)','Data final','Hora final','Leitura Final(l)'];
+          
+          // Inicializar a string do CSV com o cabeçalho
+          let csvContent = cabecalho.join(';') + '\n';
+          
+          function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return num;                return Number(num).toFixed(2).replace('.', ','); 
+          }
+          // Iterar sobre o array de dados e adicionar cada linha ao CSV
+          dados.forEach(dados => {
+            const linha = [
+                  dados.id,
+                  dados.nome,
+                  formatNumber(dados.consumo.valor),
+                  dados.consumo.startDate,
+                  dados.consumo.startTime,
+                  formatNumber(dados.consumo.startValor),
+                  dados.consumo.endDate,
+                  dados.consumo.endTime,
+                  formatNumber(dados.consumo.endValor)
+                ];
+            csvContent += linha.join(';') + '\n';
+          });
+          
+          // Criar o arquivo CSV e disparar o download
+          const link = document.createElement('a');
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          link.href = URL.createObjectURL(blob);
+          link.download = `relatorio_hidrometros_${this.url}_${info.datas.startDate}_${info.datas.endDate}.csv` // Nome do arquivo CSV
+          document.body.appendChild(link);
+          link.click(); 
+          link.remove();
+          alert('Relatório geral de hidrômetros gerado e baixado com sucesso!');
+        }
+        }catch (error) {
+          console.error('Erro ao gerar relatório geral:', error);
+          alert('Erro ao gerar relatório geral de hidrômetros.');
+        }
+      })
+    }catch (error) {
+      console.error('Erro ao gerar relatório geral:', error);
+      alert('Erro ao gerar relatório geral de hidrômetros.');
+    }  
   }
 
   /**
-   * Manipula upload de arquivo
+   * Mostra o pop-up de relatório de consumo (disponível em breve)
+   */
+  showConsumptionReportPopup() {
+    const popupOverlay = document.getElementById('popup-overlay');
+    if (popupOverlay) {
+      popupOverlay.classList.add('show');
+    }
+  }
+
+  /**
+   * Esconde o pop-up
+   */
+  hidePopup() {
+    const popupOverlay = document.getElementById('popup-overlay');
+    if (popupOverlay) {
+      popupOverlay.classList.remove('show');
+    }
+  }
+
+  /**
+   * Manipula o upload de arquivo de leituras
    */
   async handleFileUpload() {
     const fileInput = document.getElementById('file-input');
-    const statusEl = document.getElementById('retornoArquivo');
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-      alert('Por favor, selecione um arquivo para enviar.');
-      return;
+    const retornoArquivoDiv = document.getElementById('retornoArquivo');
+
+    if (fileInput.files.length === 0) {
+        alert('Por favor, selecione um arquivo.');
+        return;
     }
-    
+
     const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('url', this.url);
-    
-    this.showLoading();
-    statusEl.textContent = 'Enviando arquivo...';
-    
-    try {
-      const response = await fetch('/upload_leituras_hidro', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const result = await response.json();
-      this.hideLoading();
-      
-      if (result.success) {
-        statusEl.textContent = 'Arquivo processado com sucesso!';
-        statusEl.className = 'upload-status hydro-v2 success';
-        alert('Leituras enviadas com sucesso!');
-        this.loadAllHydrometersData();
-      } else {
-        statusEl.textContent = 'Erro: ' + result.message;
-        statusEl.className = 'upload-status hydro-v2 error';
-        alert('Erro ao processar arquivo: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Erro no upload:', error);
-      this.hideLoading();
-      statusEl.textContent = 'Erro na conexão com o servidor.';
-      statusEl.className = 'upload-status hydro-v2 error';
-    }
-  }
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+        const content = reader.result;
+        const lines = content.split('\n');
+
+        const leituras = lines.map(line => {
+            const l = line.split('\t');
+            if (l[21] === undefined || l[9] === undefined || l[15] === undefined || l[23] === undefined) {
+                return null; // Ignora linhas incompletas
+            }
+            const data = l[21].split('/');
+            return {
+                id: l[9],
+                local: l[15],
+                data: `${data[2]}/${data[1]}/${data[0]} ${l[22]}`, // Formato YYYY/MM/DD HH:mm
+                leitura: l[23]
+            };
+        }).filter(item => item !== null);
+
+        retornoArquivoDiv.innerText = 'Enviando arquivo ...';
+
+        try {
+            const response = await fetch('/set_leituras_hidro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url: this.clientKey,  // equivalente ao que era usado no socket
+                    leituras: leituras
+                })
+            });
+
+            const retorno = await response.json();
+
+            if (retorno.error) {
+                retornoArquivoDiv.innerHTML = `<h3 style="color:red;">${retorno.error}</h3>`;
+                return;
+            }
+
+            if (retorno.negados > 0) {
+                retornoArquivoDiv.innerHTML = `
+                    <h3>Leituras carregadas: ${retorno.inseridos}</h3>
+                    <h3>Leituras não carregadas: ${retorno.negados}</h3>
+                    ${retorno.log.map(e => `
+                        <div class="scrollbox" style="color: var(--mep-danger);">
+                            <p><strong>Erro:</strong> ${e.erro}</p>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                retornoArquivoDiv.innerHTML = `<h3>Leituras carregadas: ${retorno.inseridos}</h3>`;
+            }
+
+        } catch (error) {
+            console.error('Erro ao enviar arquivo:', error);
+            retornoArquivoDiv.innerText = 'Erro ao enviar o arquivo para o servidor.';
+        }
+    };
+
+    reader.onerror = () => {
+        retornoArquivoDiv.innerText = 'Erro ao ler o arquivo.';
+    };
+
+    reader.readAsText(file);
+}
 
   /**
-   * Mostra loading
+   * Mostra o spinner de carregamento
    */
   showLoading() {
-    const loadingPopup = document.getElementById('loadingPopup');
-    if (loadingPopup) {
-      loadingPopup.style.display = 'flex';
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) {
+      loadingDiv.style.display = 'flex';
     }
   }
 
   /**
-   * Esconde loading
+   * Esconde o spinner de carregamento
    */
   hideLoading() {
-    const loadingPopup = document.getElementById('loadingPopup');
-    if (loadingPopup) {
-      loadingPopup.style.display = 'none';
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) {
+      loadingDiv.style.display = 'none';
     }
-  }
-
-  /**
-   * Esconde popups genéricos
-   */
-  hidePopup() {
-    const popups = document.querySelectorAll('.popup-overlay');
-    popups.forEach(p => p.style.display = 'none');
   }
 }
 
-// Inicializa o sistema quando o DOM estiver carregado
+function ajusteDateTime(data) {
+  let date;
+  if (typeof data === 'string') {
+    const parts = data.split(' ');
+    if (parts.length === 2) {
+      const datePart = parts[0].split('-');
+      const timePart = parts[1];
+      const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
+      date = new Date(isoString);
+      //console.log(`[DEBUG] Detail View - Data original: ${data}, ISO: ${isoString}, Objeto Date: ${date}`);
+    } else {
+      date = new Date(data);
+      //console.log(`[DEBUG] Detail View - Data direta: ${data}, Objeto Date: ${date}`);
+    }
+  } else {
+    date = new Date(data);
+    //console.log(`[DEBUG] Detail View - Data como objeto: ${data}, Objeto Date: ${date}`);
+  }
+  
+  const originalHour = date.getHours();
+  date.setHours(date.getHours() + 3);
+  //console.log(`[DEBUG] Detail View - Hora original: ${originalHour}, Hora corrigida: ${date.getHours()}`);
+  
+  const formattedDate = date.toLocaleString('pt-BR', { 
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  return  formattedDate     
+}
+
+// Inicializa o monitor quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
-  window.hydrometerMonitorV2 = new HydrometerMonitorV2();
+  new HydrometerMonitorV2();
 });
+

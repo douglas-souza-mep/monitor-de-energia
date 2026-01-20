@@ -31,17 +31,18 @@
                     </div>
 
                     <div class="nav-controls mep-v2">
-                        <% if (typeof clientKey !== 'undefined' && clientKey === 'santaMonica') { %>
-                            <a href="https://monitor.mep.eng.br/users/santaMonica_hidro_v2" class="nav-button mep-v2">
-                                <i class="fas fa-tint"></i> Hidrômetros
-                            </a>
-                        <% } else if (typeof clientKey !== 'undefined' && clientKey === 'HospitalBase') { %>
-                            <a href="https://monitor.mep.eng.br/users/HospitalBase_hidro_v2" class="nav-button mep-v2">
+                        <% 
+                        // Lista de clientes que possuem acesso a hidrômetros
+                        const clientesComHidro = ['santaMonica', 'HospitalBase', 'golgidf']; 
+                        
+                        if (typeof clientKey !== 'undefined' && clientesComHidro.includes(clientKey)) { 
+                        %>
+                            <a href="/users/<%= clientKey %>_hidro_v2" class="nav-button mep-v2">
                                 <i class="fas fa-tint"></i> Hidrômetros
                             </a>
                         <% } %>
-                        
-                        <a href="#" class="nav-button mep-v2" onclick="window.location.reload()">
+                    
+                        <a href="#" class="nav-button mep-v2" onclick="window.location.reload(); return false;">
                             <i class="fas fa-sync-alt"></i> Atualizar
                         </a>
                     </div>

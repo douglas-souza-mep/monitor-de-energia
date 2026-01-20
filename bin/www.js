@@ -8,8 +8,6 @@ var app = require('../app');
 var debug = require('debug')('monitoramento-de-energia:server');
 var http = require('http');
 require('dotenv').config()
-const model_Energ = require('../models/model_Energ')
-const model_Res = require('../models/model_Res')
 const model_Hidro = require('../models/model_Hidro')
 const db = require('../models/connection')
 const f = require("./funcoes")
@@ -19,7 +17,7 @@ const logar = require('../controller/logar')
 // Declara variáveis globais
 globalThis.reservatorios = [];
 globalThis.medidoresEnerg = [];
-globalThis.Hidrometros = [];
+globalThis.hidrometros = [];
 
 globalThis.reservatoriosDinamico = [];
 globalThis.medidoresEnergDinamico = [];
@@ -50,8 +48,9 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-app.io.attach(server); 
+//app.io.attach(server); 
 
+/*
 app.io.on('connection', socket=>{
   console.log('novo usuario conectado, id: '+socket.id)
   
@@ -90,7 +89,7 @@ app.io.on('connection', socket=>{
         socket.emit('consumo_hospitalBase_hidro', { error: 'Erro ao buscar leituras.' });
     }
   })
-})
+})*/
 
 
 

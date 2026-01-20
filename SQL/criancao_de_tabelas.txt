@@ -1,11 +1,11 @@
-CREATE TABLE `medidores_de_energia`.`tb_santaMonica_consumo_mensal` (
+CREATE TABLE `medidores_de_energia`.`tb_golgidf_consumo_mensal` (
     `data` DATE NOT NULL,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `valor` FLOAT NOT NULL,
     PRIMARY KEY (`data`, `id_medidor`) -- Chave primária composta
 ) ENGINE = InnoDB;
 
-CREATE TABLE `medidores_de_energia`.`tb_santaMonica_consumo_diario` (
+CREATE TABLE `medidores_de_energia`.`tb_golgidf_consumo_diario` (
     `data` DATE NOT NULL,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `valor` FLOAT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `medidores_de_energia`.`tb_santaMonica_consumo_diario` (
 ) ENGINE = InnoDB;
 
 
-CREATE TABLE `medidores_de_energia`.`tb_santaMonica_medidores` (
+CREATE TABLE `medidores_de_energia`.`tb_golgidf_medidores` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `id_medidor` INT NOT NULL, -- Novo campo para identificar o medidor
     `data` DATETIME NOT NULL,
@@ -110,3 +110,5 @@ INSERT INTO `tb_connect_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazi
 INSERT INTO `tb_test_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('1', 'Res. Test 1', '105', '25', '110', '30', '130', '1', '1');
 
 INSERT INTO `tb_test_res_info` (`id`, `nome`, `NA`, `NB`, `T`, `cheio`, `vazio`, `alertas`, `status`) VALUES ('2', 'Res. Test 2', '105', '40', '108', '25', '125', '1', '1');
+
+ALTER TABLE `usuarios` ADD `alertas` TEXT NULL DEFAULT NULL AFTER `chatID`;

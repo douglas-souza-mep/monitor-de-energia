@@ -14,7 +14,7 @@ const { subscribeToMqttTopics } = require('./mqtt-subscription');
 
 var app = express();
 
-app.io = require('socket.io')();
+//app.io = require('socket.io')();
 
 // Iniciar a subscrição MQTT
 subscribeToMqttTopics();

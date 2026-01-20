@@ -41,6 +41,12 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
     _.adicionarSeNaoExistir(globalThis.medidoresEnergDinamico, `energ_${usuario}_${medidor}`);
 
     let consumoD = {};
+
+    let consumosSemanais = []; 
+    let consumosMensais = [];
+    let cda = { valor: 0 };
+    let cma = { valor: 0 };
+    let consumos = {};
     //leituraAtual = await validacao(leituraAtual);
 
     const useNewStructure = await isNewStructureCondominium(usuario);
@@ -159,66 +165,67 @@ const atualizarDados = async (leituraAtual, data, medidor, usuario) => {
         }
     } catch (error) {
         console.error(error);
+        console.log(leituraAtual);
     }
+    try {
+        const periodo = _.instervaloDoMes(parseInt(moment(data).format('MM')), parseInt(moment(data).format('YYYY')));
+        const tableNameCD = getTableName(usuario, medidor, 'consumo_diario', useNewStructure);
+        const [consumosDiarios] = await db.query(`SELECT data, valor FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) <= ? ${useNewStructure ? 'AND id_medidor = ?' : ''}`, useNewStructure ? [periodo.inicial, periodo.final, medidor] : [periodo.inicial, periodo.final]);
 
-    const periodo = _.instervaloDoMes(parseInt(moment(data).format('MM')), parseInt(moment(data).format('YYYY')));
-    const tableNameCD = getTableName(usuario, medidor, 'consumo_diario', useNewStructure);
-    const [consumosDiarios] = await db.query(`SELECT data, valor FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) <= ? ${useNewStructure ? 'AND id_medidor = ?' : ''}`, useNewStructure ? [periodo.inicial, periodo.final, medidor] : [periodo.inicial, periodo.final]);
+        const mesAtual = periodo.final;
+        const consumoMensal = {
+            data: mesAtual,
+            valor: consumosDiarios.map(item => item.valor).reduce((total, valor) => total + valor, 0)
+        };
 
-    const mesAtual = periodo.final;
-    const consumoMensal = {
-        data: mesAtual,
-        valor: consumosDiarios.map(item => item.valor).reduce((total, valor) => total + valor, 0)
-    };
-
-    const tableNameCM = getTableName(usuario, medidor, 'consumo_mensal', useNewStructure);
-    let x;
-    if (useNewStructure) {
-        [[x]] = await db.query(sqlSelectCM, [mesAtual, medidor]);
-    } else {
-        [[x]] = await db.query(sqlSelectCM, [mesAtual]);
-    }
-
-    if (x == undefined) {
+        const tableNameCM = getTableName(usuario, medidor, 'consumo_mensal', useNewStructure);
+        let x;
         if (useNewStructure) {
-            await db.query(sqlInsertCM, [consumoMensal.data, consumoMensal.valor.toFixed(3), medidor]);
+            [[x]] = await db.query(sqlSelectCM, [mesAtual, medidor]);
         } else {
-            await db.query(sqlInsertCM, [consumoMensal.data, consumoMensal.valor.toFixed(3)]);
+            [[x]] = await db.query(sqlSelectCM, [mesAtual]);
         }
-    } else {
+
+        if (x == undefined) {
+            if (useNewStructure) {
+                await db.query(sqlInsertCM, [consumoMensal.data, consumoMensal.valor.toFixed(3), medidor]);
+            } else {
+                await db.query(sqlInsertCM, [consumoMensal.data, consumoMensal.valor.toFixed(3)]);
+            }
+        } else {
+            if (useNewStructure) {
+                await db.query(sqlUpdateCM, [consumoMensal.valor, consumoMensal.data, medidor]);
+            } else {
+                await db.query(sqlUpdateCM, [consumoMensal.valor, consumoMensal.data]);
+            }
+        }
+
+        const anterior = _.datasAnteriorers(data);
+
         if (useNewStructure) {
-            await db.query(sqlUpdateCM, [consumoMensal.valor, consumoMensal.data, medidor]);
+            [[cda]] = await db.query(sqlSelectCDA, [anterior.dia, medidor]);
+            [[cma]] = await db.query(sqlSelectCMA, [anterior.mes, medidor]);
         } else {
-            await db.query(sqlUpdateCM, [consumoMensal.valor, consumoMensal.data]);
+            [[cda]] = await db.query(sqlSelectCDA, [anterior.dia]);
+            [[cma]] = await db.query(sqlSelectCMA, [anterior.mes]);
         }
+
+        if (useNewStructure) {
+            [consumosSemanais] = await db.query(sqlSelectCSemanais, [medidor]);
+            [consumosMensais] = await db.query(sqlSelectCMensais, [medidor]);
+        } else {
+            [consumosSemanais] = await db.query(sqlSelectCSemanais);
+            [consumosMensais] = await db.query(sqlSelectCMensais);
+        }
+
+        consumos = {
+            consumo: consumoD.valor.toFixed(2),
+            consumoMensal: consumoMensal.valor.toFixed(2),
+        };
+    } catch (error) {
+        console.error("Erro ao atualizar dados:", error);
     }
-
-    const anterior = _.datasAnteriorers(data);
-    let cda, cma;
-
-    if (useNewStructure) {
-        [[cda]] = await db.query(sqlSelectCDA, [anterior.dia, medidor]);
-        [[cma]] = await db.query(sqlSelectCMA, [anterior.mes, medidor]);
-    } else {
-        [[cda]] = await db.query(sqlSelectCDA, [anterior.dia]);
-        [[cma]] = await db.query(sqlSelectCMA, [anterior.mes]);
-    }
-
-    let consumosSemanais;
-    let consumosMensais;
     
-    if (useNewStructure) {
-        [consumosSemanais] = await db.query(sqlSelectCSemanais, [medidor]);
-        [consumosMensais] = await db.query(sqlSelectCMensais, [medidor]);
-    } else {
-        [consumosSemanais] = await db.query(sqlSelectCSemanais);
-        [consumosMensais] = await db.query(sqlSelectCMensais);
-    }
-
-    var consumos = {
-        consumo: consumoD.valor.toFixed(2),
-        consumoMensal: consumoMensal.valor.toFixed(2),
-    };
     try {
         consumos.consumoDiaAnterior = cda.valor.toFixed(2);
     } catch (error) {

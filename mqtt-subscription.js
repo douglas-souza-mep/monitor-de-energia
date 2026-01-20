@@ -3,6 +3,7 @@ const model_Energ = require('./models/model_Energ')
 const model_Res = require('./models/model_Res')
 const model_Hidro = require('./models/model_Hidro')
 const moment = require('moment');
+//const f = require('./bin/funcoes');
 
 
 // Função para conectar ao broker MQTT e subscrever vários tópicos
@@ -94,8 +95,28 @@ async function tratarLeitura(client,topico,msg,data){
             //console.log(msg)
         break;
         case 'golgidf/hidro':
-            leituraHidro(data,msg,"golgidf",client,0)
-            //console.log(msg)
+            const leitura = {};
+            msg.split(",").forEach(item => {
+                const [key, value] = item.split(":");
+                leitura[key] = Number(value);
+            });
+            url = "golgidf"
+            setPoit = 0
+            let dados ={
+                id:leitura.id,
+                data: data,
+                leitura: parseInt(parseFloat(leitura.consumo)+setPoit)
+                }
+            retorno = await model_Hidro.addLeitura(url,dados)
+            dados.data = moment(dados.data).format('DD-MM-YYYY HH:mm:ss');
+            //console.log(dados);
+            const mensagem = JSON.stringify(dados);
+            client.publish(`${url}/atualizarTela/hidro`, mensagem, (err) => {
+                if (err) {
+                    console.error('Erro ao publicar mensagem:', err);
+                }
+            })
+            
         break;
         default:
         console.log(`Tópico desconhecido: ${topico} - Mensagem: ${msg}`);
@@ -127,6 +148,13 @@ async function leituraRes(dados,client){
 
 async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
+    if(leitura.device){
+        console.log(leitura);
+        globalThis.bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "Medidor de Energia "+url+ 
+            "\n de ip: "+leitura.ip+" e connectado a SSID "+leitura.ssid+
+            "\n Reconectado ao MQTT");
+        return
+    }
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)
     leitura.data = moment(data).format('YYYY-MM-DD HH:mm:ss');
     var dados = {

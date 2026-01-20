@@ -90,12 +90,20 @@ const getHistorico= async (url,id,startDate,endDate)=>{
 async function dadosAlerta(url,id){
     try {
         
-        const [[retorno]] = await db.query("SELECT nome,reservatorios,chatID FROM usuarios WHERE url = ?  LIMIT 1",url)
+        const [[retorno]] = await db.query("SELECT nome,reservatorios,chatID,alertas FROM usuarios WHERE url = ?  LIMIT 1",url)
         //console.log(retorno)
         const reservatorios = retorno.reservatorios.split(";")
-        const chatID = retorno.chatID.split(";")
+        let chatID = {}
+        try {
+            chatID = retorno.chatID.split(";")
+        } catch (error) {
+            return {alerta:false}
+        }
         const index = reservatorios.indexOf(id.toString());
-        return {chatID:chatID, local: reservatorios[index+1], id: reservatorios[index],nome:retorno.nome}
+        const alartasDesabilitados = retorno.alertas ? retorno.alertas.split(";") : []
+        const identificador = `${url}${"res"}${id}`;
+        
+        return {chatID:chatID, local: reservatorios[index+1], id: reservatorios[index],nome:retorno.nome,alerta:!alartasDesabilitados.includes(identificador)}
         
     } catch (error) {
         return {error:error}

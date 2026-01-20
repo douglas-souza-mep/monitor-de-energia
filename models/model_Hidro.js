@@ -1,5 +1,6 @@
 const db = require('./connection')
 const moment = require('moment')
+const { adicionarSeNaoExistir } = require('../bin/funcoes');
 
 const getLeituras = async (cliente,medidor)=>{
     let leitura
@@ -64,7 +65,9 @@ const addLeituras = async (cliente,dados)=>{
 }
 
 const addLeitura = async (cliente,dados)=>{
-    const [[resultado]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1","HospitalBase")
+    adicionarSeNaoExistir(globalThis.hidrometrosDinamico, `hidro_${cliente}_${dados.id}`);
+
+    const [[resultado]] = await db.query("SELECT hidrometros FROM usuarios WHERE url = ?  LIMIT 1",cliente)
     const parts = resultado.hidrometros.split(';');
 
     // Cria um objeto chave-valor
@@ -75,6 +78,7 @@ const addLeitura = async (cliente,dados)=>{
         const local = parts[i + 1];
         hidrometros[id] = local;
     }
+    
     dados.local = hidrometros[dados.id]
     const d = moment(dados.data).format('YYYY-MM-DD HH:mm:ss');
     const sql = "INSERT INTO tb_"+cliente+"_hidrometros (id,local,data,leitura) VALUES(?,?,?,?)"
@@ -214,6 +218,28 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
     }
 }
 
+async function dadosAlerta(url,id){
+    try {
+        const [[retorno]] = await db.query("SELECT nome,hidrometros,chatID, alertas FROM usuarios WHERE url = ?  LIMIT 1",url)
+        //console.log(retorno)
+        const hidrometros = retorno.hidrometros.split(";")
+        let chatID = {}
+        try {
+            chatID = retorno.chatID.split(";")
+        } catch (error) {
+            return {alerta:false}
+        }
+        const index = hidrometros.indexOf(id.toString());
+        const alartasDesabilitados = retorno.alertas ? retorno.alertas.split(";") : []
+        const identificador = `${url}${"hidro"}${id}`;
+
+        return {chatID:chatID, local: hidrometros[index+1], id: hidrometros[index],nome:retorno.nome,alerta:!alartasDesabilitados.includes(identificador)}
+        
+    } catch (error) {
+        return {error:error}
+    }
+}
+
 
 module.exports = {
     addLeituras,
@@ -222,5 +248,6 @@ module.exports = {
     getConsumo,
     addLeitura,
     getRelatorio,
-    getGrafico
+    getGrafico,
+    dadosAlerta
 }

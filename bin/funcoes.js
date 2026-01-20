@@ -106,11 +106,12 @@ async function sendAlerta(bot,msg, usuarios) {
 async function gerarListaDeDispositivos() {
   try {
     // Consulta ao banco de dados
-    const [usuarios] = await db.query("SELECT url, reservatorio, reservatorios, energia, med_energia FROM usuarios");
+    const [usuarios] = await db.query("SELECT url, reservatorio, reservatorios, energia, med_energia, hidrometro, hidrometros FROM usuarios");
 
     // Limpa as listas globais antes de preenchê-las
     globalThis.reservatorios = [];
     globalThis.medidoresEnerg = [];
+    globalThis.Hidrometros = [];
 
     // Itera sobre os usuários para processar os dados
     usuarios.forEach(usuario => {
@@ -129,6 +130,14 @@ async function gerarListaDeDispositivos() {
         for (let i = 0; i < medidorArray.length; i += 2) {
           // Adiciona os medidores de energia à lista global
           globalThis.medidoresEnerg.push(`energ_${usuario.url}_${medidorArray[i]}`);
+        }
+      }
+
+      if (usuario. hidrometro > 0) {
+        const medidorArray = usuario.hidrometros.split(";");
+        for (let i = 0; i < medidorArray.length; i += 2) {
+          // Adiciona os medidores de energia à lista global
+          globalThis.hidrometros.push(`hidro_${usuario.url}_${medidorArray[i]}`);
         }
       }
     });
@@ -207,6 +216,7 @@ async function tarefaPeriodica(bot) {
         const model_Res = require("../models/model_Res");
         try {
           const retorno = await model_Res.dadosAlerta(url, id);
+          if(retorno.alerta===false) return; // alerta desabilitado
           const msg = `⚠️ Alerta! Dispositivo sem trasmição!\nLocal: ${retorno.nome}\nReservatório: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
           await sendAlerta(bot, msg, retorno.chatID);
@@ -225,7 +235,26 @@ async function tarefaPeriodica(bot) {
         const id = aux[2];
         try {
           const retorno = await dadosAlertaEnerg(url, id);
+          if(retorno.alerta===false) return; // alerta desabilitado
           const msg = `⚠️ Alerta! Dispositivo sem trasmição\nLocal: ${retorno.nome}\nMedidor de energia: ${retorno.local} (id:${retorno.id})`;
+          console.log(msg);
+          await sendAlerta(bot, msg, retorno.chatID); 
+        } catch (alertError) {
+          console.error(`Erro ao obter dados de alerta para ${url} (id: ${id}):`, alertError);
+        }
+      }
+    });
+
+    const promisesHidro = globalThis.hidrometros.map(async (element) => {
+      if (!globalThis.hidrometrosDinamico.includes(element)) {
+        const aux = element.split("_");
+        const url = aux[1];
+        const id = aux[2];
+        const model_Res = require("../models/model_Res");
+        try {
+          const retorno = await model_Res.dadosAlerta(url, id);
+          if(retorno.alerta===false) return; // alerta desabilitado
+          const msg = `⚠️ Alerta! Dispositivo sem trasmição\nLocal: ${retorno.nome}\nHidrometro: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
           await sendAlerta(bot, msg, retorno.chatID); 
         } catch (alertError) {
@@ -236,9 +265,11 @@ async function tarefaPeriodica(bot) {
 
     await Promise.all(promisesRes);
     await Promise.all(promisesEnerg);
+    await Promise.all(promisesHidro);
 
     globalThis.reservatoriosDinamico = [];
     globalThis.medidoresEnergDinamico = [];
+    globalThis.hidrometroDinamico = [];
 
   } catch (error) {
     console.error("Erro na tarefa periódica:", error);
@@ -248,17 +279,76 @@ async function tarefaPeriodica(bot) {
 async function dadosAlertaEnerg (url,id){
     try {
         
-        const [[retorno]] = await db.query("SELECT nome,med_energia,chatID FROM usuarios WHERE url = ?  LIMIT 1",url)
+        const [[retorno]] = await db.query("SELECT nome,med_energia,chatID,alertas FROM usuarios WHERE url = ?  LIMIT 1",url)
         //console.log(retorno)
         const med_energia = retorno.med_energia.split(";")
-        const chatID = retorno.chatID.split(";")
+        let chatID = {}
+        try {
+          chatID = retorno.chatID.split(";")
+        } catch (error) {
+          return {alerta:false}
+        }
         const index = med_energia.indexOf(id.toString());
-        return {chatID:chatID, local: med_energia[index+1], id: med_energia[index],nome:retorno.nome}
+        const alartasDesabilitados = retorno.alertas ? retorno.alertas.split(";") : []
+        const identificador = `${url}${"energ"}${id}`;
+
+        return {chatID:chatID, local: med_energia[index+1], id: med_energia[index],nome:retorno.nome,alerta:!alartasDesabilitados.includes(identificador)}
         
     } catch (error) {
         return {error:error}
     }
 }
+
+async function updateUserAlerts(urlUsuario, tipoMedidor, idMedidor, habilitar) {
+  // Identificador único solicitado: url+tipo+id
+  const identificador = `${urlUsuario}${tipoMedidor}${idMedidor}`;
+
+  try {
+      // 1. Busca a string atual de alertas do usuário
+      const [rows] = await db.execute(
+          'SELECT alertas FROM usuarios WHERE url = ?',
+          [urlUsuario]
+      );
+
+      if (rows.length === 0) {
+          return { status: 'error', message: 'Usuário não encontrado' };
+      }
+
+      let alertasAtuais = rows[0].alertas || "";
+
+      // Converte a string em um Array, removendo itens vazios
+      let listaAlertas = alertasAtuais.split(';').filter(item => item.trim() !== "");
+
+      if (habilitar) {
+          // Se habilitar === true, devemos REMOVER o identificador da lista de desabilitados
+          listaAlertas = listaAlertas.filter(item => item !== identificador);
+      } else {
+          // Se habilitar === false, devemos ADICIONAR o identificador à lista de desabilitados
+          if (!listaAlertas.includes(identificador)) {
+              listaAlertas.push(identificador);
+          }
+      }
+
+      // 2. Reconstrói a string separada por ponto e vírgula
+      const novaStringAlertas = listaAlertas.join(';');
+
+      // 3. Atualiza o banco de dados
+      await db.execute(
+          'UPDATE usuarios SET alertas = ? WHERE url = ?',
+          [novaStringAlertas, urlUsuario]
+      );
+
+      return { 
+          status: 'ok', 
+          message: habilitar ? 'Alertas ativados com sucesso' : 'Alertas desativados com sucesso' 
+      };
+
+  } catch (error) {
+      console.error('Erro ao atualizar alertas no banco:', error);
+      return { status: 'error', message: error.message };
+  }
+}
+
 
 
 module.exports = {
@@ -271,5 +361,6 @@ module.exports = {
     gerarListaDeDispositivos,
     adicionarSeNaoExistir,
     tarefaPeriodica,
-    testeTelegra
+    testeTelegra,
+    updateUserAlerts
 }

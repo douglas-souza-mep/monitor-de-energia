@@ -115,11 +115,6 @@ class EnergyMonitorV2 {
 
     // Clique nos cards dos medidores
     document.addEventListener('click', (e) => {
-      // Evita disparar o detalhe se clicar no checkbox de alertas
-      if (e.target.closest('.alert-toggle-container')) {
-        return;
-      }
-
       const meterCard = e.target.closest('.meter-card');
       if (meterCard && this.currentView === 'grid') {
         const meterId = meterCard.dataset.meterId;
@@ -132,15 +127,6 @@ class EnergyMonitorV2 {
                 alert('Não foi possível carregar os dados detalhados do medidor.');
             }
         });
-      }
-    });
-
-    // Listener para o checkbox de alertas
-    document.addEventListener('change', (e) => {
-      if (e.target.classList.contains('alert-checkbox')) {
-        const meterId = e.target.dataset.meterId;
-        const enabled = e.target.checked;
-        this.toggleAlerts(meterId, enabled);
       }
     });
 
@@ -170,50 +156,6 @@ class EnergyMonitorV2 {
   }
 
   /**
-   * Envia comando para habilitar/desabilitar alertas
-   */
-  async toggleAlerts(meterId, enabled) {
-    try {
-      const response = await fetch('/v2/editarAlertas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          tipo: 'energ',
-          id: meterId,
-          habilitado: enabled
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.status === 'ok') {
-        const status = enabled ? 'ativados' : 'desativados';
-        alert(`Alertas para o medidor ${meterId} foram ${status} com sucesso!`);
-        
-        // Atualiza o estado no cache local
-        const medidor = this.medidores.find(m => m.id === meterId);
-        if (medidor) {
-          medidor.alertasHabilitados = enabled;
-        }
-      } else {
-        throw new Error(result.message || 'Erro ao processar solicitação');
-      }
-    } catch (error) {
-      console.error('Erro ao alternar alertas:', error);
-      alert(`Erro: ${error.message}`);
-      
-      // Reverte o checkbox em caso de erro
-      const checkbox = document.querySelector(`.alert-checkbox[data-meter-id="${meterId}"]`);
-      if (checkbox) {
-        checkbox.checked = !enabled;
-      }
-    }
-  }
-
-  /**
    * Carrega dados iniciais de forma otimizada (v2)
    * Usa a rota consolidada para obter dados do usuário e de todos os medidores em 1 requisição.
    */
@@ -237,9 +179,7 @@ class EnergyMonitorV2 {
       // 1. Atualiza a lista de medidores (usada para gerar o HTML do grid)
       this.medidores = dadosIniciais.medidores.map(m => ({
         id: m.id.toString(), // Garante que o ID é string para consistência
-        local: m.local,
-        // Se a informação de alertas não vier, o padrão é habilitado (true)
-        alertasHabilitados: m.alertasHabilitados !== undefined ? m.alertasHabilitados : true
+        local: m.local
       }));
       
       // 2. Armazena os dados de resumo no cache metersData
@@ -386,26 +326,28 @@ class EnergyMonitorV2 {
           const leitura = JSON.parse(message.toString());
           console.log('Nova leitura:', leitura.id);
           
-          // Atualiza o cache
-          const meterId = leitura.id.toString();
-          const cachedData = this.metersData.get(meterId);
-          
-          if (cachedData) {
-            cachedData.leitura = leitura;
-            this.metersData.set(meterId, cachedData);
-            
-            // Se estiver na view de grid, atualiza o card
-            if (this.currentView === 'grid') {
-              this.updateMeterCard(meterId, cachedData);
-            }
-            
-            // Se estiver na view de detalhes do medidor atual, atualiza a tela
-            if (this.currentView === 'detail' && this.selectedMeter === meterId) {
-              this.updateDetailView(cachedData);
-            }
+          // Se a leitura tiver uma data, garante que ela seja válida para o cache
+          if (leitura.leitura && leitura.leitura.data) {
+              const correctedDate = this._createCorrectedDate(leitura.leitura.data);
+              if (!correctedDate) {
+                  console.warn(`Mensagem MQTT para medidor ${leitura.id} contém data inválida: ${leitura.leitura.data}`);
+                  // Se a data for inválida, é melhor não atualizar o card de data/status
+                  // Mas o restante dos dados (pft, consumo) pode ser atualizado.
+              }
           }
-        } catch (e) {
-          console.error('Erro ao processar mensagem MQTT:', e);
+
+          // Atualiza o cache de dados
+          this.metersData.set(leitura.id, leitura);
+          
+          // Atualiza a interface baseado na view atual
+          if (this.currentView === 'grid') {
+            this.updateMeterCard(leitura.id, leitura);
+          } else if (this.currentView === 'detail' && this.selectedMeter === leitura.id) {
+            this.updateDetailView(leitura);
+          }
+          
+        } catch (error) {
+          console.error('Erro ao processar mensagem MQTT:', error);
         }
         break;
       default:
@@ -466,16 +408,8 @@ class EnergyMonitorV2 {
         ${this.medidores.map(medidor => `
           <div class="meter-card mep-v2" data-meter-id="${medidor.id}">
             <div class="meter-header mep-v2">
-              <div class="meter-title-group">
-                <h3 class="meter-name mep-v2">${medidor.local}</h3>
-                <span class="meter-id mep-v2">ID: ${medidor.id}</span>
-              </div>
-              <div class="alert-toggle-container mep-v2" title="Habilitar/Desabilitar Alertas">
-                <label class="switch-label mep-v2">Alertas</label>
-                <input type="checkbox" class="alert-checkbox mep-v2" 
-                  data-meter-id="${medidor.id}" 
-                  ${medidor.alertasHabilitados ? 'checked' : ''}>
-              </div>
+              <h3 class="meter-name mep-v2">${medidor.local}</h3>
+              <span class="meter-id mep-v2">ID: ${medidor.id}</span>
             </div>
             
             <div class="meter-consumption mep-v2">
@@ -613,15 +547,7 @@ class EnergyMonitorV2 {
         <button id="back-to-grid" class="back-button mep-v2">
           ← Voltar à Visão Geral
         </button>
-        <div class="detail-title-row">
-          <h1>${medidor.local}</h1>
-          <div class="alert-toggle-container detail-alert mep-v2">
-            <label class="switch-label mep-v2">Alertas</label>
-            <input type="checkbox" class="alert-checkbox mep-v2" 
-              data-meter-id="${medidor.id}" 
-              ${medidor.alertasHabilitados ? 'checked' : ''}>
-          </div>
-        </div>
+        <h1>${medidor.local}</h1>
         <p class="detail-subtitle mep-v2">ID: ${medidor.id}</p>
         <p class="last-update mep-v2">Última atualização: <span id="detail-date">Carregando...</span></p>
         
@@ -874,13 +800,13 @@ class EnergyMonitorV2 {
       data2.addRows(dados.semestral);
 
       const options2 = {
-        title: 'Consumo Mensal (Últimos 6 meses)',
+        title: 'Consumos Mensais',
         titleTextStyle: { fontSize: 16, bold: true },
-        hAxis: { title: 'Mês' },
+        hAxis: { title: 'Meses' },
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: [this.config.colors.secondary || '#2ecc71']
+        colors: [this.config.colors.primary]
       };
 
       // Gráfico semanal
@@ -890,118 +816,149 @@ class EnergyMonitorV2 {
       data3.addRows(dados.semanal);
 
       const options3 = {
-        title: 'Consumo Semanal (Últimos 7 dias)',
+        title: 'Consumo nos Últimos 7 Dias',
         titleTextStyle: { fontSize: 16, bold: true },
-        hAxis: { title: 'Data' },
+        hAxis: { title: 'Dias' },
         vAxis: { title: 'Consumo (kWh)' },
         backgroundColor: 'transparent',
         chartArea: { width: '80%', height: '70%' },
-        colors: [this.config.colors.accent || '#e67e22']
+        colors: [this.config.colors.primary]
       };
 
+      // Desenha os gráficos
       const chart1 = new google.visualization.AreaChart(document.getElementById('chart_div1'));
-      chart1.draw(data1, options1);
-
       const chart2 = new google.visualization.ColumnChart(document.getElementById('chart_div2'));
-      chart2.draw(data2, options2);
-
       const chart3 = new google.visualization.ColumnChart(document.getElementById('chart_div3'));
-      chart3.draw(data3, options3);
 
+      chart1.draw(data1, options1);
+      chart2.draw(data2, options2);
+      chart3.draw(data3, options3);
+      
     } catch (error) {
       console.error('Erro ao desenhar gráficos:', error);
     }
   }
 
   /**
-   * Calcula consumo para um período específico
+   * Calcula consumo de energia (mesmo código da versão anterior)
    */
-  async calculateConsumption(e) {
+  async calculateConsumption(event) {
+    event.preventDefault();
+    
     try {
+      this.showLoading();
+      
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
       
       if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e término.');
+        alert('Por favor, selecione as datas de início e fim.');
+        this.hideLoading();
         return;
       }
       
-      this.showLoading();
+      const medidor = this.medidores.find(m => m.id === this.selectedMeter);
       
-      const response = await fetch('/get_consumo_periodo/energ', {
+      const response = await fetch('/get_consumo/energ', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: this.url,
-          medidor: this.selectedMeter,
-          startDate,
-          endDate
+          info: {
+            id: this.selectedMeter,
+            datas: { startDate, endDate },
+            url: this.url,
+            local: medidor.local
+          }
         })
       });
-      
+
       const dados = await response.json();
-      this.hideLoading();
+      const resultDiv = document.getElementById('result');
       
       if (dados.error) {
-        alert('Erro ao calcular consumo: ' + dados.error);
-        return;
+        resultDiv.innerHTML = `<div class="text-error mep-v2"><p>${dados.error}</p></div>`;
+      } else {
+        this.drawConsumptionChart(dados.grafico, dados.id, dados.local);
+        
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        
+        resultDiv.innerHTML = `
+          <div class="result-content mep-v2">
+            <h3 class="mb-3 mep-v2">Consumo Calculado</h3>
+            <div class="result-details mep-v2">
+              <p><strong>Local:</strong> ${dados.local}</p>
+              <p><strong>Data Início:</strong> ${new Date(dados.dataL1).toLocaleDateString('pt-BR', options)}</p>
+              <p><strong>Data Término:</strong> ${new Date(dados.dataL2).toLocaleDateString('pt-BR', options)}</p>
+              <p class="consumption-value mep-v2"><strong>Consumo:</strong> <span class="text-success mep-v2">${dados.consumo} kWh</span></p>
+            </div>
+          </div>
+        `;
       }
       
-      this.displayCalculationResults(dados);
-      this.drawConsumptionChart(dados.grafico, this.selectedMeter, this.medidores.find(m => m.id === this.selectedMeter).local);
-      
+      this.hideLoading();
     } catch (error) {
       console.error('Erro ao calcular consumo:', error);
       this.hideLoading();
-      alert('Erro ao calcular consumo. Tente novamente.');
     }
   }
 
   /**
-   * Exibe resultados do cálculo de consumo
+   * Mostra popup para relatório de consumo
    */
-  displayCalculationResults(dados) {
-    const resultContainer = document.getElementById('result');
-    
-    resultContainer.innerHTML = `
-      <div class="calculation-results mep-v2">
-        <h4 class="results-title mep-v2">Resultado do Período</h4>
-        <div class="result-item mep-v2">
-          <span class="result-label mep-v2">Consumo Total:</span>
-          <span class="result-value mep-v2">${parseFloat(dados.consumo).toFixed(2)} kWh</span>
+  showConsumptionReportPopup() {
+    // Cria o popup
+    const popup = document.createElement('div');
+    popup.className = 'consumption-report-popup mep-v2';
+    popup.innerHTML = `
+      <div class="popup-overlay mep-v2" onclick="this.parentElement.remove()"></div>
+      <div class="popup-content mep-v2">
+        <div class="popup-header mep-v2">
+          <h3>Relatório de Consumo</h3>
+          <button class="popup-close mep-v2" onclick="this.closest('.consumption-report-popup').remove()">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-        <div class="result-item mep-v2">
-          <span class="result-label mep-v2">Início:</span>
-          <span class="result-value mep-v2">
-            ${this.formatDateForDisplay(new Date(new Date(dados.startDate).getTime() + (3 * 60 * 60 * 1000)))}
-          </span>
+        <div class="popup-body mep-v2">
+          <div class="popup-icon mep-v2">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <p class="popup-message mep-v2">Função "Relatório de Consumo" disponível em breve!</p>
+          <p class="popup-description mep-v2">Esta funcionalidade está sendo desenvolvida e estará disponível em uma próxima atualização.</p>
         </div>
-        <div class="result-item mep-v2">
-          <span class="result-label mep-v2">Término:</span>
-          <span class="result-value mep-v2">
-            ${this.formatDateForDisplay(new Date(new Date(dados.endDate).getTime() + (3 * 60 * 60 * 1000)))}
-          </span>
+        <div class="popup-footer mep-v2">
+          <button class="btn btn-primary mep-v2" onclick="this.closest('.consumption-report-popup').remove()">
+            Entendido
+          </button>
         </div>
       </div>
     `;
+    
+    // Adiciona o popup ao body
+    document.body.appendChild(popup);
+    
+    // Adiciona animação de entrada
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 10);
   }
 
   /**
-   * Gera relatório geral para todos os medidores
+   * Gera relatório geral (movido para a visão de grid)
    */
   async generateGeneralReport() {
     try {
+      this.showLoading();
+      
       const startDate = document.getElementById('general-start-date').value;
       const endDate = document.getElementById('general-end-date').value;
       
       if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e término para o relatório geral.');
+        alert('Por favor, selecione as datas de início e fim para o relatório geral.');
+        this.hideLoading();
         return;
       }
-      
-      this.showLoading();
       
       const response = await fetch('/get_relatorio_geral/energ', {
         method: 'POST',
@@ -1009,85 +966,38 @@ class EnergyMonitorV2 {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: this.url,
-          startDate,
-          endDate
+          info: {
+            medidores: this.medidores,
+            datas: { startDate, endDate },
+            url: this.url
+          }
         })
       });
-      
+
       const dados = await response.json();
-      this.hideLoading();
       
       if (dados.error) {
-        alert('Erro ao gerar relatório: ' + dados.error);
-        return;
+        alert(`Erro ao gerar relatório geral: ${dados.error}`);
+      } else {
+        this.generateCSVReport(dados);
+        alert('Download do relatório geral iniciado com sucesso!');
       }
       
-      this.downloadCSV(dados.relatorio);
-      
+      this.hideLoading();
     } catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
-      this.hideLoading();
       alert('Erro ao gerar relatório geral. Tente novamente.');
+      this.hideLoading();
     }
   }
 
   /**
-   * Mostra popup para relatório de consumo detalhado
+   * Gera relatório CSV (mesmo código da versão anterior)
    */
-  async showConsumptionReportPopup() {
+  generateCSVReport(dados) {
     try {
-      const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value;
-      
-      if (!startDate || !endDate) {
-        alert('Por favor, selecione as datas de início e término.');
-        return;
-      }
-      
-      this.showLoading();
-      
-      const response = await fetch('/get_relatorio_detalhado/energ', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          medidor: this.selectedMeter,
-          startDate,
-          endDate
-        })
-      });
-      
-      const dados = await response.json();
-      this.hideLoading();
-      
-      if (dados.error) {
-        alert('Erro ao gerar relatório: ' + dados.error);
-        return;
-      }
-      
-      this.downloadCSV(dados.relatorio);
-      
-    } catch (error) {
-      console.error('Erro ao gerar relatório de consumo:', error);
-      this.hideLoading();
-      alert('Erro ao gerar relatório de consumo. Tente novamente.');
-    }
-  }
-
-  /**
-   * Faz download de dados em formato CSV
-   */
-  downloadCSV(dados) {
-    try {
-      if (!dados || dados.length === 0) {
-        alert('Não há dados para exportar.');
-        return;
-      }
-      
-      let csvContent = "Nome;ID;Consumo (kWh);Data Inicio;Data Fim\n";
+      const cabecalho = ['Local', 'ID','Consumo(KWh)', 'Data inicial', 'Data final'];//, 'Leitura inicial', 'Leitura final'];
+      let csvContent = cabecalho.join(';') + '\n';
       
       dados.forEach(item => {
         const linha = [
