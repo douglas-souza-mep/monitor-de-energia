@@ -164,7 +164,7 @@ class HydrometerMonitorV2 {
    */
   async loadUserData() {
     try {
-      const response = await fetch('/v2/get-dados-iniciais/hidro', {
+      const response = await fetch('/get-dados-do-usuario', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +173,7 @@ class HydrometerMonitorV2 {
       });
 
       const dadosIniciais = await response.json();
-      
+      console.log(dadosIniciais)
       if (dadosIniciais.error) {
         throw new Error(dadosIniciais.error);
       }

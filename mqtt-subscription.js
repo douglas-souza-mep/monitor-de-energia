@@ -149,7 +149,7 @@ async function leituraRes(dados,client){
 async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
     if(leitura.device){
-        console.log(leitura);
+        //console.log(leitura);
         globalThis.bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "Medidor de Energia "+url+ 
             "\n de ip: "+leitura.ip+" e connectado a SSID "+leitura.ssid+
             "\n Reconectado ao MQTT");

@@ -220,7 +220,7 @@ async function getRelatorio(usuario, startDate, endDate, dispositivos) {
 
 async function dadosAlerta(url,id){
     try {
-        const [[retorno]] = await db.query("SELECT nome,hidrometros,chatID, alertas FROM usuarios WHERE url = ?  LIMIT 1",url)
+        const [[retorno]] = await db.query("SELECT nome,hidrometros,chatID,alertas FROM usuarios WHERE url = ?  LIMIT 1",url)
         //console.log(retorno)
         const hidrometros = retorno.hidrometros.split(";")
         let chatID = {}

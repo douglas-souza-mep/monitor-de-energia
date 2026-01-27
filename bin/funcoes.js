@@ -245,14 +245,18 @@ async function tarefaPeriodica(bot) {
       }
     });
 
+    // ---- PROCESSO DOS HIDROMETROS ----
     const promisesHidro = globalThis.hidrometros.map(async (element) => {
       if (!globalThis.hidrometrosDinamico.includes(element)) {
         const aux = element.split("_");
         const url = aux[1];
         const id = aux[2];
-        const model_Res = require("../models/model_Res");
+        const model_hidro = require("../models/model_Hidro");
         try {
-          const retorno = await model_Res.dadosAlerta(url, id);
+          const retorno = await model_hidro.dadosAlerta(url, id);
+          //console.log(globalThis.hidrometros)
+          //console.log("retorno hidrometro alerta:")
+          //console.log( retorno)
           if(retorno.alerta===false) return; // alerta desabilitado
           const msg = `⚠️ Alerta! Dispositivo sem trasmição\nLocal: ${retorno.nome}\nHidrometro: ${retorno.local} (id:${retorno.id})`;
           console.log(msg);
