@@ -135,7 +135,7 @@ router.post('/get_grafico_hidro', async (req,res) => {
       let id
       if (retorno.leituras.length>2) {
         await retorno.leituras.forEach(element => {
-          grafico.push([element.data, element.leitura]);
+          grafico.push([element.data, element.leitura/1000]);
         });
         id = retorno.leituras[0].id
       } else {

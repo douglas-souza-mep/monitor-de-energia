@@ -100,6 +100,8 @@ const addLeitura = async (cliente,dados)=>{
 const getConsumo = async (url,hidrometro,startDate,endDate)=>{
     let leituras
     let ultima
+
+    //console.log(startDate,endDate)
     const sql = "SELECT * FROM tb_"+url+"_hidrometros WHERE DATE(data) >= ? AND DATE(data) < ? AND id = ? ORDER BY data ASC"
     const sql2= "SELECT * FROM tb_"+url+"_hidrometros WHERE DATE(data) >= ? AND id = ? ORDER BY data ASC LIMIT 1"
     
@@ -110,6 +112,7 @@ const getConsumo = async (url,hidrometro,startDate,endDate)=>{
         console.log(error)
     }
     leituras.push(ultima[0])
+    //console.log(leituras)
     return leituras
 }
 

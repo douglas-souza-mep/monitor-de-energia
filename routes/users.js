@@ -157,11 +157,25 @@ router.get('/hospitalBase', function(req, res) {
 });
 
 router.get('/hospitalBase_hidro', function(req, res) {
-  res.redirect('/users//hospitalBase_hidro_v2')
+  res.redirect('/users/hospitalBase_hidro_v2')
   //res.render('hospitalBase_hidro', { title: 'Mep Tecnologia', nome:"Hospital de Base DF" });
 });
 
 //----------------------- FIM Hospital de Base -------------------------------------------
+
+  //----------------------- Inicio Golgi Brasilia -------------------------------------------
+router.get('/golgidf', function(req, res) {
+  res.redirect('/users/golgidf_energ_v2')
+  //res.render('hospitalBase_energ', { title: 'Mep Tecnologia', nome:"Hospital de Base DF"  });
+});
+
+router.get('/golgidf', function(req, res) {
+  res.redirect('/users/golgidf_hidro_v2')
+  //res.render('hospitalBase_hidro', { title: 'Mep Tecnologia', nome:"Hospital de Base DF" });
+});
+
+//----------------------- FIM Golgi Brasilia -------------------------------------------
+
 
   return router;
 }

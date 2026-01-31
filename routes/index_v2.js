@@ -5,6 +5,20 @@ const model_Energ = require('../models/model_Energ');
 const model_Energ_v2 = require('../models/model_Energ_v2'); // Novo model
 const { updateUserAlerts } = require('../bin/funcoes');
 
+
+router.post('/v2/get-dados-iniciais/hidro', async (req, res) => {
+  const { url } = req.body; // Pega o URL enviado no corpo da requisição
+  console.log(`Usuario connectado: ${url}`)
+  try {
+    const [[usuario]] = await db.query("SELECT id, nome, url, alertas, chatID, hidrometro, hidrometros FROM usuarios WHERE url = ? LIMIT 1", [url]);
+    res.json(usuario); // Envia os dados do usuário de volta como resposta JSON
+  } catch (error) {
+    console.error('Erro ao buscar dados do usuário:', error);
+    res.status(500).json({ error: 'Erro ao buscar dados do usuário' });
+  }
+});
+
+
 // Rota otimizada para obter dados iniciais da view energy-monitor-v2
 // Inclui dados do usuário e dados resumidos de todos os medidores em uma única requisição.
 router.post('/v2/get-dados-iniciais/energ', async (req, res) => {

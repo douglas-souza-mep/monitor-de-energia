@@ -140,7 +140,7 @@ class HydrometerMonitorV2 {
         alert(`Alertas para o hidrômetro ${hydrometerId} foram ${status} com sucesso!`);
         
         // Atualiza o estado no cache local
-        const hydrometer = this.hydrometers.find(h => h.id === hydrometerId);
+        const hydrometer = this.hydrometers.find(h => Number(h.id) === Number(hydrometerId));
         if (hydrometer) {
           hydrometer.alertasHabilitados = enabled;
         }
@@ -164,43 +164,7 @@ class HydrometerMonitorV2 {
    */
   async loadUserData() {
     try {
-      const response = await fetch('/get-dados-do-usuario', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: this.url })
-      });
-
-      const dadosIniciais = await response.json();
-      console.log(dadosIniciais)
-      if (dadosIniciais.error) {
-        throw new Error(dadosIniciais.error);
-      }
-
-      // Atualiza a lista de hidrômetros com o estado dos alertas
-      this.hydrometers = dadosIniciais.medidores.map(m => ({
-        id: m.id.toString(),
-        local: m.local,
-        // Se a informação de alertas não vier, o padrão é habilitado (true)
-        alertasHabilitados: m.alertasHabilitados !== undefined ? m.alertasHabilitados : true
-      }));
-      
-      console.log('Hidrômetros carregados com alertas:', this.hydrometers);
-      return this.hydrometers;
-    } catch (error) {
-      console.error('Erro ao carregar dados iniciais otimizados:', error);
-      // Fallback para o método antigo se a rota v2 falhar
-      return this.loadUserDataLegacy();
-    }
-  }
-
-  /**
-   * Método legado para carregar dados do usuário (fallback)
-   */
-  async loadUserDataLegacy() {
-    try {
-      const response = await fetch('/get-dados-do-usuario', {
+      const response = await fetch('/v2/get-dados-iniciais/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,24 +173,40 @@ class HydrometerMonitorV2 {
       });
 
       const dados = await response.json();
-      const hydrometersText = dados.hidrometros.split(";");
-      
-      this.hydrometers = [];
-      for (let i = 0; i < hydrometersText.length; i += 2) {
-        if (hydrometersText[i] && hydrometersText[i+1]) {
-          this.hydrometers.push({
-            id: hydrometersText[i], 
-            local: hydrometersText[i + 1],
-            alertasHabilitados: true // Padrão habilitado
-          });
-        }
-      }
+
+      // hidrometros contém: "id;local;id;local;..."
+      const hydrometrosInfo = dados.hidrometros
+        .split(';')
+        .filter((_, index) => index % 2 === 0) // Filtra apenas os IDs (posições pares)
+        .map((id, index) => ({
+          id: parseInt(id),
+          local: dados.hidrometros.split(';')[index * 2 + 1]
+        }))
+        .filter(m => !isNaN(m.id) && m.local); // Remove entradas inválidas
+
+      const alertasDesabilitadosStr = dados.alertas || "";
+      const listaDesabilitados = alertasDesabilitadosStr.split(';');
+
+     this.hydrometers = hydrometrosInfo.map(medidor => {
+        
+        const chaveMedidor = `${this.url}hidro${medidor.id}`;
+        
+        return {
+          ...medidor,
+          // Se a chave NÃO estiver na lista de desabilitados, então está habilitado (true)
+          alertasHabilitados: !listaDesabilitados.includes(chaveMedidor)
+        };
+      });
+
+      console.log('Hidrômetros carregados com alertas:', this.hydrometers);
       return this.hydrometers;
     } catch (error) {
-      console.error('Erro no fallback de carregamento:', error);
+      console.error('Erro ao carregar dados iniciais otimizados:', error);
       return [];
     }
   }
+
+  
 
   /**
    * Inicia a página principal
@@ -302,57 +282,35 @@ class HydrometerMonitorV2 {
   /**
    * Carrega dados de um hidrômetro específico (usado para detalhes individuais)
    */
-  async loadHydrometerData(hydrometerId) {
+  async loadHydrometerData(dados) {
     try {
-      // Primeiro verifica se já temos os dados no cache
-      const cachedData = this.hydrometersData.get(hydrometerId);
-      if (cachedData) {
-        console.log(`Usando dados em cache para hidrômetro ${hydrometerId}`);
-        return cachedData;
-      }
-      
-      // Se não tiver no cache, faz uma consulta individual
-      console.log(`Carregando dados individuais do hidrômetro ${hydrometerId}...`);
-      
-      const response = await fetch('/get_leituras/hidro', {
+      const ontem = new Date();   // cria uma cópia para não alterar 'hoje'
+      ontem.setDate(ontem.getDate() - 1);
+      const response = await fetch('/get_grafico_hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          hidrometro: hydrometerId, 
-          url: this.url 
+          hidrometro: dados.id, 
+          url: this.url,
+          startDate: ontem.toISOString().split('T')[0] 
         })
       });
 
-      const dados = await response.json();
+      const grafico = await response.json();
       
-      if (dados.id == hydrometerId) {
-        this.hydrometersData.set(hydrometerId, dados);
-        
-        // Atualiza o card do hidrômetro se estiver na view de grid
-        if (this.currentView === 'grid') {
-          this.updateHydrometerCard(hydrometerId, dados);
-        }
+      if (grafico.id == dados.id) {
+        dados.grafico = grafico.grafico;
+        this.hydrometersData.set(dados.id, dados);
         
         // Atualiza a view de detalhes se for o hidrômetro selecionado
-        if (this.currentView === 'detail' && this.selectedHydrometer === hydrometerId) {
-          this.updateDetailView(dados);
+        if (this.currentView === 'detail' && this.selectedHydrometer === dados.id) {
+          this.updateDetailView();
         }
       }
-      
-      return dados;
     } catch (error) {
-      console.error(`Erro ao carregar dados do hidrômetro ${hydrometerId}:`, error);
-      
-      // Em caso de erro, tenta usar dados do cache se disponível
-      const cachedData = this.hydrometersData.get(hydrometerId);
-      if (cachedData) {
-        console.log(`Usando dados em cache como fallback para hidrômetro ${hydrometerId}`);
-        return cachedData;
-      }
-      
-      return null;
+      console.error(`Erro ao carregar dados do hidrômetro ${dados.id}:`, error);
     }
   }
 
@@ -436,7 +394,7 @@ class HydrometerMonitorV2 {
           
           // Se estiver na view de detalhes do hidrômetro atual, atualiza a tela
           if (this.currentView === 'detail' && this.selectedHydrometer === leitura.id) {
-            this.updateDetailView(leitura);
+            this.updateDetailView();
           }
         } catch (e) {
           console.error('Erro ao processar mensagem MQTT:', e);
@@ -632,18 +590,26 @@ class HydrometerMonitorV2 {
    */
   showHydrometerDetail(hydrometerId) {
     this.currentView = 'detail';
-    this.selectedHydrometer = hydrometerId;
-    
-    const hydrometer = this.hydrometers.find(h => h.id === hydrometerId);
-    const dados = this.hydrometersData.get(Number(hydrometerId));
+    const numericId = Number(hydrometerId);
+    this.selectedHydrometer = numericId;
+    const hydrometer = this.hydrometers.find(h => Number(h.id) === numericId);
+    console.log('Dados do hidrômetro selecionado:', hydrometer);
+    const dados = this.hydrometersData.get(numericId);
+    console.log('Dados em cache do hidrômetro selecionado:', dados);
+    // Verificação de segurança para evitar que o app trave se não achar o hidrômetro
+    if (!hydrometer) {
+      console.error(`Hidrômetro ${numericId} não encontrado na lista.`);
+      this.showGridView(); // Volta para o grid em caso de erro
+      return;
+    }
     
     const container = document.getElementById('main-content');
     container.innerHTML = this.generateDetailHTML(hydrometer, dados);
     
-    if (dados) {
-      this.updateDetailView(dados);
+    if (dados.grafico) {
+      this.updateDetailView();
     } else {
-      this.loadHydrometerData(hydrometerId);
+      this.loadHydrometerData(dados);
     }
   }
 
@@ -724,33 +690,21 @@ class HydrometerMonitorV2 {
   /**
    * Atualiza a view de detalhes com novos dados
    */
-  updateDetailView(dados) {
+  updateDetailView() {
     try {
+      const dados = this.hydrometersData.get(this.selectedHydrometer);
       // Atualiza data
       const dateEl = document.getElementById('detail-date');
       if (dateEl && dados.leitura && dados.leitura.data) {
-        let date;
-        if (typeof dados.leitura.data === 'string') {
-          const parts = dados.leitura.data.split(' ');
-          if (parts.length === 2) {
-            const datePart = parts[0].split('-');
-            const timePart = parts[1];
-            const isoString = `${datePart[2]}-${datePart[1]}-${datePart[0]}T${timePart}`;
-            date = new Date(isoString);
-          } else {
-            date = new Date(dados.leitura.data);
-          }
-        } else {
-          date = new Date(dados.leitura.data);
-        }
-        date.setHours(date.getHours() + 3);
+        const date = this.parseAPIDate(dados.leitura.data);
         dateEl.textContent = date.toLocaleString('pt-BR');
       }
       
       // Atualiza leitura
       const readingEl = document.getElementById('detail-reading');
       if (readingEl && dados.leitura) {
-        readingEl.innerHTML = `${dados.leitura.leitura || (dados.leitura/1000).toFixed(3)}<span class="metric-unit hydro-v2">m³</span>`;
+        const valor = dados.leitura.leitura || (dados.leitura / 1000).toFixed(3);
+        readingEl.innerHTML = `${valor}<span class="metric-unit hydro-v2">m³</span>`;
       }
       
       // Desenha gráfico se houver dados históricos
@@ -768,16 +722,21 @@ class HydrometerMonitorV2 {
   drawChart(dadosGrafico) {
     try {
       const data = new google.visualization.DataTable();
-      data.addColumn('date', 'Data');
+      data.addColumn('datetime', 'Data');
       data.addColumn('number', 'Leitura (m³)');
       
-      const rows = dadosGrafico.map(item => [new Date(item[0]), item[1]]);
+      // Usa o parseAPIDate para cada item do gráfico
+      const rows = dadosGrafico.map(item => [this.parseAPIDate(item[0]), item[1]]);
       data.addRows(rows);
 
       const options = {
         title: 'Histórico de Leituras',
         titleTextStyle: { fontSize: 16, bold: true },
-        hAxis: { title: 'Data', format: 'dd/MM' },
+        hAxis: { 
+        title: 'Data', 
+        format: 'dd/MM HH:mm', // Adicionado hora para melhor precisão
+        gridlines: { count: 5 }
+        },
         vAxis: { title: 'm³' },
         backgroundColor: 'transparent',
         chartArea: { width: '85%', height: '70%' },
@@ -807,18 +766,22 @@ class HydrometerMonitorV2 {
       
       this.showLoading();
       
-      const response = await fetch('/get_consumo_periodo/hidro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: this.url,
-          hidrometro: this.selectedHydrometer,
-          startDate,
-          endDate
-        })
-      });
+      const info = {
+        hidrometro: this.selectedHydrometer,
+        url: this.url,
+        datas:{
+          startDate: startDate,
+          endDate: endDate
+        }
+      }
+    const response = await fetch('/get_consumo/hidro', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      
+      body: JSON.stringify({info: info})
+    });
       
       const dados = await response.json();
       this.hideLoading();
@@ -829,7 +792,7 @@ class HydrometerMonitorV2 {
       }
       
       this.displayCalculationResults(dados);
-      this.drawConsumptionChart(dados.grafico, this.selectedHydrometer);
+      //this.drawConsumptionChart(dados.grafico, this.selectedHydrometer);
       
     } catch (error) {
       console.error('Erro ao calcular consumo:', error);
@@ -843,20 +806,22 @@ class HydrometerMonitorV2 {
    */
   displayCalculationResults(dados) {
     const resultContainer = document.getElementById('result');
+    let data1 = this.parseAPIDate(dados.dataL1).toLocaleString('pt-BR');
+    let data2 = this.parseAPIDate(dados.dataL2).toLocaleString('pt-BR');
     resultContainer.innerHTML = `
       <div class="calculation-results hydro-v2">
         <h4 class="results-title hydro-v2">Resultado do Período</h4>
         <div class="result-item hydro-v2">
           <span class="result-label hydro-v2">Consumo Total:</span>
-          <span class="result-value hydro-v2">${parseFloat(dados.consumo).toFixed(3)} m³</span>
+          <span class="result-value hydro-v2">${parseFloat(dados.consumo/1000).toFixed(3)} m³</span>
         </div>
         <div class="result-item hydro-v2">
           <span class="result-label hydro-v2">Início:</span>
-          <span class="result-value hydro-v2">${new Date(dados.startDate).toLocaleString('pt-BR')}</span>
+          <span class="result-value hydro-v2">${data1}</span>
         </div>
         <div class="result-item hydro-v2">
           <span class="result-label hydro-v2">Término:</span>
-          <span class="result-value hydro-v2">${new Date(dados.endDate).toLocaleString('pt-BR')}</span>
+          <span class="result-value hydro-v2">${data2}</span>
         </div>
       </div>
     `;
@@ -865,6 +830,7 @@ class HydrometerMonitorV2 {
   /**
    * Desenha gráfico de consumo do período
    */
+  /*
   drawConsumptionChart(dadosGrafico, id) {
     try {
       const data = new google.visualization.DataTable();
@@ -889,6 +855,7 @@ class HydrometerMonitorV2 {
       console.error('Erro ao desenhar gráfico de consumo:', error);
     }
   }
+*/
 
   /**
    * Gera relatório geral para todos os hidrômetros
@@ -1073,9 +1040,38 @@ class HydrometerMonitorV2 {
     const popups = document.querySelectorAll('.popup-overlay');
     popups.forEach(p => p.style.display = 'none');
   }
+
+  /**
+ * Converte strings de data da API para objetos Date consistentes
+ */
+  parseAPIDate(dateStr) {
+    if (!dateStr) return new Date();
+  
+    // Trata formato "DD-MM-YYYY HH:mm:ss" ou similar
+    if (typeof dateStr === 'string' && dateStr.includes('-')) {
+      const parts = dateStr.split(' ');
+      if (parts.length === 2) {
+        const [day, month, year] = parts[0].split('-');
+        const timePart = parts[1];
+        // Cria string ISO: YYYY-MM-DDTHH:mm:ss
+        dateStr = `${year}-${month}-${day}T${timePart}`;
+      }
+    }
+    
+    const date = new Date(dateStr);
+    
+    // Ajuste de fuso horário (UTC-3) apenas se a data for válida
+    if (!isNaN(date.getTime())) {
+      date.setHours(date.getHours() + 3);
+    }
+  
+    return date;
+  }
 }
 
 // Inicializa o sistema quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', () => {
   window.hydrometerMonitorV2 = new HydrometerMonitorV2();
 });
+
+
