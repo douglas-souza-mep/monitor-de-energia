@@ -795,7 +795,7 @@ class EnergyMonitorV2 {
       // Atualiza data (USANDO A NOVA FUNÇÃO DE UTILIDADE)
       const dateEl = document.getElementById('detail-date');
       if (dateEl && dados.leitura && dados.leitura.data) {
-        dateEl.textContent = this.formatDateForDisplay(dados.leitura.data);
+        dateEl.textContent = dados.leitura.data;
       }
       
       // Atualiza tensões
@@ -928,16 +928,18 @@ class EnergyMonitorV2 {
       
       this.showLoading();
       
-      const response = await fetch('/get_consumo_periodo/energ', {
+      const response = await fetch('/get_consumo/energ', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: this.url,
-          medidor: this.selectedMeter,
-          startDate,
-          endDate
+            info: {
+              id: this.selectedMeter,
+              datas: { startDate, endDate },
+              url: this.url,
+              //local: medidor.local
+            }
         })
       });
       
@@ -965,6 +967,17 @@ class EnergyMonitorV2 {
   displayCalculationResults(dados) {
     const resultContainer = document.getElementById('result');
     
+    // Converte as strings que vêm da API em objetos Date
+    const dataInicio = new Date(dados.dataL1);
+    const dataFim = new Date(dados.dataL2);
+
+    const formatOptions = { 
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      timeZone: 'America/Sao_Paulo'
+    };
+
     resultContainer.innerHTML = `
       <div class="calculation-results mep-v2">
         <h4 class="results-title mep-v2">Resultado do Período</h4>
@@ -975,13 +988,13 @@ class EnergyMonitorV2 {
         <div class="result-item mep-v2">
           <span class="result-label mep-v2">Início:</span>
           <span class="result-value mep-v2">
-            ${this.formatDateForDisplay(new Date(new Date(dados.startDate).getTime() + (3 * 60 * 60 * 1000)))}
+            ${dataInicio.toLocaleString('pt-BR', formatOptions)}
           </span>
         </div>
         <div class="result-item mep-v2">
           <span class="result-label mep-v2">Término:</span>
           <span class="result-value mep-v2">
-            ${this.formatDateForDisplay(new Date(new Date(dados.endDate).getTime() + (3 * 60 * 60 * 1000)))}
+            ${dataFim.toLocaleString('pt-BR', formatOptions)}
           </span>
         </div>
       </div>

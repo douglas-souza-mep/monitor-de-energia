@@ -541,7 +541,7 @@ body.hydro-v2 {
 }
 
 .btn-primary.hydro-v2 {
-  background: rgba(255, 255, 255, 0.2);
+  background: #0ea5e9;
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: var(--mep-secondary);
   padding: 0.75rem 1.5rem;

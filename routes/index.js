@@ -241,8 +241,8 @@ router.post('/get_consumo/energ', async (req, res) => {
     if(retorno.consumosDiario.length >= 1){
       dados={
         id: retorno.id,
-        local:info.local,
-        consumo:retorno.consumo.valor,
+        //local:info.local,
+        consumo:retorno.NovoConsumo,
         dataL1:retorno.consumo.startDate,
         dataL2:retorno.consumo.endDate,
         grafico:[]

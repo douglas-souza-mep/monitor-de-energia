@@ -164,8 +164,8 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 //################################ Alertas ###################################
 
 // Define o intervalo de tempo em milissegundos
-const intervalo1 = 1000 * 60 * 15; //minutos
-const intervalo2 = 1000 * 60 * 60 * 3; //horas
+const intervalo1 = 1000 * 60 * 30; //minutos
+const intervalo2 = 1000 * 60 * 60 * 4; //horas
 
 // Inicia a execução periódica da função, passando o bot como argumento
 const idIntervalo = setInterval(() => f.tarefaPeriodica(bot), intervalo1);
