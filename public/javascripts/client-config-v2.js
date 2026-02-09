@@ -47,9 +47,9 @@ const clientsConfig = {
     interface: {
       meterCard: {
         statusThresholds: {
-          online: 5,    // minutos
-          warning: 15,  // minutos
-          offline: 30   // minutos
+          online: 30,    // minutos
+          warning: 45,  // minutos
+          offline: 60   // minutos
         }
       },
       hydrometerCard: {
