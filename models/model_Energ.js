@@ -544,7 +544,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             }
 
 
-            if (consumoInicial && consumoFinal) {
+            //if (consumoInicial && consumoFinal) {
                 try {
                     resultadosRelatorio.push({
                         consumo: {
@@ -567,7 +567,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                     console.error("Erro:", error);
                     console.error(consumosDiario);
                 }
-            }
+            //}
         }
         console.log(resultadosRelatorio)
         return resultadosRelatorio;
