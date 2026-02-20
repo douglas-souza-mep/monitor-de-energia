@@ -1022,9 +1022,11 @@ class EnergyMonitorV2 {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: this.url,
-          startDate,
-          endDate
+          info: {
+            medidores: this.medidores,
+            datas: { startDate, endDate },
+            url: this.url
+          }
         })
       });
       

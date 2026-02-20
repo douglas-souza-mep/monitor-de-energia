@@ -261,6 +261,8 @@ router.post('/get_consumo/energ', async (req, res) => {
 })
 
 router.post('/get_relatorio_geral/energ', async (req, res) => {
+  console.log("relatorio geral")
+  console.log(req.body)
   const {info} = req.body; 
   console.log(info)
   const { startDate, endDate } = info.datas;
