@@ -1077,6 +1077,7 @@ class EnergyMonitorV2 {
       
       const dados = await response.json();
       this.hideLoading();
+      console.log('Dados recebidos para relatório detalhado:', dados);
       
       if (dados.error) {
         alert('Erro ao gerar relatório: ' + dados.error);

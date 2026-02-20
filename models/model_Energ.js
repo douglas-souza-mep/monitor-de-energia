@@ -556,7 +556,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                             //endValor: parseFloat(consumoFinal.ept).toFixed(2),
                             //startValor: parseFloat(consumoInicial.ept).toFixed(2)
                         },
-                        consumosDiario: consumosDiario,
+                        //consumosDiario: consumosDiario,
                         //consumo2: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)).toFixed(2),
                         NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
                         id: medidor.id,
