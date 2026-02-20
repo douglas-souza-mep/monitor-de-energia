@@ -488,11 +488,11 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             const tableNameDados = getTableName(usuario, null, "dados", true);
             const tableNameCD = getTableName(usuario, null, "consumo_diario", true);
 
-            //const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
-            //sqlInicial = subqueriesIniciais.join(" UNION ALL ");
+            const subqueriesIniciais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            sqlInicial = subqueriesIniciais.join(" UNION ALL ");
             
-            //const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
-            //sqlFinal = subqueriesFinais.join(" UNION ALL ");
+            const subqueriesFinais = medidorIds.map(id => `(SELECT ${id} as medidor_id, data, ept FROM ${tableNameDados} WHERE id_medidor = ${id} AND data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            sqlFinal = subqueriesFinais.join(" UNION ALL ");
 
             sqlConsumosDiario = `SELECT data, id_medidor, valor FROM ${tableNameCD} WHERE id_medidor IN (?) AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
 
@@ -504,19 +504,19 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             //qlFinal = subqueriesFinais.join(" UNION ALL ");
         }
 
-        //const [valoresIniciais, valoresFinais] = await Promise.all([
-            //db.query(sqlInicial),
-            //db.query(sqlFinal)
-        //]);
+        const [valoresIniciais, valoresFinais] = await Promise.all([
+            db.query(sqlInicial),
+            db.query(sqlFinal)
+        ]);
 
-        //const mapaValoresIniciais = new Map(valoresIniciais[0].map(item => [item.medidor_id, item]));
-        //const mapaValoresFinais = new Map(valoresFinais[0].map(item => [item.medidor_id, item]));
+        const mapaValoresIniciais = new Map(valoresIniciais[0].map(item => [item.medidor_id, item]));
+        const mapaValoresFinais = new Map(valoresFinais[0].map(item => [item.medidor_id, item]));
 
         const resultadosRelatorio = [];
 
         for (const medidor of dispositivos) {
-            //const consumoInicial = mapaValoresIniciais.get(medidor.id);
-            //const consumoFinal = mapaValoresFinais.get(medidor.id);
+            const consumoInicial = mapaValoresIniciais.get(medidor.id);
+            const consumoFinal = mapaValoresFinais.get(medidor.id);
             
             
 
@@ -528,7 +528,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                 [consumosDiario] = await db.query(`SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`, [moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
             }
 
-            //if (consumoInicial && consumoFinal) {
+            if (consumoInicial && consumoFinal) {
                 try {
                     resultadosRelatorio.push({
                         consumo: {
@@ -541,6 +541,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                             //startValor: parseFloat(consumoInicial.ept).toFixed(2)
                         },
                         consumosDiario: consumosDiario,
+                        consumo2: parseFloat((parseFloat(consumoFinal.ept) - parseFloat(consumoInicial.ept)).toFixed(2)).toFixed(2),
                         NovoConsumo: parseFloat(consumosDiario.reduce((acumulador, item) => acumulador + item.valor, 0)).toFixed(2),
                         id: medidor.id,
                         nome: medidor.local
@@ -550,8 +551,9 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                     console.error("Erro:", error);
                     console.error(consumosDiario);
                 }
-            //}
+            }
         }
+        console.log(resultadosRelatorio)
         return resultadosRelatorio;
 
     } catch (error) {
