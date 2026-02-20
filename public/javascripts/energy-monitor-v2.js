@@ -1074,11 +1074,11 @@ class EnergyMonitorV2 {
           endDate
         })
       });
-      
+      console.log("aguardando resposta")
       const dados = await response.json();
-      
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..")
       console.log('Dados recebidos para relatório detalhado:', dados);
-      
+
       this.hideLoading();
 
       if (dados.error) {
