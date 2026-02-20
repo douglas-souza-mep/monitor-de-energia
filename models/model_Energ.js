@@ -485,6 +485,7 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
         let sqlInicial, sqlFinal, sqlConsumosDiario;
 
         if (useNewStructure) {
+            console.log("Usando nova estrutura de banco de dados para relatório otimizado");
             const tableNameDados = getTableName(usuario, null, "dados", true);
             const tableNameCD = getTableName(usuario, null, "consumo_diario", true);
 
@@ -497,11 +498,12 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
             sqlConsumosDiario = `SELECT data, id_medidor, valor FROM ${tableNameCD} WHERE id_medidor IN (?) AND DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`;
 
         } else {
-            //const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
-            //sqlInicial = subqueriesIniciais.join(" UNION ALL ");
+            console.log("Usando estrutura antiga de banco de dados para relatório otimizado");
+            const subqueriesIniciais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data >= '${moment(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data ASC LIMIT 1)`);
+            sqlInicial = subqueriesIniciais.join(" UNION ALL ");
 
-            //const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
-            //qlFinal = subqueriesFinais.join(" UNION ALL ");
+            const subqueriesFinais = medidorIds.map(id => `(SELECT '${id}' as medidor_id, data, ept FROM tb_${usuario}_m${id} WHERE data < '${moment(endDate).startOf('day').format('YYYY-MM-DD HH:mm:ss')}' ORDER BY data DESC LIMIT 1)`);
+            qlFinal = subqueriesFinais.join(" UNION ALL ");
         }
 
         const [valoresIniciais, valoresFinais] = await Promise.all([
@@ -511,22 +513,36 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
 
         const mapaValoresIniciais = new Map(valoresIniciais[0].map(item => [item.medidor_id, item]));
         const mapaValoresFinais = new Map(valoresFinais[0].map(item => [item.medidor_id, item]));
+        console.log("Valores iniciais e finais obtidos para relatório otimizado");
+        console.log("Mapa de valores iniciais:", mapaValoresIniciais);
+        console.log("Mapa de valores finais:", mapaValoresFinais);
 
         const resultadosRelatorio = [];
 
         for (const medidor of dispositivos) {
             const consumoInicial = mapaValoresIniciais.get(medidor.id);
             const consumoFinal = mapaValoresFinais.get(medidor.id);
-            
+            console.log(`Processando medidor ${medidor.id} - ${medidor.local}`);
+            console.log(`Consumo inicial para medidor ${medidor.id}:`, consumoInicial);
+            console.log(`Consumo final para medidor ${medidor.id}:`, consumoFinal);
             
 
             let consumosDiario = [];
             if (useNewStructure) {
+                console.log(`Consultando consumos diários para medidor ${medidor.id} usando nova estrutura`);
                 [consumosDiario] = await db.query(sqlConsumosDiario, [medidor.id, moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
+                console.log(`SQL para consumos diários: ${sqlConsumosDiario}`);
+                console.log(`Parâmetros para consumos diários: [${medidor.id}, ${moment(startDate).format('YYYY-MM-DD')}, ${moment(endDate).format('YYYY-MM-DD')}]`);  
+                console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
             } else {
+                console.log(`Consultando consumos diários para medidor ${medidor.id} usando estrutura antiga`);
                 const tableNameCD = getTableName(usuario, medidor.id, "consumo_diario", false);
                 [consumosDiario] = await db.query(`SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`, [moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
+                console.log(`SQL para consumos diários: SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`); 
+                console.log(`Parâmetros para consumos diários: [${moment(startDate).format('YYYY-MM-DD')}, ${moment(endDate).format('YYYY-MM-DD')}]`);
+                console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
             }
+
 
             if (consumoInicial && consumoFinal) {
                 try {
