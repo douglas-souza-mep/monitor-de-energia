@@ -1099,35 +1099,67 @@ class EnergyMonitorV2 {
    */
   downloadCSV(dados) {
     try {
-      if (!dados || dados.length === 0) {
+      if (!Array.isArray(dados) || dados.length === 0) {
         alert('Não há dados para exportar.');
         return;
       }
-      
+  
+      // Função interna para formatar data ISO -> DD/MM/YYYY
+      const formatarDataBR = (dataString) => {
+        if (!dataString) return 'N/A';
+        try {
+          const data = new Date(dataString);
+          // Verifica se a data é válida
+          if (isNaN(data.getTime())) return dataString; 
+          
+          const dia = String(data.getDate()).padStart(2, '0');
+          const mes = String(data.getMonth() + 1).padStart(2, '0');
+          const ano = data.getFullYear();
+          return `${dia}/${mes}/${ano}`;
+        } catch (e) {
+          return dataString;
+        }
+      };
+  
       let csvContent = "Nome;ID;Consumo (kWh);Data Inicio;Data Fim\n";
-      
+  
       dados.forEach(item => {
+        const nome = item.nome || 'N/A';
+        const id = item.id || 'N/A';
+        const consumo = item.NovoConsumo || '0';
+        
+        // Formata as datas se elas existirem dentro do objeto consumo
+        const dataInicio = item.consumo ? formatarDataBR(item.consumo.startDate) : 'N/A';
+        const dataFim = item.consumo ? formatarDataBR(item.consumo.endDate) : 'N/A';
+  
         const linha = [
-          item.nome,
-          item.id,
-          item.NovoConsumo,
-          //item.consumo.valor,
-          item.consumo.startDate,
-          item.consumo.endDate,
-          //item.consumo.startValor,
-          //item.consumo.endValor
+          nome,
+          id,
+          consumo.toString().replace('.', ','), // Troca ponto por vírgula para o Excel BR
+          dataInicio,
+          dataFim
         ];
+  
         csvContent += linha.join(';') + '\n';
       });
-      
+  
+      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      link.href = URL.createObjectURL(blob);
-      link.download = `Consumo_de_Energia_${this.url}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.href = url;
+      link.setAttribute('download', `Relatorio_Energia_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`);
+      document.body.appendChild(link);
       link.click();
       
+      // Limpeza para evitar o aviso de memória/segurança
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+  
     } catch (error) {
       console.error('Erro ao gerar CSV:', error);
+      alert('Erro ao processar o arquivo.');
     }
   }
 
