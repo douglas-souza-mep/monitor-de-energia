@@ -272,7 +272,7 @@ router.post('/get_relatorio_geral/energ', async (req, res) => {
           res.json({ error: 'Falha ao obter os dados'});
         }else{
           console.log("retorno do relatorio geral")
-          console.log(retorno)
+          //console.log(retorno)
           res.json(retorno);
 
         }

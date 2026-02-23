@@ -1041,7 +1041,7 @@ class EnergyMonitorV2 {
         return;
       }
       
-      this.downloadCSV(dados.relatorio);
+      this.downloadCSV(dados);
       
     } catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
@@ -1085,7 +1085,7 @@ class EnergyMonitorV2 {
         return;
       }
       
-      this.downloadCSV(dados.relatorio);
+      this.downloadCSV(dados);
       
     } catch (error) {
       console.error('Erro ao gerar relatório de consumo:', error);

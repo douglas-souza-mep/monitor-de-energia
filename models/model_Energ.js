@@ -533,14 +533,14 @@ async function getRelatorioOtimizado(usuario, startDate, endDate, dispositivos) 
                 [consumosDiario] = await db.query(sqlConsumosDiario, [medidor.id, moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
                 //console.log(`SQL para consumos diários: ${sqlConsumosDiario}`);
                 //console.log(`Parâmetros para consumos diários: [${medidor.id}, ${moment(startDate).format('YYYY-MM-DD')}, ${moment(endDate).format('YYYY-MM-DD')}]`);  
-                console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
+                //console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
             } else {
                 console.log(`Consultando consumos diários para medidor ${medidor.id} usando estrutura antiga`);
                 const tableNameCD = getTableName(usuario, medidor.id, "consumo_diario", false);
                 [consumosDiario] = await db.query(`SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`, [moment(startDate).format('YYYY-MM-DD'), moment(endDate).format('YYYY-MM-DD')]);
                 //console.log(`SQL para consumos diários: SELECT * FROM ${tableNameCD} WHERE DATE(data) >= ? AND DATE(data) < ? ORDER BY data ASC`); 
                 //console.log(`Parâmetros para consumos diários: [${moment(startDate).format('YYYY-MM-DD')}, ${moment(endDate).format('YYYY-MM-DD')}]`);
-                console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
+                //console.log(`Consumos diários obtidos para medidor ${medidor.id}:`, consumosDiario);
             }
 
 
