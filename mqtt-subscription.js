@@ -91,7 +91,7 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"golgidf",client)
         break;
         case 'HospitalBase/hidro':
-            leituraHidro(data,msg,"HospitalBase",client,223700)
+            leituraHidro(data,msg,"HospitalBase",client,14890500)
             //console.log(msg)
         break;
         case 'golgidf/hidro':
@@ -185,6 +185,14 @@ async function leituraEnerg(data,msg,url,client) {
 async function leituraHidro(data,msg,url,client,setPoit) {
     let leitura = JSON.parse(msg);
     //console.log(leitura)
+    if(leitura.device){
+        //console.log(leitura);
+        globalThis.bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "Medidor de Energia "+url+ 
+            "\n de ip: "+leitura.ip+" e connectado a SSID "+leitura.ssid+
+            "\n Reconectado ao MQTT");
+        return
+    }
+    
     let dados ={
         id:leitura.id,
         data: data,
