@@ -872,27 +872,33 @@ class HydrometerMonitorV2 {
       
       this.showLoading();
       
-      const response = await fetch('/get_relatorio_geral/hidro', {
+      const info = {
+        url: this.url,
+        datas:{
+          startDate: startDate,
+          endDate: endDate
+        },
+        hidrometros:this.hydrometers 
+      }
+      const response = await fetch('/get_relatorio/hidro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          url: this.url,
-          startDate,
-          endDate
-        })
+        body: JSON.stringify({ info: info })
       });
       
       const dados = await response.json();
       this.hideLoading();
       
+      console.log('Dados do relatório geral recebidos:', dados);
+
       if (dados.error) {
         alert('Erro ao gerar relatório: ' + dados.error);
         return;
       }
       
-      this.downloadCSV(dados.relatorio, `Relatorio_Geral_Hidro_${this.url}`);
+      this.downloadCSV(dados, `Relatorio_Geral_Hidro_${this.url}`);
       
     } catch (error) {
       console.error('Erro ao gerar relatório geral:', error);
@@ -936,7 +942,7 @@ class HydrometerMonitorV2 {
         return;
       }
       
-      this.downloadCSV(dados.relatorio, `Relatorio_Hidro_${this.selectedHydrometer}_${this.url}`);
+      this.downloadCSV(dados, `Relatorio_Hidro_${this.selectedHydrometer}_${this.url}`);
       
     } catch (error) {
       console.error('Erro ao gerar relatório detalhado:', error);
