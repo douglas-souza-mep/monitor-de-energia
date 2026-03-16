@@ -950,75 +950,161 @@ class HydrometerMonitorV2 {
     }
   }
 
-  /**
-   * Faz download de dados em formato CSV
-   */
-  downloadCSV(dados, filename) {
-    if (!dados || dados.length === 0) return;
-    
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID;Local;Data;Leitura (m3)\n";
-    
-    dados.forEach(row => {
-      csvContent += `${row.id};${row.local};${row.data};${row.leitura}\n`;
-    });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${filename}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  /**
-   * Manipula upload de arquivo
-   */
-  async handleFileUpload() {
-    const fileInput = document.getElementById('file-input');
-    const statusEl = document.getElementById('retornoArquivo');
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-      alert('Por favor, selecione um arquivo para enviar.');
+ /**
+ * Faz download de dados em formato CSV com suporte a objetos aninhados
+ */
+downloadCSV(dados, filename) {
+  if (!dados || dados.length === 0) {
+      alert("Não há dados para exportar.");
       return;
-    }
-    
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('url', this.url);
-    
-    this.showLoading();
-    statusEl.textContent = 'Enviando arquivo...';
-    
-    try {
-      const response = await fetch('/upload_leituras_hidro', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const result = await response.json();
-      this.hideLoading();
-      
-      if (result.success) {
-        statusEl.textContent = 'Arquivo processado com sucesso!';
-        statusEl.className = 'upload-status hydro-v2 success';
-        alert('Leituras enviadas com sucesso!');
-        this.loadAllHydrometersData();
-      } else {
-        statusEl.textContent = 'Erro: ' + result.message;
-        statusEl.className = 'upload-status hydro-v2 error';
-        alert('Erro ao processar arquivo: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Erro no upload:', error);
-      this.hideLoading();
-      statusEl.textContent = 'Erro na conexão com o servidor.';
-      statusEl.className = 'upload-status hydro-v2 error';
-    }
   }
 
+  // 1. Cabeçalho (exatamente como na sua função antiga)
+  const cabecalho = ['id', 'local', 'Consumo(l)', 'Data inicial', 'Hora inicial', 'Leitura Inicial(l)', 'Data final', 'Hora final', 'Leitura Final(l)'];
+  
+  // Auxiliar para formatar números (padrão brasileiro: vírgula)
+  const formatNum = (num) => {
+      if (num === null || num === undefined || isNaN(num)) return num;
+      return Number(num).toFixed(2).replace('.', ',');
+  };
+
+  // 2. Construção das linhas buscando os dados no lugar correto (dentro de .consumo)
+  let csvLines = [];
+  csvLines.push(cabecalho.join(';'));
+
+  dados.forEach(item => {
+      const linha = [
+          item.id,
+          item.nome || item.local, // Tenta 'nome', se não houver usa 'local'
+          formatNum(item.consumo?.valor),
+          item.consumo?.startDate,
+          item.consumo?.startTime,
+          formatNum(item.consumo?.startValor),
+          item.consumo?.endDate,
+          item.consumo?.endTime,
+          formatNum(item.consumo?.endValor)
+      ];
+      csvLines.push(linha.join(';'));
+  });
+
+  const csvContent = csvLines.join('\n');
+
+  // 3. Download usando Blob (Mais seguro para arquivos grandes)
+  const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.csv`);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Libera a memória do objeto URL
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+/**
+ * Manipula o upload de arquivo de leituras (Processamento no Cliente)
+ */
+async handleFileUpload() {
+  const fileInput = document.getElementById('file-input');
+  const statusEl = document.getElementById('retornoArquivo');
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+      alert('Por favor, selecione um arquivo.');
+      return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  // Inicia o feedback visual
+  this.showLoading?.(); // Executa se a função existir
+  statusEl.textContent = 'Processando arquivo localmente...';
+  statusEl.className = 'upload-status hydro-v2';
+
+  reader.onload = async () => {
+      try {
+          const content = reader.result;
+          const lines = content.split('\n');
+
+          // Converte o arquivo bruto em JSON (Economiza processamento no Backend)
+          const leituras = lines.map(line => {
+              const l = line.split('\t');
+              // Validação básica de colunas
+              if (l[21] === undefined || l[9] === undefined || l[15] === undefined || l[23] === undefined) {
+                return null; // Ignora linhas incompletas
+            }
+              const dataParts = l[21].split('/');
+              if (dataParts.length !== 3) return null;
+
+              return {
+                  id: l[9],
+                  local: l[15],
+                  data: `${dataParts[2]}/${dataParts[1]}/${dataParts[0]} ${l[22]}`, // YYYY/MM/DD HH:mm
+                  leitura: l[23]
+              };
+          }).filter(item => item !== null);
+
+          statusEl.textContent = 'Enviando dados para o servidor...';
+
+          // Envia o JSON já estruturado
+          const response = await fetch('/set_leituras_hidro', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  url: this.url || this.clientKey, 
+                  leituras: leituras
+              })
+          });
+
+          const retorno = await response.json();
+          this.hideLoading?.();
+
+          // Renderização do resultado
+          if (retorno.error) {
+              statusEl.innerHTML = `<h3 style="color:var(--mep-danger);">${retorno.error}</h3>`;
+              statusEl.className = 'upload-status hydro-v2 error';
+              return;
+          }
+
+          // Exibição detalhada de sucessos e falhas
+          if (retorno.negados > 0) {
+              statusEl.className = 'upload-status hydro-v2 warning';
+              statusEl.innerHTML = `
+                  <div style="padding: 10px;">
+                      <h4 style="margin:0">Processamento Concluído</h4>
+                      <p>✅ Sucesso: <strong>${retorno.inseridos}</strong></p>
+                      <p>❌ Negados: <strong>${retorno.negados}</strong></p>
+                      <div class="scrollbox" style="max-height: 150px; overflow-y: auto; background: #f8d7da; padding: 5px; border-radius: 4px;">
+                          ${retorno.log.map(e => `<p style="font-size: 0.85em; color: #721c24; margin: 2px 0;">• ${e.erro}</p>`).join('')}
+                      </div>
+                  </div>
+              `;
+          } else {
+              statusEl.className = 'upload-status hydro-v2 success';
+              statusEl.innerHTML = `<h3>✅ ${retorno.inseridos} leituras carregadas com sucesso!</h3>`;
+              this.loadAllHydrometersData?.(); // Atualiza a tela se a função existir
+          }
+
+      } catch (error) {
+          console.error('Erro ao processar:', error);
+          this.hideLoading?.();
+          statusEl.innerText = 'Erro crítico ao processar os dados.';
+          statusEl.className = 'upload-status hydro-v2 error';
+      }
+  };
+
+  reader.onerror = () => {
+      this.hideLoading?.();
+      statusEl.innerText = 'Erro ao ler o arquivo físico.';
+  };
+
+  reader.readAsText(file);
+}
   /**
    * Mostra loading
    */

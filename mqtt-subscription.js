@@ -150,9 +150,9 @@ async function leituraEnerg(data,msg,url,client) {
     let leitura = JSON.parse(msg);
     if(leitura.device){
         //console.log(leitura);
-        globalThis.bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "Medidor de Energia "+url+ 
+        /*globalThis.bot.telegram.sendMessage(process.env.CHAT_ID_DEV, "Medidor de Energia "+url+ 
             "\n de ip: "+leitura.ip+" e connectado a SSID "+leitura.ssid+
-            "\n Reconectado ao MQTT");
+            "\n Reconectado ao MQTT");*/
         return
     }
     const retorno = await model_Energ.atualizarDados(leitura,data,leitura.id,url)

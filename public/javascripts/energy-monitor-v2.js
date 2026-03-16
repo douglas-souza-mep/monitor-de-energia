@@ -972,10 +972,11 @@ class EnergyMonitorV2 {
     const dataFim = new Date(dados.dataL2);
 
     const formatOptions = { 
-      year: 'numeric',
-      month: '2-digit',
+      year: 'numeric', 
+      month: '2-digit', 
       day: '2-digit',
-      timeZone: 'America/Sao_Paulo'
+      // Usamos UTC para ignorar o fuso horário local e manter o dia correto
+      timeZone: 'UTC' 
     };
 
     resultContainer.innerHTML = `
@@ -988,13 +989,13 @@ class EnergyMonitorV2 {
         <div class="result-item mep-v2">
           <span class="result-label mep-v2">Início:</span>
           <span class="result-value mep-v2">
-            ${dataInicio.toLocaleString('pt-BR', formatOptions)}
+            ${dataInicio.toLocaleDateString('pt-BR', formatOptions)}
           </span>
         </div>
         <div class="result-item mep-v2">
           <span class="result-label mep-v2">Término:</span>
           <span class="result-value mep-v2">
-            ${dataFim.toLocaleString('pt-BR', formatOptions)}
+            ${dataFim.toLocaleDateString('pt-BR', formatOptions)}
           </span>
         </div>
       </div>
@@ -1109,12 +1110,13 @@ class EnergyMonitorV2 {
         if (!dataString) return 'N/A';
         try {
           const data = new Date(dataString);
-          // Verifica se a data é válida
           if (isNaN(data.getTime())) return dataString; 
           
-          const dia = String(data.getDate()).padStart(2, '0');
-          const mes = String(data.getMonth() + 1).padStart(2, '0');
-          const ano = data.getFullYear();
+          // Usamos os métodos getUTC para evitar que o JS subtraia horas do fuso local
+          const dia = String(data.getUTCDate()).padStart(2, '0');
+          const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+          const ano = data.getUTCFullYear();
+          
           return `${dia}/${mes}/${ano}`;
         } catch (e) {
           return dataString;
