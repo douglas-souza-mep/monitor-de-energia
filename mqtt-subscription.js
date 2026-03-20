@@ -91,7 +91,7 @@ async function tratarLeitura(client,topico,msg,data){
             leituraEnerg(data,msg,"golgidf",client)
         break;
         case 'HospitalBase/hidro':
-            leituraHidro(data,msg,"HospitalBase",client,161759510)
+            leituraHidro(data,msg,"HospitalBase",client,16175951)
             //console.log(msg)
         break;
         case 'golgidf/hidro':
